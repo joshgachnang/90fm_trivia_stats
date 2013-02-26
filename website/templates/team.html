@@ -1,0 +1,36 @@
+{% extends "theme_base.html" %}
+
+{% block body %}
+<h2>{{ team_name }}</h2>
+{% for year, data in scores.items %}
+<h3>{{ year }} |  Final Score: {{ data.last_score }} |  Final Place: {{ data.last_place }}</h3>
+<!--<p><b></b></p>
+<p> <b></b></p>-->
+<!-- {% for hour in year. -->
+<table>
+	<thead>
+		<th>Hour</th>
+		<th>Score</th>
+		<th>Place</th>
+	</thead>
+	<tbody>
+	{% for hr, hour in data.scores.items %}
+		<tr>
+			<td>{{ hour.hour }}</td>
+			<td>{{ hour.score }}</td>
+			<td>{{ hour.place }}</td>
+		</tr>
+	{% endfor %}
+	</tbody>
+</table>
+{% endfor %}
+<!--{% if playing %}-->
+<!--<h3>{{ hour }} Score: {{ score }}<h3>
+<h3>{{ hour }} Place: {{ place }}</h3>
+<h5>Last updated: {{ last_update }}</h5>
+{% else %}
+<h3>{{ last_year }} Place: {{ place }}</h3>
+<h3>{{ last_year }} Score: {{ score }}</h3>-->
+<!--{% endif %}-->
+
+{% endblock %}

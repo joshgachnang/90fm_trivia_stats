@@ -1,0 +1,8 @@
+Welcome to the Trivia Stats Notification System!
+
+{% if team_name %}
+You have been subscribed to updates for {{ team_name }}. 
+{% endif %}
+
+As soon as TriviaStats.com sees an update to the official Trivia scores, we will update our site, and send you an email. They usually happen once an hour until near the end! Good luck!
+To unsubscribe, just go to http://TriviaStats.com/Email_Unsubscribe/
