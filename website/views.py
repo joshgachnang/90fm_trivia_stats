@@ -17,6 +17,8 @@ from django.contrib import messages
 from django.core.mail import EmailMultiAlternatives
 from django.utils.html import strip_tags
 from django.template.loader import render_to_string
+from django.forms.models import model_to_dict
+
 
 import boto.ses as ses
 ses_conn = ses.connect_to_region('us-east-1')
@@ -46,55 +48,22 @@ def team(request, team_name, team_year=None):
     template_data = {}
     template_data['team_name'] = team_name.upper()
     template_data['year'] = team_year
-    during = utils.during_trivia()
+    # during = utils.during_trivia()
 
     # Check to ensure team is playing this year. Otherwise, just show previous years score.
     template_data['playing'] = utils.playing_this_year(team_name)
-    if template_data['playing'] is None:
-        return HttpResponseServerError("No settings module?")
-
-    scores = Score.objects.filter(team_name=team_name.upper()).order_by('-year')
-
-    # Returns a list of dicts of form [{'year'}: int_year, ...]
-    years_with_scores_dicts = scores.values('year').distinct()
-    years_with_scores = []
-    for year in years_with_scores_dicts:
-        years_with_scores.append(year['year'])
-    #print years_with_scores
-    print years_with_scores
-    # Show current scores
     template_data['last_hour'] = utils.get_last_hour()
     template_data['last_year'] = utils.get_last_year()
 
-    # Data structure:
-    # {2011: {'last_score': 5, 'last_place': 400, 'img': IMG_PATH_OR_NONE, 'scores': {1: SCORE, 2: SCORE, 3: SCORE...}}}
-
-    # Score structure: {'hour': 1, 'score': 5, 'place': 400 }
-    score_dict = {}
-    scores = Score.objects.filter(team_name=team_name.upper())
+    template_data['scores'] = {}
+    scores = Score.objects.filter(team_name=team_name.upper()).order_by('-year')
     if len(scores) == 0:
-        return HttpResponseServerError("Can't find data for team")
-    for year in years_with_scores:
-        year_scores = scores.filter(year=year)
-        if len(year_scores) == 0:
-            print "No scores found for year %d" % year
-            continue
-        s = {}
-        for hour_score in year_scores:
-            if os.path.exists(os.path.join(settings.IMAGE_DIR, "%s-%s.png" % (team_name, year))):
-                img = os.path.join(settings.IMAGE_DIR, "%s-%s.png" % (team_name, year))
-            else:
-                img = None
-            s[hour_score.hour] = {'hour': hour_score.hour, 'score': hour_score.score, 'place': hour_score.place }
-        score_dict[year] = {'last_score': s[54]['score'], 'last_place': s[54]['place'], 'img': img, 'scores': s}
-    #print score_dict
-    template_data['scores'] = score_dict
-    print score_dict
-    #print template_data
-    if len(scores) != 0:
-        return render_to_response("team.html", template_data, context_instance=RequestContext(request))
-    else:
-        return HttpResponseNotFound()
+        return HttpResponseNotFound("Can't find data for team: {0}".format(team_name))
+    for year in scores.values_list('year').distinct():
+        year_scores = scores.filter(year=year).order_by('hour')
+        template_data['scores'][year] = model_to_dict(year_scores)
+
+    return render_to_response("team.html", template_data, context_instance=RequestContext(request))
 
 
 def search(request):
@@ -102,25 +71,10 @@ def search(request):
     if request.method == 'POST':
         form = SearchForm(request.POST)
         if form.is_valid():
-            print form.cleaned_data['search']
-            print Score.objects.filter(team_name__icontains=form.cleaned_data['search'])
-            teams = Score.objects.filter(team_name__icontains=form.cleaned_data['search']).order_by('year').values('team_name').distinct()
-            if len(teams) == 0:
-                messages.error(request, "No teams with that search term found. Please try again.")
-                return redirect(get_referer_view(request))
-            # Team list will be tuples as so: (team name, team_name (for linking to))
-            team_list = []
-            for team in teams:
-                if team == None:
-                    continue
-                print "TEAM", team
-                team_list.append((team['team_name'], team['team_name'].replace(' ', '_')))
-            template_data['teams'] = team_list
-            print template_data
-            return render_to_response('search_results.html', template_data, context_instance=RequestContext(request))
-        else:
-            messages.error(request, "Invalid search. Please try again")
-            return redirect(get_referer_view(request))
+            search = form.cleaned_data['search']
+            template_data['teams'] = Score.objects.filter(team_name__icontains=search).order_by('year').values_list('team_name').distinct()
+        return render_to_response("search.html", template_data, context_instance=RequestContext(request))
+
 
 def teams_by_year(request):
     return HttpResponse("Not ready yet")
@@ -133,84 +87,34 @@ def year_hour_overview(request, year, hour):
     template_data['hour'] = year
     template_data['year'] = hour
     scores = Score.objects.filter(year=year, hour=hour)
-    if len(scores) == 0:
-        template_data['teams'] = None
-        return render_to_response('hour.html',  template_data, context_instance=RequestContext(request))
-    teams = {}
+    template_data['teams'] = {}
     for score in scores:
-        teams[score.team_name] = {'team_name': score.team_name, 'score': score.score, 'place': score.place, 'url': score.team_name.replace(' ', '_')}
-
-    template_data['teams'] = teams
+        template_data['teams'][score.team_name] = model_to_dict(score)
     return render_to_response('hour.html', template_data, context_instance=RequestContext(request))
 
-def past_years(request):
-    template_data = {}
-    years_with_scores_dicts = Score.objects.all().values('year').distinct()
-    years_with_scores = []
-    for year in years_with_scores_dicts:
-
-        years_with_scores.append(year['year'])
-    print years_with_scores
-    template_data['years'] = years_with_scores
-    return render_to_response('past_years.html', template_data, context_instance=RequestContext(request))
-
-def past_year_hours(request, year):
-    template_data = {}
-    template_data['year'] = year
-    hours_with_scores_dicts = Score.objects.filter(year=year).values('hour').distinct()
-    if len(hours_with_scores_dicts) == 0:
-        return HttpResponseNotFound()
-    hours_with_scores = []
-    for hour in hours_with_scores_dicts:
-        hours_with_scores.append(hour['hour'])
-    print hours_with_scores
-    template_data['hours'] = hours_with_scores
-    return render_to_response('year_hours.html', template_data, context_instance=RequestContext(request))
 
 ##############################################################################
 # Auxillary Functions
 ##############################################################################
-def clean_number(number):
-    orig_number = number.replace('-', '').replace(' ', '').replace('(', '').replace(')', '')
-    print orig_number
-    if len(orig_number) != 10:
-        if orig_number[0] == 1:
-            return orig_number[1:]
-    else:
-            return orig_number
 
 # Returns a list of tuples like so:
 # (place (index + 1), team_name, score)
 # Returns None on error
 def get_top_ten_teams(hour, year=None):
-    if year == None:
-        year = utils.get_current_year()
     top_ten = []
     place = 1
+    if year == None:
+        year = utils.get_current_year()
     scores = Score.objects.filter(year=year).filter(hour=hour).order_by('place')[0:10]
-    if len(scores) < 10:
-        print "Found %d scores!" % len(scores)
-        return None
     for score in scores:
-        top_ten.append((place, score.team_name, score.score))
+        top_ten.append({"score": score.score, "place": place, "team_name": score.team_name})
         place += 1
     return top_ten
 
-
-
-
 def get_referer_view(request, default=None):
-    '''
+    """
     Return the referer view of the current request
-
-    Example:
-        def some_view(request):
-            ...
-            referer_view = get_referer_view(request)
-            return HttpResponseRedirect(referer_view, '/accounts/login/')
-    '''
-
-
+    """
     # if the user typed the url directly in the browser's address bar
     default = '/'
     referer = request.META.get('HTTP_REFERER')
