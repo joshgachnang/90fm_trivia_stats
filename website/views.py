@@ -2,7 +2,8 @@
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound, HttpResponseServerError
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext, Context
-from website.models import Score, AvailableHours, Settings, SMSSubscriberForm, EmailSubscriberForm, EmailSubscriber, SMSSubscriber, SearchForm
+from website.models import Score,  Settings, SMSSubscriberForm, EmailSubscriberForm, EmailSubscriber, SMSSubscriber, \
+    SearchForm, get_last_hour, get_last_year, playing_this_year, get_current_hour, get_current_year, during_trivia
 from BeautifulSoup import BeautifulStoneSoup, BeautifulSoup
 import urllib2
 import sys, os
@@ -23,7 +24,6 @@ from django.forms.models import model_to_dict
 import boto.ses as ses
 ses_conn = ses.connect_to_region('us-east-1')
 from django.conf import settings
-import utils
 
 
 ##############################################################################
@@ -34,8 +34,8 @@ def home(request):
         template_data = {}
         template_data['email_form'] = EmailSubscriberForm()
         template_data['sms_form'] = SMSSubscriberForm()
-        template_data['latest_hour'] = utils.get_last_hour()
-        template_data['latest_year'] = utils.get_last_year()
+        template_data['latest_hour'] = get_last_hour()
+        template_data['latest_year'] = get_last_year()
         print "SMS: ", template_data['sms_form']
         return render_to_response("homepage.html", template_data, context_instance=RequestContext(request))
 
@@ -48,12 +48,12 @@ def team(request, team_name, team_year=None):
     template_data = {}
     template_data['team_name'] = team_name.upper()
     template_data['year'] = team_year
-    # during = utils.during_trivia()
+    # during = during_trivia()
 
     # Check to ensure team is playing this year. Otherwise, just show previous years score.
-    template_data['playing'] = utils.playing_this_year(team_name)
-    template_data['last_hour'] = utils.get_last_hour()
-    template_data['last_year'] = utils.get_last_year()
+    template_data['playing'] = playing_this_year(team_name)
+    template_data['last_hour'] = get_last_hour()
+    template_data['last_year'] = get_last_year()
 
     template_data['scores'] = {}
     scores = Score.objects.filter(team_name=team_name.upper()).order_by('-year')
@@ -92,7 +92,15 @@ def year_hour_overview(request, year, hour):
         template_data['teams'][score.team_name] = model_to_dict(score)
     return render_to_response('hour.html', template_data, context_instance=RequestContext(request))
 
-
+# Email/SMS Subscriptions
+def email_subscribe(request):
+    pass
+def email_unsubscribe(request):
+    pass
+def sms_subscribe(request):
+    pass
+def sms_unsubscribe(request):
+    pass
 ##############################################################################
 # Auxillary Functions
 ##############################################################################
@@ -104,7 +112,7 @@ def get_top_ten_teams(hour, year=None):
     top_ten = []
     place = 1
     if year == None:
-        year = utils.get_current_year()
+        year = get_current_year()
     scores = Score.objects.filter(year=year).filter(hour=hour).order_by('place')[0:10]
     for score in scores:
         top_ten.append({"score": score.score, "place": place, "team_name": score.team_name})
