@@ -125,3 +125,30 @@ body {
 .top_ten_team_name h4 {
     color:#222;
 }
+
+/*SMS and Email Forms*/
+.notification_form {
+    width:100%;
+
+}
+.notification_button {
+    width:100%;
+    border:1px solid black;
+    height:40px;
+}
+input[type="text"][class="notification_form"],
+input[type="tel"][class="notification_form"],
+input[type="email"][class="notification_form"]{
+    height:40px;
+    margin:0;
+    border:1px solid black;
+    width:390px;
+}
+.cellphone_icon {
+    height:20px;
+    width:10px;
+}
+.input-prepend .add-on {
+    height:30px;
+    border:1px solid black;
+}
