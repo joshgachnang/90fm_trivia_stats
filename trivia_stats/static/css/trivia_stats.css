@@ -1,0 +1,127 @@
+.navbar {
+    margin:0 auto;
+    width:980px;
+
+}
+.navbar .brand {
+    /* Copied from .navbar .brand*/
+    display: block;
+    float: left;
+    padding: 10px 20px 10px;
+    margin-left: -20px;
+    font-size: 25px;
+    /*font-weight:bold;*/
+    color: #eee;
+    text-shadow: 0 1px 0 #999;
+}
+.navbar .nav>li>a {
+    color: #eee;
+    text-shadow: 0 1px 0 #999;
+}
+.navbar .nav>li {
+    color: #eee;
+    text-shadow: 0 1px 0 #999;
+}
+.navbar .navbar-inner {
+    /* No reason for navbar to have rounded corners on the top.. */
+    border-top-right-radius: 0;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    background-image: -webkit-linear-gradient(top,#08c,#28c);
+    border-color: #08c;
+    background-color: #08c;
+}
+
+.body {
+    margin:0 auto;
+    width:940px;
+    background:#222;
+    padding-bottom:50px;
+    padding-left:0px;
+    padding-right:40px;
+}
+body {
+    background:#555;
+}
+.footer_text {
+    text-align: center;
+    color:#eee;
+}
+.footer_text a {
+    text-decoration:underline;
+    color:#eee;
+}
+.search-query {
+    float:right;
+    margin-top:5px;
+    margin-left:380px;
+}
+
+/*Homepage boxes*/
+.flat_box {
+    height:300px;
+    width:470px;
+    margin-top:20px;
+    padding:20px;
+}
+.flat_box p {
+    color:#eee;
+}
+.info_box {
+    background:#3A414D;
+    padding-top:70px;
+}
+.info_box p {
+    font-size:115%;
+}
+.timer_box {
+    background:#DB4B1F;
+}
+.sms_box {
+    background:#1BA593;
+}
+.email_box {
+    /*background:#7D8793;*/
+    background:#1BA593;
+}
+.top_ten_box {
+    /*background:#4B4755;*/
+    margin-top:30px;
+    /*height: 300px;*/
+}
+.top_ten_row {
+    /*width:100%;*/
+    /*margin-bottom:20px;*/
+    /*height:30px;*/
+    height:60px;
+}
+.top_ten_row h4 {
+    font-size:200%;
+    color:#eee;
+}
+.top_ten_team_place {
+
+    background:red;
+    /*margin-left:0;*/
+    float:left;
+    width:20%;
+    height:30px;
+    padding-top:10px;
+    padding-bottom:10px;
+    margin-bottom:20px;
+
+}
+.top_ten_team_name {
+    background:#e1e1e1;
+    /*margin-left:0;*/
+    float:left;
+    width:80%;
+    height:30px;
+    padding-top:10px;
+    padding-bottom:10px;
+    margin-bottom:20px;
+}
+.top_ten_team_name h4 {
+    color:#222;
+}

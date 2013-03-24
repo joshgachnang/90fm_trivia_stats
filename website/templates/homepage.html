@@ -7,55 +7,113 @@
 {% block body_class %}home{% endblock %}
 
 {% block body %}
-	<style type="text/css">
-		#subscribe-forms {
-			margin-top: 80px;
-			width: 800px;
-			position: relative;
-		}
-		#email-form {
-			padding: 20px;
-			width: 300px;
-			border: 1px black solid;
-			border-radius: 15px;
-			-moz-border-radius: 15px;
-			background: #CDCDCD;
-			float: left;
-		}
-		#sms-form {
-			padding: 20px;
-			border: 1px black solid;
-			-moz-border-radius: 15px;
-			border-radius: 15px;
-			background: #CDCDCD;
-			width: 300px;
-			float: right;
-		}
-	</style>
-	<div id="home-intro">
-    <h1>Welcome to Trivia Stats</h1>
-    <p>
-		Trivia Stats is a web app tracking <a href="http://90fmtrivia.org/">90FM's World's Largest Trivia Contest.</a> 
-    </p>
-    <p>You can track your scores, get notified when new scores are posted, compare yourself to other teams (soon), and look up past years. If anything doesn't work, <a href="mailto:josh@servercobra.com">send me an email.</a> I built this site in a few hours, so it might still have bugs.</p>
-	<p>The site is built with Python and Django. <a href="http://github.com/pcsforeducation/90fm_trivia_stats">You can view the source and contribute on Github.</a></p>
-	</div>
-	<br />
-	<h4>Latest Scores: <a href=/score/{{ latest_year }}/{{ latest_hour }}/>{{ latest_year }}, Hour {{ latest_hour }}</a></h4>
-	<div id="subscribe-forms">
-	<div id="email-form" class="form-stacked">
-		<p>You can sign up to get an email alert any time new scores are posted. If you add your team name, you will get your score and place as well.</p>
-		<form method="POST" action="/email/subscribe/">{% csrf_token %} 
-			{{ email_form }}
-			<p><input class="btn primary" type='submit'></p>
-		</form>
-	</div>
-	<div id="sms-form" class="form-stacked">
-		<p>You can also sign up for text alerts. If you add your team name, you will get your score and place as well.</p>
-		<form method="POST" action="/sms/subscribe/">{% csrf_token %} 
-			{{ sms_form }}
-			<p><input class="btn primary" type='submit'></p>
-		</form>
-	</div>
-	</div>
+    <div class="row-fluid span12 info_row">
+        <div class="span6 flat_box info_box">
+                <p>
+            		Trivia Stats is a web app tracking <a href="http://90fmtrivia.org/">90FM's World's Largest Trivia Contest.</a> You can track your score, get notified when new scores are posted, and look up past years.
+                </p>
+
+                <p>If anything doesn't work, <a href="mailto:josh@servercobra.com">send me an email.</a> I built this site in a few hours, so it might still have bugs.
+            	The site is built with Python and Django. <a href="http://github.com/pcsforeducation/90fm_trivia_stats">You can view the source and contribute on Github.</a></p>
+
+        </div>
+        <div class="span6 flat_box timer_box">
+            <h3>Countdown</h3>
+            <p><span class="countdown">24</span><span class="countdown_days_text">days</span></p>
+            <span class="countdown_time">12</span><span class="countdown_colon">:</span><span class="countdown_time">12</span><span class="countdown_colon">:</span><span class="countdown_time">12</span>
+
+        </div>
+    </div>
+    <div class="row-fluid span12 signup_row">
+        <div class="span6 flat_box sms_box">
+            <h3>Text Notifications</h3>
+            <form>
+                <input type="text" placeholder="Phone Number">
+                <input type="text" placeholder="Team Name">
+                <button type="submit" class="btn">Get Notifications</button>
+            </form>
+        </div>
+        <div class="span6 flat_box email_box">
+            <h3>Email Notifications</h3>
+            <form>
+                <input type="text" placeholder="Email">
+                <input type="text" placeholder="Team Name">
+                <button type="submit" class="btn">Get Notifications</button>
+            </form>
+        </div>
+
+    </div>
+    <div class="row-fluid span12 top_ten_box">
+{#    <div class="span12 flat_box ">#}
+        <h3>Hour 54 Standings</h3>
+        <div class="top_ten_row">
+            <div class="top_ten_team_place"><h4>#1 | 2,400</h4></div>
+            <div class="top_ten_team_name"><h4>WII ARE THE BEST ALL AROUND</h4></div>
+        </div>
+        <div class="top_ten_row">
+            <div class="top_ten_team_place"><h4>#1 | 2,400</h4></div>
+            <div class="top_ten_team_name"><h4>WII ARE THE BEST ALL AROUND</h4></div>
+        </div>
+        <div class="top_ten_row">
+            <div class="top_ten_team_place"><h4>#1 | 2,400</h4></div>
+            <div class="top_ten_team_name"><h4>WII ARE THE BEST ALL AROUND</h4></div>
+        </div>
+        <div class="top_ten_row">
+            <div class="top_ten_team_place"><h4>#1 | 2,400</h4></div>
+            <div class="top_ten_team_name"><h4>WII ARE THE BEST ALL AROUND</h4></div>
+        </div>
+        <div class="top_ten_row">
+            <div class="top_ten_team_place"><h4>#1 | 2,400</h4></div>
+            <div class="top_ten_team_name"><h4>WII ARE THE BEST ALL AROUND</h4></div>
+        </div>
+        <div class="top_ten_row">
+            <div class="top_ten_team_place"><h4>#1 | 2,400</h4></div>
+            <div class="top_ten_team_name"><h4>WII ARE THE BEST ALL AROUND</h4></div>
+        </div>
+        <div class="top_ten_row">
+            <div class="top_ten_team_place"><h4>#1 | 2,400</h4></div>
+            <div class="top_ten_team_name"><h4>WII ARE THE BEST ALL AROUND</h4></div>
+        </div>
+        <div class="top_ten_row">
+            <div class="top_ten_team_place"><h4>#1 | 2,400</h4></div>
+            <div class="top_ten_team_name"><h4>WII ARE THE BEST ALL AROUND</h4></div>
+        </div>
+        <div class="top_ten_row">
+            <div class="top_ten_team_place"><h4>#1 | 2,400</h4></div>
+            <div class="top_ten_team_name"><h4>WII ARE THE BEST ALL AROUND</h4></div>
+        </div>
+        <div class="top_ten_row">
+            <div class="top_ten_team_place"><h4>#1 | 2,400</h4></div>
+            <div class="top_ten_team_name"><h4>WII ARE THE BEST ALL AROUND</h4></div>
+        </div>
+
+{#    </div>#}
+    </div>
+
+{#	<div id="home-intro">#}
+{#    <h1>Welcome to Trivia Stats</h1>#}
+{#    <p>#}
+{#		Trivia Stats is a web app tracking <a href="http://90fmtrivia.org/">90FM's World's Largest Trivia Contest.</a> #}
+{#    </p>#}
+{#    <p>You can track your scores, get notified when new scores are posted, compare yourself to other teams (soon), and look up past years. If anything doesn't work, <a href="mailto:josh@servercobra.com">send me an email.</a> I built this site in a few hours, so it might still have bugs.</p>#}
+{#	<p>The site is built with Python and Django. <a href="http://github.com/pcsforeducation/90fm_trivia_stats">You can view the source and contribute on Github.</a></p>#}
+{#	</div>#}
+{#	<br />#}
+{#	<h4>Latest Scores: <a href=/score/{{ latest_year }}/{{ latest_hour }}/>{{ latest_year }}, Hour {{ latest_hour }}</a></h4>#}
+{#	<div id="subscribe-forms">#}
+{#	<div id="email-form" class="form-stacked">#}
+{#		<p>You can sign up to get an email alert any time new scores are posted. If you add your team name, you will get your score and place as well.</p>#}
+{#		<form method="POST" action="/email/subscribe/">{% csrf_token %} #}
+{#			{{ email_form }}#}
+{#			<p><input class="btn primary" type='submit'></p>#}
+{#		</form>#}
+{#	</div>#}
+{#	<div id="sms-form" class="form-stacked">#}
+{#		<p>You can also sign up for text alerts. If you add your team name, you will get your score and place as well.</p>#}
+{#		<form method="POST" action="/sms/subscribe/">{% csrf_token %} #}
+{#			{{ sms_form }}#}
+{#			<p><input class="btn primary" type='submit'></p>#}
+{#		</form>#}
+{#	</div>#}
+{#	</div>#}
 {% endblock %}
