@@ -69,21 +69,31 @@ body {
     color:#eee;
 }
 .info_box {
-    background:#3A414D;
+    /*background:#3A414D;*/
+    background: rgb(165, 182, 211);
     padding-top:70px;
+
 }
 .info_box p {
     font-size:115%;
 }
 .timer_box {
-    background:#DB4B1F;
+    /*background:#DB4B1F;*/
+    /*background:#3A414D*/
+    background: rgb(165, 182, 211);
+;
 }
 .sms_box {
-    background:#1BA593;
+    /*background:#1BA593;*/
+    /*background:#08c;*/
+    background: rgb(165, 182, 211);
 }
+
 .email_box {
     /*background:#7D8793;*/
-    background:#1BA593;
+    background: rgb(165, 182, 211);
+    /*background:#08c;*/
+    /*background:#1BA593;*/
 }
 .top_ten_box {
     /*background:#4B4755;*/
@@ -102,7 +112,8 @@ body {
 }
 .top_ten_team_place {
 
-    background:red;
+    /*background:red;*/
+    background:#38c;
     /*margin-left:0;*/
     float:left;
     width:20%;
@@ -143,6 +154,7 @@ input[type="email"][class="notification_form"]{
     margin:0;
     border:1px solid black;
     width:390px;
+    border-top-left-radius:0;
 }
 .cellphone_icon {
     height:20px;
@@ -151,4 +163,5 @@ input[type="email"][class="notification_form"]{
 .input-prepend .add-on {
     height:30px;
     border:1px solid black;
+    border-top-left-radius:0;
 }

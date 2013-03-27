@@ -12,13 +12,13 @@
 <body>
 <div class="navbar top_nav">
     <div class="navbar-inner">
-        <a class="brand" href="#">Trivia Stats</a>
+        <a class="brand" href="/">Trivia Stats</a>
         <ul class="nav">
 {#            <li class="active"><a href="#">Home</a></li>#}
-            <li><a href="#">Teams</a></li>
-            <li><a href="#">Archive</a></li>
-            <form class="navbar-search ">
-                <input type="text" class="search-query" placeholder="Team Search">
+            <li><a href="/score/{{ last_year }}/{{ last_hour }}/">Teams</a></li>
+            <li><a href="/archive/">Archive</a></li>
+            <form name="search" class="navbar-search " action="/search/" method="POST">{% csrf_token %}
+                <input type="text" name="search" class="search-query" placeholder="Team Search">
             </form>
         </ul>
     </div>

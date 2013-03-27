@@ -7,21 +7,19 @@
 {% block body_class %}home{% endblock %}
 
 {% block body %}
-    <div class="row-fluid span12 info_row">
+    <script>
+    $start_time = {{ trivia_start_time }};
+    </script>
+    <div class="row-fluid span12 info_row" xmlns="http://www.w3.org/1999/html">
         <div class="span6 flat_box info_box">
-                <p>
-            		Trivia Stats is a web app tracking <a href="http://90fmtrivia.org/">90FM's World's Largest Trivia Contest.</a> You can track your score, get notified when new scores are posted, and look up past years.
-                </p>
-
-                <p>If anything doesn't work, <a href="mailto:josh@servercobra.com">send me an email.</a> I built this site in a few hours, so it might still have bugs.
-            	The site is built with Python and Django. <a href="http://github.com/pcsforeducation/90fm_trivia_stats">You can view the source and contribute on Github.</a></p>
-
+            <p>Trivia Stats is a web app tracking <a href="http://90fmtrivia.org/">90FM's World's Largest Trivia Contest.</a> You can track your score, get notified when new scores are posted, and look up past years.</p>
+            <p>If anything doesn't work, <a href="mailto:josh@servercobra.com">send me an email.</a> I built this site in a few hours, so it might still have bugs.
+            The site is built with Python and Django. <a href="http://github.com/pcsforeducation/90fm_trivia_stats">You can view the source and contribute on Github.</a></p>
         </div>
         <div class="span6 flat_box timer_box">
             <h3>Countdown</h3>
             <p><span class="countdown">24</span><span class="countdown_days_text">days</span></p>
             <span class="countdown_time">12</span><span class="countdown_colon">:</span><span class="countdown_time">12</span><span class="countdown_colon">:</span><span class="countdown_time">12</span>
-
         </div>
     </div>
     <div class="row-fluid span12 signup_row">
@@ -58,47 +56,17 @@
     <div class="row-fluid span12 top_ten_box">
 {#    <div class="span12 flat_box ">#}
         <h3>Hour 54 Standings</h3>
-        <div class="top_ten_row">
-            <div class="top_ten_team_place"><h4>#1 | 2,400</h4></div>
-            <div class="top_ten_team_name"><h4>WII ARE THE BEST ALL AROUND</h4></div>
-        </div>
-        <div class="top_ten_row">
-            <div class="top_ten_team_place"><h4>#1 | 2,400</h4></div>
-            <div class="top_ten_team_name"><h4>WII ARE THE BEST ALL AROUND</h4></div>
-        </div>
-        <div class="top_ten_row">
-            <div class="top_ten_team_place"><h4>#1 | 2,400</h4></div>
-            <div class="top_ten_team_name"><h4>WII ARE THE BEST ALL AROUND</h4></div>
-        </div>
-        <div class="top_ten_row">
-            <div class="top_ten_team_place"><h4>#1 | 2,400</h4></div>
-            <div class="top_ten_team_name"><h4>WII ARE THE BEST ALL AROUND</h4></div>
-        </div>
-        <div class="top_ten_row">
-            <div class="top_ten_team_place"><h4>#1 | 2,400</h4></div>
-            <div class="top_ten_team_name"><h4>WII ARE THE BEST ALL AROUND</h4></div>
-        </div>
-        <div class="top_ten_row">
-            <div class="top_ten_team_place"><h4>#1 | 2,400</h4></div>
-            <div class="top_ten_team_name"><h4>WII ARE THE BEST ALL AROUND</h4></div>
-        </div>
-        <div class="top_ten_row">
-            <div class="top_ten_team_place"><h4>#1 | 2,400</h4></div>
-            <div class="top_ten_team_name"><h4>WII ARE THE BEST ALL AROUND</h4></div>
-        </div>
-        <div class="top_ten_row">
-            <div class="top_ten_team_place"><h4>#1 | 2,400</h4></div>
-            <div class="top_ten_team_name"><h4>WII ARE THE BEST ALL AROUND</h4></div>
-        </div>
-        <div class="top_ten_row">
-            <div class="top_ten_team_place"><h4>#1 | 2,400</h4></div>
-            <div class="top_ten_team_name"><h4>WII ARE THE BEST ALL AROUND</h4></div>
-        </div>
-        <div class="top_ten_row">
-            <div class="top_ten_team_place"><h4>#1 | 2,400</h4></div>
-            <div class="top_ten_team_name"><h4>WII ARE THE BEST ALL AROUND</h4></div>
-        </div>
-        <h4>See All Scores</h4>
+        {% for team in top_teams %}
+            <div class="top_ten_row">
+                <div class="top_ten_team_place"><h4>#{{ team.place }} | {{ team.score }}</h4></div>
+                <div class="top_ten_team_name"><h4><a href="/team/{{ team.url }}/">{{ team.team_name }}</a></h4></div>
+            </div>
+        {% empty %}
+            <p>No teams yet?</p>
+        {% endfor %}
+
+
+        <h4><a href="/score/{{ last_year }}/{{ last_hour }}/">See All Scores</a></h4>
 {#    </div>#}
     </div>
 

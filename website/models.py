@@ -41,6 +41,9 @@ class Score(models.Model):
     place = models.IntegerField(db_index=True)
     score = models.IntegerField(db_index=True)
 
+    def url(self):
+        return self.team_name.replace(' ', '_')
+
     def __unicode__(self):
         return 'Team: %s, %d Hour %d' % (self.team_name, self.year, self.hour)
 
@@ -76,7 +79,7 @@ class TwilioManager(object):
             print "Client failed."
 
         if hour is None:
-            hour = utils.get_current_hour()
+            hour = get_current_hour()
         for user in SMSSubscriber.objects.all():
             if user.team_name:
                 score = Score.objects.filter(hour=hour).filter(team_name=user.team_name)
@@ -102,7 +105,7 @@ class TwilioManager(object):
                     print e
 
     def sms_update(self,):
-        hour = utils.get_last_hour()
+        hour = get_last_hour()
         for sub in SMSSubscriber.objects.all():
             if sub.phone_number == None:
                 continue
@@ -110,7 +113,7 @@ class TwilioManager(object):
             if sub.team_name:
 
                 try:
-                    score = Score.objects.filter(team_name=sub.team_name.upper().get(hour=utils.get_last_hour()))
+                    score = Score.objects.filter(team_name=sub.team_name.upper().get(hour=get_last_hour()))
                 except Exception, e:
                     print e
                     print "Team name doesn't exist or has too many returned..", sub.phone_number, sub.team_name
@@ -191,7 +194,7 @@ class EmailManager(object):
 
     def email_notify(self,  hour=None):
         if hour is None:
-            hour = utils.get_current_hour()
+            hour = get_current_hour()
         for user in EmailSubscriber.objects.all():
             if user.team_name:
                 score = Score.objects.filter(hour=hour).filter(team_name=user.team_name)
@@ -200,20 +203,20 @@ class EmailManager(object):
                     continue
                 else:
                     try:
-                        send_mail('Trivia Scores Updated for Hour %d. %s is in %d place with %d points.' % (utils.get_current_hour(), score.team_name, score.place, score.score), 'Trivia scores for Hour %d have been posted. %s is in %d place with %d points. You can check your current stats at <a href="http://triviastats.com">TriviaStats.com</a>' % (utils.get_current_hour(), score.team_name, score.place, score.score), 'noreply@triviastats.com', user.email, fail_silently=False)
+                        send_mail('Trivia Scores Updated for Hour %d. %s is in %d place with %d points.' % (get_current_hour(), score.team_name, score.place, score.score), 'Trivia scores for Hour %d have been posted. %s is in %d place with %d points. You can check your current stats at <a href="http://triviastats.com">TriviaStats.com</a>' % (get_current_hour(), score.team_name, score.place, score.score), 'noreply@triviastats.com', user.email, fail_silently=False)
                     except smtplib.SMTPException, e:
                         print "Emailing for user %s failed." % user
                         print e
             else:
                 try:
-                    send_mail('Trivia Scores Updated for Hour %d' % utils.get_current_hour(), 'Trivia scores for Hour %d have been posted. You can check your current stats at <a href="http://triviastats.com">TriviaStats.com</a>' % utils.get_current_hour(), 'noreply@triviastats.com', user.email, fail_silently=False)
+                    send_mail('Trivia Scores Updated for Hour %d' % get_current_hour(), 'Trivia scores for Hour %d have been posted. You can check your current stats at <a href="http://triviastats.com">TriviaStats.com</a>' % get_current_hour(), 'noreply@triviastats.com', user.email, fail_silently=False)
                 except smtplib.SMTPException, e:
                     print "Emailing for user %s failed." % user
                     print e
 
     def send_email(self, subscriber):
-        last_hour = utils.get_last_hour()
-        top_ten = utils.get_top_ten_teams(Settings.objects.all()[0].lasthour)
+        last_hour = get_last_hour()
+        top_ten = get_top_ten_teams(Settings.objects.all()[0].lasthour)
         print top_ten
         if subscriber is None:
             return
@@ -286,9 +289,9 @@ class EmailManager(object):
 class Scraper(object):
 # During Trivia, scrapes each minute to see if a new page is up yet.
     def scraper(self, ):
-        if utils.during_trivia:
+        if during_trivia:
             #Scrape for new hours
-            self.scrape_prev(utils.get_current_year())
+            self.scrape_prev(get_current_year())
         else:
             return HttpResponse("Not during Trivia")
 
@@ -329,7 +332,7 @@ class Scraper(object):
             if int(yr) >= 2010:
                 # Add 0 to the front
                 hr = "0%d" % hr
-        page = utils.page_template[str(yr)] % (str(yr), str(hr))
+        page = page_template[str(yr)] % (str(yr), str(hr))
         print page
         try:
             p = urllib2.urlopen(page)
@@ -367,7 +370,7 @@ class Scraper(object):
                 # Replaces ugly HTML with chars.
                 #db.append( (teams_list[j].string.replace('&#160;', ' ').replace('&amp;', '&').replace('&quot;', '"').replace('&nbsp;', ' '), score, place) )
                 db.append( (teams_list[j].string.replace('&#160;', ' ').replace('&amp;', '&').replace('&quot;', '"').replace('&nbsp;', ' '), int(yr), int(hr),  place, score,) )
-        utils.insert_bulk(db)
+        insert_bulk(db)
         return True
         #score_objects = []
         #for a in db:
@@ -528,16 +531,33 @@ def get_last_hour():
 def get_last_year():
     return Score.objects.all().order_by('-year').order_by('-hour')[0].year
 
-def playing_this_year(self, team_name):
+def playing_this_year(team_name):
     ''' Find out if team is in this years competition. '''
     playing_this_year = False
-    last_hour = self.get_last_hour()
+    last_hour = get_last_hour()
     if last_hour is None:
         return None
     last_during_score = Score.objects.filter(team_name=team_name.upper()).filter(hour=last_hour).filter(year=datetime.datetime.now().year)
     if len(last_during_score) > 0:
         playing_this_year = True
     return playing_this_year
+
+def get_start_time():
+    now = datetime.datetime.now()
+    return "%d %s %s" % (trivia_start_hour, trivia_dates[str(now.year)], now.year)
+
+# Returns a list of tuples like so:
+# (place (index + 1), team_name, score)
+# Returns None on error
+def get_top_ten_teams(year=None,hour=None):
+    if year is None:
+        year = get_last_year()
+    if hour is None:
+        hour = get_last_hour()
+    top_ten = []
+    place = 1
+    scores = Score.objects.filter(year=year).filter(hour=hour).order_by('place')[0:10]
+    return scores
 
 page_template = {'2012': 'http://90fmtrivia.org/TriviaScores%s/scorePages/results%s.htm', '2011': 'http://90fmtrivia.org/TriviaScores%s/results%s.htm', '2010': 'http://90fmtrivia.org/scores_page/Scores%s/scores/results%s.htm', '2009': 'http://90fmtrivia.org/scores_page/Scores%s/results%s.htm'}
 #These are the dates of Trivia, with the year being the key, and the beginning day being the data.
