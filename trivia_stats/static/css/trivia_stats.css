@@ -1,3 +1,19 @@
+/*
+Color Palette (with good border colors below)
+
+Orange: #DF740C
+        #c7670a
+Yellow: #FFE64D
+        #e4cd44
+Light Blue: #E6FFFF
+            #cde4e4
+Blue: #6FC3DF
+      #63aec7
+Dark: #0C141F
+      #0a111b
+*/
+
+
 .navbar {
     margin:0 auto;
     width:980px;
@@ -28,9 +44,9 @@
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
-    background-image: -webkit-linear-gradient(top,#08c,#28c);
-    border-color: #08c;
-    background-color: #08c;
+    background-image: -webkit-linear-gradient(top,#DF740C,#DF740C);
+    border-color: #DF740C;
+    background-color: #DF740C;
 }
 
 .body {
@@ -66,11 +82,14 @@ body {
     padding:20px;
 }
 .flat_box p {
-    color:#eee;
+    color:#333;
+}
+.flat_box a {
+    color:#fff;
 }
 .info_box {
     /*background:#3A414D;*/
-    background: rgb(165, 182, 211);
+    background: #6FC3DF;
     padding-top:70px;
 
 }
@@ -80,18 +99,18 @@ body {
 .timer_box {
     /*background:#DB4B1F;*/
     /*background:#3A414D*/
-    background: rgb(165, 182, 211);
+    background: #6FC3DF;
 ;
 }
 .sms_box {
     /*background:#1BA593;*/
     /*background:#08c;*/
-    background: rgb(165, 182, 211);
+    background: #6FC3DF;
 }
 
 .email_box {
     /*background:#7D8793;*/
-    background: rgb(165, 182, 211);
+    background: #6FC3DF;
     /*background:#08c;*/
     /*background:#1BA593;*/
 }
@@ -138,30 +157,75 @@ body {
 }
 
 /*SMS and Email Forms*/
+/*.notification_input {*/
+    /*width:200px;*/
+
+/*}*/
 .notification_form {
-    width:100%;
+    width:350px;
+    margin:0 auto;
+}
+.input-prepend .add-on:first-child {
+    width:20px;
+    background-color:white;
+    /*border-left:1px solid black;*/
+    /*border-top:1px solid black;*/
+    /*border-bottom:1px solid black;*/
+    border-right:none;
+    padding-top:10px;
+    height:24px;
+    text-shadow:none;
+    margin-bottom:0px;
+}
+.input-prepend .add-on-top:first-child {
+    border-bottom:1px solid black;
+    border-left:1px solid black;
+    border-top:1px solid black;
+    border-bottom-left-radius: 0;
 
 }
+.input-prepend .add-on-bottom:first-child {
+    border-top:none;
+    border-left:1px solid black;
+    border-bottom:1px solid black;
+    border-top-left-radius: 0;
+    height:25px;
+}
+.input-prepend {
+    margin-bottom:0px;
+}
 .notification_button {
-    width:100%;
+    /*width:100%;*/
     border:1px solid black;
     height:40px;
+    width:330px;
 }
-input[type="text"][class="notification_form"],
-input[type="tel"][class="notification_form"],
-input[type="email"][class="notification_form"]{
+input[type="text"][class~="notification_input"]
+{
     height:40px;
     margin:0;
-    border:1px solid black;
-    width:390px;
+    background-color:white;
+    border-left:none;
+    width:300px;
     border-top-left-radius:0;
+    text-shadow:none;
+    /*color:red;*/
+}
+input[type="text"][class~="notification_input_top"] {
+    border-bottom:1px solid black;
+    border-right:1px solid black;
+    border-top:1px solid black;
+    border-bottom-right-radius:0;
+}
+input[type="text"][class~="notification_input_bottom"]{
+    border-top:none;
+    /*background-color:red;*/
+    margin-bottom:20px;
+    border-right:1px solid black;
+    border-bottom:1px solid black;
+    border-top-right-radius:0;
 }
 .cellphone_icon {
-    height:20px;
-    width:10px;
-}
-.input-prepend .add-on {
-    height:30px;
-    border:1px solid black;
-    border-top-left-radius:0;
+    height:13px;
+    width:8px;
 }
