@@ -165,6 +165,9 @@ body {
     width:350px;
     margin:0 auto;
 }
+.notification_form h3 {
+    text-align:center;
+}
 .input-prepend .add-on:first-child {
     width:20px;
     background-color:white;
@@ -194,11 +197,17 @@ body {
 .input-prepend {
     margin-bottom:0px;
 }
-.notification_button {
+.notification_button, .notification_button:hover, .notification_button:active {
     /*width:100%;*/
-    border:1px solid black;
+    background-color:#DF740C;
+    border:1px solid #c7670a;
+    background-image: none;
     height:40px;
     width:330px;
+    color: white;
+    font-weight: bold;
+    font-size: 115%;
+    text-shadow: none;
 }
 input[type="text"][class~="notification_input"]
 {
