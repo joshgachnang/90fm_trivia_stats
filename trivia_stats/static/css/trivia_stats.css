@@ -303,3 +303,7 @@ input[type="text"][class~="notification_input_bottom"]{
 .team_body h3 {
     color:#eee;
 }
+h2 {
+    color:#eee;
+    text-align: center;
+}

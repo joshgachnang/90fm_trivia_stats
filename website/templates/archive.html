@@ -7,37 +7,41 @@
 {% block body_class %}home{% endblock %}
 
 {% block body %}
-    <script type="text/javascript" src="{{ STATIC_URL }}jquery.tablesorter.min.js"></script>
+{#    <script type="text/javascript" src="{{ STATIC_URL }}jquery.tablesorter.min.js"></script>#}
     <!-- 	<script src="http://d3pr5r64n04s3o.cloudfront.net/tuts/195_bootstrap/tut/path/to/tablesorter/jquery.tablesorter.min.js"></script> -->
-    <script>
-        $(function() {
-            $("table#scores").tablesorter({ sortList: [[1,1]] });
-        });
-    </script>
-    <h2>Hour {{ hour }}, {{ year }}</h2>
-    <hr />
-    {% for year, scores in scores.items %}
-        <p>{{ year }}, </p>
-        {% for team in scores %}
-            <table class="zebra-striped" id="scores">
+{#    <script>#}
+{#        $(function() {#}
+{#            $("table#scores").tablesorter({ sortList: [[1,1]] });#}
+{#        });#}
+{#    </script>#}
+    <div class="team_body">
+            <h2>Top Score Archive</h2>
+{#        <h2>Hour {{ hour }}, {{ year }}</h2>#}
+{#        <hr />#}
+        {% for year_scores in scores %}
+            <h3>{{ year_scores.0.year }} </h3>
+            <table class="table table-bordered" id="scores">
                 <thead>
                 <th>Team Name</th>
                 <th>Score</th>
                 <th>Place</th>
                 </thead>
                 <tbody>
+                {% for team in year_scores %}
                     <tr>
-{#                        <td>{{ team }} </td> #}
                         <td><a href='/team/{{ team.url }}/'>{{ team.team_name }}</a></td>
                         <td>{{ team.score }}</td>
                         <td>{{ team.place }}</td>
                     </tr>
+                {% empty %}
+                    <p>No teams for {{ team }}</p>
+                {% endfor %}
                 </tbody>
             </table>
+{#            <a href="/year/{{ year_scores.0.year }}/hour/54/">More Scores</a>#}
         {% empty %}
-            <p>No teams for {{ team }}</p>
+            <p>Sorry! No scores found for this hour!</p>
         {% endfor %}
-    {% empty %}
-        <p>Sorry! No scores found for this hour!</p>
-    {% endfor %}
+
+    </div>
 {% endblock %}

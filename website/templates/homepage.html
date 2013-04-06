@@ -25,30 +25,30 @@
     <div class="row-fluid span12 signup_row">
         <div class="span6 flat_box sms_box">
 
-            <form method="POST" action="/sms/subscribe/" class="notification_form">
+            <form method="POST" action="/sms/subscribe/" class="notification_form">{% csrf_token %}
                 <h3>Text Notifications</h3>
                 <div class="input-prepend">
                     <span class="add-on add-on-top"><i class="icon-th"></i></span>
-                    <input class="notification_input notification_input_top" type="text" placeholder="Phone Number">
+                    <input class="notification_input notification_input_top" type="text" name="phone_number" placeholder="Phone Number">
                 </div>
                 <div class="input-prepend">
                     <span class="add-on add-on-bottom"><i class="icon-user"></i></span>
-                    <input class="notification_input notification_input_bottom" type="text" placeholder="Team Name">
+                    <input class="notification_input notification_input_bottom" type="text" name="team_name" placeholder="Team Name">
                 </div>
                 <button type="submit" class="btn notification_button">Subscribe</button>
             </form>
         </div>
         <div class="span6 flat_box email_box">
 
-                <form method="POST" action="/email/subscribe/" class="notification_form">
+                <form method="POST" action="/email/subscribe/" class="notification_form">{% csrf_token %}
                     <h3>Email Notifications</h3>
                     <div class="input-prepend">
                         <span class="add-on add-on-top"><i class="icon-envelope"></i></span>
-                        <input class="notification_input notification_input_top"  type="text" placeholder="Email">
+                        <input class="notification_input notification_input_top"  type="text" name="email" placeholder="Email">
                     </div>
                     <div class="input-prepend">
                         <span class="add-on add-on-bottom"><i class="icon-user"></i></span>
-                        <input class="notification_input notification_input_bottom" type="text" placeholder="Team Name">
+                        <input class="notification_input notification_input_bottom" type="text" name="team_name" placeholder="Team Name">
                     </div>
                     <button type="submit" class="btn notification_button">Subscribe</button>
                 </form>

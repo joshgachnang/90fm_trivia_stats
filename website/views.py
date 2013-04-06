@@ -5,7 +5,7 @@ from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext, Context
 from website.models import Score,  Settings, SMSSubscriberForm, EmailSubscriberForm, EmailSubscriber, SMSSubscriber, \
     SearchForm, get_last_hour, get_last_year, playing_this_year, get_current_hour, get_current_year, during_trivia,\
-    get_top_ten_teams
+    get_top_ten_teams, TwilioManager, EmailManager
 from BeautifulSoup import BeautifulStoneSoup, BeautifulSoup
 import urllib2
 import sys, os
@@ -96,19 +96,23 @@ def year_hour_overview(request, year, hour):
 # List years, and which teams were in first.
 def archive(request):
     template_data = {}
-    template_data['scores'] = {}
-    for year in Score.objects.values_list('year').distinct():
-        template_data['scores'][year[0]] = get_top_ten_teams(year[0], 54)
+    template_data['scores'] = []
+    for year in Score.objects.values_list('year', flat=True).distinct().order_by('-year'):
+        template_data['scores'].append(get_top_ten_teams(year, 54))
     print template_data
     return render_to_response("archive.html", template_data, context_instance=RequestContext(request))
 
 # Email/SMS Subscriptions
 def email_subscribe(request):
-    pass
+    em = EmailManager()
+    return em.email_subscribe(request)
+
 def email_unsubscribe(request):
     pass
 def sms_subscribe(request):
-    pass
+    tm = TwilioManager()
+    return tm.sms_subscribe(request)
+
 def sms_unsubscribe(request):
     pass
 ##############################################################################

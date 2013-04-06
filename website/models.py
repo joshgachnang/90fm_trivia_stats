@@ -164,6 +164,8 @@ class TwilioManager(object):
             else:
                 messages.error(request, 'Invalid Phone Number or Team Name')
                 return redirect('/')
+        else:
+            return redirect('/')
 
     def sms_unsubscribe(self, request):
         if request.method == 'POST':
@@ -176,9 +178,9 @@ class TwilioManager(object):
                 subscriber.delete()
                 return redirect('/')
 
-    # TODO write clean_number
     def clean_number(self, number):
-        return number
+        return number.replace('(', '').replace(')', '').replace('-', '').replace(' ', '')
+
 
 class EmailManager(object):
     def email_unsubscribe(self, request):
