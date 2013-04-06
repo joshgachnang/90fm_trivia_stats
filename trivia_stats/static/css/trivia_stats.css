@@ -19,6 +19,9 @@ Dark: #0C141F
     width:980px;
 
 }
+.top_nav {
+    border-bottom:1px solid #eee;
+}
 .navbar .brand {
     /* Copied from .navbar .brand*/
     display: block;
@@ -27,8 +30,9 @@ Dark: #0C141F
     margin-left: -20px;
     font-size: 25px;
     /*font-weight:bold;*/
-    color: #eee;
-    text-shadow: 0 1px 0 #999;
+    color: #DF740C;
+    text-shadow: none;
+    font-weight:bold;
 }
 .navbar .nav>li>a {
     color: #eee;
@@ -44,9 +48,9 @@ Dark: #0C141F
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
-    background-image: -webkit-linear-gradient(top,#DF740C,#DF740C);
-    border-color: #DF740C;
-    background-color: #DF740C;
+    background-image: -webkit-linear-gradient(top,#222,#222);
+    border-color: #222;
+    background-color: #222;
 }
 
 .body {
@@ -59,6 +63,13 @@ Dark: #0C141F
 }
 body {
     background:#555;
+}
+.footer {
+    border-top:1px solid #eee;
+    padding-top:20px;
+    background-color: #222;
+    padding-bottom:20px;
+
 }
 .footer_text {
     text-align: center;
@@ -92,6 +103,10 @@ body {
     background: #6FC3DF;
     padding-top:70px;
 
+}
+.info_box a {
+    color: #0a111b;
+    text-decoration: underline;
 }
 .info_box p {
     font-size:115%;
@@ -127,12 +142,12 @@ body {
 }
 .top_ten_row h4 {
     font-size:200%;
-    color:#eee;
+    color:#333;
 }
 .top_ten_team_place {
 
     /*background:red;*/
-    background:#38c;
+    background:#6FC3DF;
     /*margin-left:0;*/
     float:left;
     width:20%;
@@ -140,20 +155,29 @@ body {
     padding-top:10px;
     padding-bottom:10px;
     margin-bottom:20px;
+    margin-right:1%;
 
 }
+.top_ten_team_place h4 {
+    color:#222;
+    margin-left:10px;
+    margin-bottom:4px;
+}
 .top_ten_team_name {
-    background:#e1e1e1;
+    background:#eee;
     /*margin-left:0;*/
     float:left;
-    width:80%;
+    width:79%;
     height:30px;
     padding-top:10px;
     padding-bottom:10px;
     margin-bottom:20px;
+
 }
 .top_ten_team_name h4 {
     color:#222;
+    margin-left:10px;
+    margin-bottom:4px;
 }
 
 /*SMS and Email Forms*/
@@ -246,4 +270,36 @@ input[type="text"][class~="notification_input_bottom"]{
 .cellphone_icon {
     height:13px;
     width:8px;
+}
+
+.hour_standings {
+    color: #eee;
+    border-bottom:1px solid #eee;
+}
+
+/*Team Pages*/
+.team_body {
+    margin-left:20px;
+    margin-top:30px;
+
+}
+.team_body_name {
+    color: #6FC3DF;
+    border-bottom:1px solid #6FC3DF;
+}
+.team_body table {
+    width:100%;
+}
+.team_body table tr {
+    width: 25%;
+    color:#eee;
+    text-align:left;
+}
+.team_body table td {
+    width: 25%;
+    color:#eee;
+}
+
+.team_body h3 {
+    color:#eee;
 }

@@ -1,10 +1,12 @@
 {% extends "site_base.html" %}
 
 {% block body %}
-<h2>{{ team_name }}</h2>
-{% for year, year_scores in scores.items %}
-    <h2>{{ year }}</h2>
-    <table>
+<div class="team_body">
+    <h2 class="team_body_name">{{ team_name }}</h2>
+    {% for year, year_scores in scores.items %}
+
+    <h3>{{ year }}</h3>
+    <table class="table table-bordered">
         <thead>
             <th>Hour</th>
             <th>Place</th>
@@ -21,6 +23,8 @@
             {% endfor %}
         </tbody>
     </table>
-{% endfor %}
+
+    {% endfor %}
+</div>
 
 {% endblock %}

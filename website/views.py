@@ -65,7 +65,7 @@ def team(request, team_name, team_year=None):
     template_data['scores'] = {}
     for year in scores.values_list('year').distinct():
         template_data['scores'][year[0]] = scores.filter(year=year[0]).order_by('hour')
-
+    print template_data
     return render_to_response("team.html", template_data, context_instance=RequestContext(request))
 
 # Displays a list of teams, year combos matching the search.

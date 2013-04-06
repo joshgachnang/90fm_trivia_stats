@@ -47,6 +47,9 @@ class Score(models.Model):
     def __unicode__(self):
         return 'Team: %s, %d Hour %d' % (self.team_name, self.year, self.hour)
 
+    class Meta:
+        unique_together = (("team_name", "hour", "year"))
+
 class ScoreManager(object):
     """
     Utility functions for creating and manipulating scores
@@ -289,20 +292,25 @@ class EmailManager(object):
 class Scraper(object):
 # During Trivia, scrapes each minute to see if a new page is up yet.
     def scraper(self, ):
-        if during_trivia:
+        if during_trivia():
             #Scrape for new hours
             self.scrape_prev(get_current_year())
         else:
             return HttpResponse("Not during Trivia")
 
     # Utility function for scraping a year. Useful for setting up database with previous years.
-    def scrape_prev(self, year):
+    def scrape_prev(self, year, hour=None, force=False):
         if year is None:
             print "Year is None."
             return
         s = []
-        for hr in range(1, 55):
-            success = self.scrape_year_hour(year, hr)
+        if hour:
+            hours = range(hour, hour + 1)
+        else:
+            hours = range(1, 55)
+        for hr in hours:
+            success = self.scrape_year_hour(year, hr, force=force)
+            print "Success for hour {0}".format(hr)
             if success:
                 s.append(hr)
         if len(s) > 0:
@@ -320,7 +328,7 @@ class Scraper(object):
     def scrape_year_hour(self, yr, hr, force=False):
     #Add check right here to see if data already exists for the given year/hour
         query = Score.objects.filter(year=int(yr)).filter(hour=int(hr))
-        if len(query) != 0:
+        if len(query) != 0 and force is False:
             #print len(query)
             for s in query:
                 print s
@@ -337,16 +345,30 @@ class Scraper(object):
         try:
             p = urllib2.urlopen(page)
         except urllib2.HTTPError, e:
-            print("No data for this hour (yet?)")
-            return False
-
+            # If hour 54, might need to use a special page for previous years.
+            print "Checking for hour 54 page. Yr: {0}, Hr: {1}".format(yr, hr)
+            print "Hour 54 Finals: ", hour_54_page
+            if str(yr) in hour_54_page:
+                try:
+                    page = hour_54_page[str(yr)]
+                    p = urllib2.urlopen(page)
+                except urllib2.HTTPError, e:
+                    print("Can't scrape either page 54 or final page.")
+                    return False
+            else:
+                print("No data for this hour (yet?): {0}".format(hr))
+                return False
+        print "p: ", p
         soup = BeautifulSoup(''.join(p.read()))
+        print "soup: ", soup
         p.close()
 
         teams = soup.findAll('dd')
         place_score = soup.findAll('dt')
+        print "place_score: ", place_score
+        print "team: ", teams
 
-        db = []
+        bulk_list = []
         # Drop all teams into a list of lists:
         # 0: Team name 1: Place 2: Points
         for i in range(0, len(teams)):
@@ -363,14 +385,23 @@ class Scraper(object):
             score = reg[1]
             # Generate teams list
             teams_list = teams[i].findAll('li')
+            print teams_list
 
             for j in range(0, len(teams_list)):
                 # Isn't this uggggggggly?
                 # Creates a list, with format noted above first for loop.
                 # Replaces ugly HTML with chars.
                 #db.append( (teams_list[j].string.replace('&#160;', ' ').replace('&amp;', '&').replace('&quot;', '"').replace('&nbsp;', ' '), score, place) )
-                db.append( (teams_list[j].string.replace('&#160;', ' ').replace('&amp;', '&').replace('&quot;', '"').replace('&nbsp;', ' '), int(yr), int(hr),  place, score,) )
-        insert_bulk(db)
+                # db.append( (teams_list[j].string.replace('&#160;', ' ').replace('&amp;', '&').replace('&quot;', '"').replace('&nbsp;', ' '), int(yr), int(hr),  place, score,) )
+                name = teams_list[j].string.replace('&#160;', ' ').replace('&amp;', '&').replace('&quot;', '"').replace('&nbsp;', ' ')
+                year = int(yr)
+                hour = int(hr)
+
+                # (team_name, year, hour, place, score)
+                bulk_list.append(Score(team_name=name, year=year, hour=hour, place=place, score=score))
+                print "Adding year: {0} hour: {1} team: {2}".format(year, hour, name)
+        Score.objects.bulk_create(bulk_list)
+        # insert_bulk(db)
         return True
         #score_objects = []
         #for a in db:
@@ -453,10 +484,10 @@ def insert_bulk(values):
                 (team_name, year, hour, place, score)
                 VALUES (%s,%s,%s,%s,%s) '''
 
-    print cursor.executemany(query,values)
-    transaction.commit()
-    #transaction.commit_unless_managed()
-    #cursor.execute("COMMIT")
+    cursor.executemany(query,values)
+    # transaction.commit()
+    # transaction.commit_unless_managed()
+    cursor.execute("COMMIT")
 
 # Generates a line chart of score over the hours of a year from Google Chart API, downloads it, and saves it to the img directory
 # Check for info: https://github.com/gak/pygooglechart/blob/master/pygooglechart.py
@@ -557,9 +588,11 @@ def get_top_ten_teams(year=None,hour=None):
     top_ten = []
     place = 1
     scores = Score.objects.filter(year=year).filter(hour=hour).order_by('place')[0:10]
+    print "Top Teams for {0} Hr {1}".format(year, hour), scores
     return scores
 
 page_template = {'2012': 'http://90fmtrivia.org/TriviaScores%s/scorePages/results%s.htm', '2011': 'http://90fmtrivia.org/TriviaScores%s/results%s.htm', '2010': 'http://90fmtrivia.org/scores_page/Scores%s/scores/results%s.htm', '2009': 'http://90fmtrivia.org/scores_page/Scores%s/results%s.htm'}
+hour_54_page = {'2012': 'http://90fmtrivia.org/TriviaScores2012/scorePages/results.htm'}
 #These are the dates of Trivia, with the year being the key, and the beginning day being the data.
 trivia_dates = { "2011": "April 8", "2012": "April 20", "2013": "April 19", "2014": "April 11", "2015": "April 17", "2016": "April 15" }
 #Start hour in 24 hour formathttp://90fmtrivia.org/scores_page/Scores2009/results2.htm
