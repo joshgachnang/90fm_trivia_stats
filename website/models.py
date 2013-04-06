@@ -183,6 +183,45 @@ class TwilioManager(object):
 
 
 class EmailManager(object):
+    def email_subscribe(self, request):
+        print 'EMAIL SUBSCRIBE'
+        if request.method == 'POST':
+            form = EmailSubscriberForm(request.POST)
+            if form.is_valid():
+                if form.cleaned_data.has_key('team_name'):
+                    team_name = form.cleaned_data['team_name'].upper()
+                else:
+                    team_name = None
+                email = form.cleaned_data['email']
+                sub = EmailSubscriber(email=email, team_name=team_name)
+                sub.save()
+
+                # Notify of subscription
+                print team_name, email
+                c = Context({'email': email, 'team_name': team_name})
+                text = get_template('subscribe_email.txt')
+                text_content = text.render(c)
+                html = get_template('subscribe_email.html')
+                html_content = text.render(c)
+                subject = "Thank you for subscribing to Trivia Stats Notification System!"
+                #send_mail(subject, text_content, settings.EMAIL_FROM_ADDRESS, [email])
+                # try:
+                msg = EmailMultiAlternatives(subject, text_content, settings.EMAIL_FROM_ADDRESS, [email])
+                msg.attach_alternative(html_content, "text/html")
+                msg.send()
+                # except Exception as e:
+                #     print e
+                #     return HttpResponse(e)
+                if  team_name:
+                    messages.success(request, "Email %s for team %s successfully added!" % (email, team_name))
+                else:
+                    messages.success(request, "Email %s successfully added!" % (email))
+            else:
+                # TODO add message about why this doesn't work
+                print 'Invalid Email or Team Name', form
+                messages.error(request, 'Invalid Email or Team Name')
+            return redirect('/')
+
     def email_unsubscribe(self, request):
         if request.method == 'POST':
             form = EmailUnsubscribeForm(request.POST)
@@ -256,39 +295,6 @@ class EmailManager(object):
             #msg = EmailMultiAlternatives(subject, text_content, settings.EMAIL_FROM_ADDRESS, [email])
             #msg.attach_alternative(html_content, "text/html")
             #msg.send()
-
-    def email_subscribe(self, request):
-        if request.method == 'POST':
-            form = EmailSubscriberForm(request.POST)
-            if form.is_valid():
-                if form.cleaned_data.has_key('team_name'):
-                    team_name = form.cleaned_data['team_name'].upper()
-                else:
-                    team_name = None
-                email = form.cleaned_data['email']
-                sub = EmailSubscriber(email=email, team_name=team_name)
-                sub.save()
-
-                # Notify of subscription
-                print team_name
-                c = Context({'email': email, 'team_name': team_name})
-                text = get_template('subscribe_email.txt')
-                text_content = text.render(c)
-                html = get_template('subscribe_email.html')
-                html_content = text.render(c)
-                subject = "Thank you for subscribing to Trivia Stats Notification System!"
-                #send_mail(subject, text_content, settings.EMAIL_FROM_ADDRESS, [email])
-                msg = EmailMultiAlternatives(subject, text_content, settings.EMAIL_FROM_ADDRESS, [email])
-                msg.attach_alternative(html_content, "text/html")
-                msg.send()
-                if  team_name:
-                    messages.success(request, "Email %s for team %s successfully added!" % (email, team_name))
-                else:
-                    messages.success(request, "Email %s successfully added!" % (email))
-            else:
-                # TODO add message about why this doesn't work
-                messages.error(request, 'Invalid Email or Team Name')
-            return redirect('/')
 
 
 class Scraper(object):
@@ -428,7 +434,7 @@ class Settings(models.Model):
 
 
 class EmailSubscriber(models.Model):
-    email = models.EmailField(db_index=True)
+    email = models.EmailField(db_index=True, unique=True)
     team_name = models.CharField(max_length=36,  help_text="(optional)", blank=True, null=True)
 
     def __unicode__(self):
@@ -450,7 +456,7 @@ class EmailUnsubscribeForm(Form):
 
 
 class SMSSubscriber(models.Model):
-    phone_number = models.CharField(max_length=14, db_index=True)
+    phone_number = models.CharField(max_length=14, db_index=True, unique=True)
     team_name = models.CharField(max_length=36, blank=True, null=True)
 
     def __unicode__(self):
