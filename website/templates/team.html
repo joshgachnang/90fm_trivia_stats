@@ -3,9 +3,9 @@
 {% block body %}
 <div class="team_body">
     <h2 class="team_body_name">{{ team_name }}</h2>
-    {% for year, year_scores in scores.items %}
+    {% for year_scores in scores %}
 
-    <h3>{{ year }}</h3>
+    <h3>{{ year_scores.0.year }}</h3>
     <table class="table table-bordered">
         <thead>
             <th>Hour</th>

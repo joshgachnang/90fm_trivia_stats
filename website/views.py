@@ -62,9 +62,9 @@ def team(request, team_name, team_year=None):
     scores = Score.objects.filter(team_name=team_name.upper()).order_by('-year')
     if len(scores) == 0:
         return HttpResponseNotFound("Can't find data for team: {0}".format(team_name))
-    template_data['scores'] = {}
-    for year in scores.values_list('year').distinct():
-        template_data['scores'][year[0]] = scores.filter(year=year[0]).order_by('hour')
+    template_data['scores'] = []
+    for year in scores.values_list('year', flat=True).distinct().order_by('-year'):
+        template_data['scores'].append(scores.filter(year=year).order_by('-hour'))
     print template_data
     return render_to_response("team.html", template_data, context_instance=RequestContext(request))
 

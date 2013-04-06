@@ -341,14 +341,14 @@ class Scraper(object):
                 # Add 0 to the front
                 hr = "0%d" % hr
         page = page_template[str(yr)] % (str(yr), str(hr))
-        print page
+        print "Getting page: {0}".format(page)
         try:
             p = urllib2.urlopen(page)
         except urllib2.HTTPError, e:
             # If hour 54, might need to use a special page for previous years.
             print "Checking for hour 54 page. Yr: {0}, Hr: {1}".format(yr, hr)
             print "Hour 54 Finals: ", hour_54_page
-            if str(yr) in hour_54_page:
+            if str(yr) in hour_54_page and hr == 54:
                 try:
                     page = hour_54_page[str(yr)]
                     p = urllib2.urlopen(page)
@@ -358,15 +358,15 @@ class Scraper(object):
             else:
                 print("No data for this hour (yet?): {0}".format(hr))
                 return False
-        print "p: ", p
+        # print "p: ", p
         soup = BeautifulSoup(''.join(p.read()))
-        print "soup: ", soup
+        # print "soup: ", soup
         p.close()
 
         teams = soup.findAll('dd')
         place_score = soup.findAll('dt')
-        print "place_score: ", place_score
-        print "team: ", teams
+        # print "place_score: ", place_score
+        # print "team: ", teams
 
         bulk_list = []
         # Drop all teams into a list of lists:
@@ -385,7 +385,7 @@ class Scraper(object):
             score = reg[1]
             # Generate teams list
             teams_list = teams[i].findAll('li')
-            print teams_list
+            # print teams_list
 
             for j in range(0, len(teams_list)):
                 # Isn't this uggggggggly?
@@ -399,7 +399,7 @@ class Scraper(object):
 
                 # (team_name, year, hour, place, score)
                 bulk_list.append(Score(team_name=name, year=year, hour=hour, place=place, score=score))
-                print "Adding year: {0} hour: {1} team: {2}".format(year, hour, name)
+                # print "Adding year: {0} hour: {1} team: {2} score: {3} place: {4}".format(year, hour, name, score, place)
         Score.objects.bulk_create(bulk_list)
         # insert_bulk(db)
         return True
@@ -557,10 +557,11 @@ def during_trivia():
 
 def get_last_hour():
     ''' Get last hour that scores were scraped '''
-    return Score.objects.all().order_by('-year').order_by('-hour')[0].hour
+    last_year = get_last_year()
+    return Score.objects.filter(year=last_year).values_list('hour', flat=True).distinct().order_by('-hour')[0]
 
 def get_last_year():
-    return Score.objects.all().order_by('-year').order_by('-hour')[0].year
+    return Score.objects.values_list('year', flat=True).distinct().order_by('-year')[0]
 
 def playing_this_year(team_name):
     ''' Find out if team is in this years competition. '''
@@ -585,6 +586,7 @@ def get_top_ten_teams(year=None,hour=None):
         year = get_last_year()
     if hour is None:
         hour = get_last_hour()
+    print "last year/hour: {0}, hr {1}".format(year, hour)
     top_ten = []
     place = 1
     scores = Score.objects.filter(year=year).filter(hour=hour).order_by('place')[0:10]
