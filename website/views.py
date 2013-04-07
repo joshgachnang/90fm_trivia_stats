@@ -76,7 +76,13 @@ def search(request):
         form = SearchForm(request.POST)
         if form.is_valid():
             search = form.cleaned_data['search']
-            template_data['teams'] = Score.objects.filter(team_name__icontains=search).order_by('year')
+            t = Score.objects.filter(team_name__icontains=search).values_list('team_name', 'year').distinct().order_by('-year')
+            teams = []
+            for team in t:
+                print "team 0", team[0], type(team[0])
+                url = team[0].replace(' ', '_')
+                teams.append({'team_name': team[0], 'year': team[1], 'url': url})
+            template_data['teams'] = teams
         print template_data
         return render_to_response("search_results.html", template_data, context_instance=RequestContext(request))
     else:
