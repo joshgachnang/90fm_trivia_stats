@@ -69,6 +69,9 @@ class TwilioManager(object):
     def get_twilio_token(self):
         return settings.TWILIO_AUTH
 
+    def get_twilio_number(self):
+        return settings.TWILIO_NUMBER
+    
     def sms_notify(self, hour=None):
         account = self.get_twilio_account()
         token = self.get_twilio_token()
@@ -318,6 +321,7 @@ class Scraper(object):
             hours = range(1, 55)
         for hr in hours:
             success = self.scrape_year_hour(year, hr, force=force)
+            time.sleep(.5)
             print "Success for hour {0}".format(hr)
             if success:
                 s.append(hr)

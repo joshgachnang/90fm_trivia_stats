@@ -4,7 +4,6 @@
 *local_settings.py*
 *private_config.py*
 *.idea
-*.png
 
 # Ignore all the virtualenv stuff except the actual packages
 # themselves
