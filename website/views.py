@@ -42,7 +42,6 @@ def home(request):
         print "SMS: ", template_data['sms_form']
         return render_to_response("homepage.html", template_data, context_instance=RequestContext(request))
 
-
 # Displays all the information for a team. If year is specified, only for that year.
 # team_name: str
 # team_year: int
@@ -93,10 +92,10 @@ def year_hour_overview(request, year, hour):
     template_data = {}
     template_data['hour'] = year
     template_data['year'] = hour
-    scores = Score.objects.filter(year=year, hour=hour)
-    template_data['teams'] = {}
+    scores = Score.objects.filter(year=year, hour=hour).order_by('-score')
+    template_data['teams'] = []
     for score in scores:
-        template_data['teams'][score.team_name] = model_to_dict(score)
+        template_data['teams'].append(model_to_dict(score))
     return render_to_response('hour.html', template_data, context_instance=RequestContext(request))
 
 # List years, and which teams were in first.

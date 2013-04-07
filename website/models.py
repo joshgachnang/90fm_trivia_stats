@@ -71,7 +71,7 @@ class TwilioManager(object):
 
     def get_twilio_number(self):
         return settings.TWILIO_NUMBER
-    
+
     def sms_notify(self, hour=None):
         account = self.get_twilio_account()
         token = self.get_twilio_token()

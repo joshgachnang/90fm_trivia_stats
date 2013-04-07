@@ -7,24 +7,18 @@
 {% block body_class %}home{% endblock %}
 
 {% block body %}
-	<script type="text/javascript" src="{{ STATIC_URL }}jquery.tablesorter.min.js"></script> 
-<!-- 	<script src="http://d3pr5r64n04s3o.cloudfront.net/tuts/195_bootstrap/tut/path/to/tablesorter/jquery.tablesorter.min.js"></script> -->
-	<script>
-	$(function() {
-		$("table#scores").tablesorter({ sortList: [[1,1]] });
-	});
-	</script>
+<div class="team_body">
 	<h2>Hour {{ hour }}, {{ year }}</h2>
 	<hr />
 	{% if teams != None %}
-	<table class="zebra-striped" id="scores">
+	<table class="table table-bordered" id="scores">
 		<thead>
 			<th>Team Name</th>
 			<th>Score</th>
 			<th>Place</th>
 		</thead>
 		<tbody>
-		{% for team, scores in teams.items %}
+		{% for scores in teams %}
 			<tr>
 <!-- 				<td>{{ team }} </td> -->
 				<td><a href='/team/{{ scores.url }}'>{{ scores.team_name }}</a></td>
@@ -37,4 +31,5 @@
 	{% else %}
 	<p>Sorry! No scores found for this hour!</p>
 	{% endif %}
+</div>
 {% endblock %}
