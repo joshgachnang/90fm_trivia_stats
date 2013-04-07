@@ -16,7 +16,7 @@ def update_django_project(path, branch):
         sudo('git stash')
         sudo('git pull origin {0}'.format(branch))
         sudo('git checkout {0}'.format(branch))
-        sudo('git clean -f')
+        # sudo('git clean -f')
 
 
 def django_functions(path, settings):
@@ -25,7 +25,7 @@ def django_functions(path, settings):
             # Need newer distribute for MySQL-python package
             sudo('pip install -r ' + os.path.join(path, 'requirements.txt'))
             sudo('python manage.py syncdb --settings={0}'.format(settings))
-            sudo('python manage.py collectstatic -c --noinput --settings={0}'.format(settings))
+            # sudo('python manage.py collectstatic -c --noinput --settings={0}'.format(settings))
             #sudo('python manage.py migrate') # if you use south
 
 def south_migration(path, settings):
@@ -36,7 +36,7 @@ def south_migration(path, settings):
 
 def update_permissions(path):
     with cd(path):
-        sudo('chown -R triviastats:triviastats ' + path)
+        sudo('chown -R {0}:{0} {1}'.format(env.user, path))
 
 
 def restart_webserver(service):
@@ -61,12 +61,12 @@ def deploy():
     """ Deploy Django Project.
     """
     path = '/home/triviastats/90fm_trivia_stats'
-    install_packages()
-    mkdirs(path)
+    # install_packages()
+    # mkdirs(path)
     update_django_project(path, branch='master')
     update_permissions(path)
     django_functions(path, settings='trivia_stats.settings')
-    south_migration(path, settings='trivia_stats.settings')
+    # south_migration(path, settings='trivia_stats.settings')
     restart_webserver(service='triviastats')
 
 
