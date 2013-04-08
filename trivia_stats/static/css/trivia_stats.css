@@ -52,6 +52,10 @@ Dark: #0C141F
     border-color: #222;
     background-color: #222;
 }
+.navbar a:hover {
+    color:red;
+
+}
 
 .body {
     margin:0 auto;
