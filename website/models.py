@@ -94,9 +94,10 @@ class TwilioManager(object):
                     continue
                 else:
                     try:
+                        score = score[0]
                         # Max length of team name is 36
                         # 88 in characters (including spaces), 2 for hour, 3 for place, 5 for points = 134 max characters.
-                        client.sms.messages.create(to=user.phone_number, from_=from_number, body="Trivia Scores for Hour %d. %s in %d place with %d points. Check scores at http://triviastats.com." % (hour, score.team_name, score.place, score.score))
+                        client.sms.messages.create(to=user.phone_number, from_=from_number, body="Trivia Scores for Hour %d. %s in %d place with %d points. Check scores at http://triviastats.com." % (hour, user.team_name, score.place, score.score))
                         #send_mail('Trivia Scores Updated for Hour %d. %s is in %d place with %d points.' % (get_current_hour(), score.team_name, score.place, score.score), 'Trivia scores for Hour %d have been posted. %s is in %d place with %d points. You can check your current stats at <a href="http://triviastats.com">TriviaStats.com</a>' % (get_current_hour(), score.team_name, score.place, score.score), 'noreply@triviastats.com', user.email, fail_silently=False)
                     except TwilioRestException, e:
                         print "SMS for user %s failed." % (user, )
