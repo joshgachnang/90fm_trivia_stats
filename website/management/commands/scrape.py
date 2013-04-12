@@ -1,7 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 from website.models import Scraper
 from optparse import make_option
-#
 
 class Command(BaseCommand):
     can_import_settings = True

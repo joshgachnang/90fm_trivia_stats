@@ -1,37 +1,16 @@
 function homepage_init() {
-    var myCounter = new Countdown({
-        seconds:5,  // number of seconds to count down
-        onUpdateStatus: function(sec) { console.log(sec); }, // callback for each second
-        onCounterEnd: function(){ alert('counter ended!'); } // final action
-    });
-
-    myCounter.start();
-}
-
-function Countdown(options) {
-    var timer,
-        instance = this,
-        seconds = options.seconds || 10,
-        updateStatus = options.onUpdateStatus || function () {},
-        counterEnd = options.onCounterEnd || function () {};
-
-    function decrementCounter() {
-        updateStatus(seconds);
-        if (seconds === 0) {
-            counterEnd();
-            instance.stop();
-        }
-        seconds--;
+    now = Date.now();
+    var trivia_start = new Date(2013, 3, 19, 18, 0, 0, 0);
+    console.log("Now: ", now, " Trivia Start: ", trivia_start)
+    if (now < trivia_start) {
+        console.log("Not trivia time yet!");
+        $("#current_hour").html("<h3>Trivia Countdown</h3>")
+        $("#countdown").countdown({until: trivia_start, format: 'dHMS', layout: '<div class="cur_days">{dn} <div class="cur_days_label">{dl}</div></div>' +
+            '<div class="cur_hours">{hn}</div>' +
+            '<div class="cur_minutes">{mn}</div>' +
+            '<div class="cur_seconds">{sn}</div>'});
+    } else {
+        $("#current_hour").html("<h3>Current Hour</h3>")
+        console.log("Trivia time!")
     }
-
-    this.start = function () {
-        clearInterval(timer);
-        timer = 0;
-        seconds = options.seconds;
-        timer = setInterval(decrementCounter, 1000);
-    };
-
-    this.stop = function () {
-        clearInterval(timer);
-    };
 }

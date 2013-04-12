@@ -315,3 +315,43 @@ h2 {
     color:#eee;
     text-align: center;
 }
+
+/*Countdown*/
+.countdown {
+    border:none;
+    background-color:#6FC3DF;
+    width:300px;
+}
+.cur_days {
+    background:#222;
+    color: #DF740C;
+    width: 200px;
+    font-size:200%;
+    float:left;
+}
+.cur_days_label {
+    float:left;
+    width:100px;
+}
+.cur_hours {
+    width:80px;
+    background:#222;
+    color: #DF740C;
+    margin-right:20px;
+    float:left;
+}
+.cur_minutes {
+    width:80px;
+    background:#222;
+    color: #DF740C;
+    margin-left:10px;
+    margin-right:10px;
+    float:left;
+}
+.cur_seconds {
+    width:80px;
+    background:#222;
+    color: #DF740C;
+    margin-left:20px;
+    float:left;
+}

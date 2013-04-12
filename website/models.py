@@ -85,7 +85,7 @@ class TwilioManager(object):
             print "Client failed."
 
         if hour is None:
-            hour = get_current_hour()
+            hour = get_last_hour()
         for user in SMSSubscriber.objects.all():
             if user.team_name:
                 score = Score.objects.filter(hour=hour).filter(team_name=user.team_name)
@@ -96,7 +96,7 @@ class TwilioManager(object):
                     try:
                         # Max length of team name is 36
                         # 88 in characters (including spaces), 2 for hour, 3 for place, 5 for points = 134 max characters.
-                        client.sms.messages.create(to=score.phone_number, from_=from_number, body="Trivia Scores for Hour %d. %s in %d place with %d points. Check scores at http://triviastats.com." % (hour, score.team_name, score.place, score.score))
+                        client.sms.messages.create(to=user.phone_number, from_=from_number, body="Trivia Scores for Hour %d. %s in %d place with %d points. Check scores at http://triviastats.com." % (hour, score.team_name, score.place, score.score))
                         #send_mail('Trivia Scores Updated for Hour %d. %s is in %d place with %d points.' % (get_current_hour(), score.team_name, score.place, score.score), 'Trivia scores for Hour %d have been posted. %s is in %d place with %d points. You can check your current stats at <a href="http://triviastats.com">TriviaStats.com</a>' % (get_current_hour(), score.team_name, score.place, score.score), 'noreply@triviastats.com', user.email, fail_silently=False)
                     except TwilioRestException, e:
                         print "SMS for user %s failed." % (user, )
@@ -104,7 +104,7 @@ class TwilioManager(object):
             else:
                 try:
                     # Max length of team name is 36
-                    client.sms.messages.create(to=score.phone_number, from_=from_number, body="Trivia Scores for Hour %d. Check scores at http://triviastats.com." % (hour, ))
+                    client.sms.messages.create(to=user.phone_number, from_=from_number, body="Trivia Scores for Hour %d. Check scores at http://triviastats.com." % (hour, ))
                     #send_mail('Trivia Scores Updated for Hour %d' % get_current_hour(), 'Trivia scores for Hour %d have been posted. You can check your current stats at <a href="http://triviastats.com">TriviaStats.com</a>' % get_current_hour(), 'noreply@triviastats.com', user.email, fail_silently=False)
                 except TwilioRestException, e:
                     print "SMS for user %s failed." % user
@@ -240,23 +240,26 @@ class EmailManager(object):
                 return redirect('/')
 
     def email_notify(self,  hour=None):
+        year = get_last_year()
         if hour is None:
-            hour = get_current_hour()
+            hour = get_last_hour()
         for user in EmailSubscriber.objects.all():
             if user.team_name:
-                score = Score.objects.filter(hour=hour).filter(team_name=user.team_name)
+                score = Score.objects.filter(year=year).filter(hour=hour).filter(team_name=user.team_name.strip())
+                print year, hour
                 if len(score) != 1:
-                    print "Failed email notify for hour %d for team name %s" % (int(hour), user.team_name)
+                    print "Failed email notify for hour %d for team name %s. Found %s scores." % (int(hour), user.team_name.strip(), len(score) )
                     continue
                 else:
+                    score = score[0]
                     try:
-                        send_mail('Trivia Scores Updated for Hour %d. %s is in %d place with %d points.' % (get_current_hour(), score.team_name, score.place, score.score), 'Trivia scores for Hour %d have been posted. %s is in %d place with %d points. You can check your current stats at <a href="http://triviastats.com">TriviaStats.com</a>' % (get_current_hour(), score.team_name, score.place, score.score), 'noreply@triviastats.com', user.email, fail_silently=False)
+                        send_mail(subject='Trivia Scores Updated for Hour %d. %s is in %d place with %d points.' % (hour, user.team_name, score.place, score.score), message='Trivia scores for Hour %d have been posted. %s is in %d place with %d points. You can check your current stats at <a href="http://triviastats.com/team/%s">TriviaStats.com</a>' % (hour, user.team_name, score.place, score.score, user.team_name.replace(' ', '_')), from_email='noreply@triviastats.com', recipient_list=[user.email,], fail_silently=False)
                     except smtplib.SMTPException, e:
                         print "Emailing for user %s failed." % user
                         print e
             else:
                 try:
-                    send_mail('Trivia Scores Updated for Hour %d' % get_current_hour(), 'Trivia scores for Hour %d have been posted. You can check your current stats at <a href="http://triviastats.com">TriviaStats.com</a>' % get_current_hour(), 'noreply@triviastats.com', user.email, fail_silently=False)
+                    send_mail(subject='Trivia Scores Updated for Hour %d' % hour, message='Trivia scores for Hour %d have been posted. You can check your current stats at <a href="http://triviastats.com">TriviaStats.com</a>' % hour, from_email='noreply@triviastats.com', recipient_list=[user.email], fail_silently=False)
                 except smtplib.SMTPException, e:
                     print "Emailing for user %s failed." % user
                     print e
