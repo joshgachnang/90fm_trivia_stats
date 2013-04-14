@@ -48,12 +48,18 @@ Dark: #0C141F
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
-    background-image:none;
-    /*background-image: -webkit-linear-gradient(top,#222,#222);*/
-    border-color: #222;
-    background-color: #222;
 
-}
+
+    border-color: #222222;
+    background-image:none;
+    background-color: #222;
+    background-image: -webkit-linear-gradient(top,#222222,#222222);
+    background-image: linear-gradient(top, #222222, #222222);
+    background-repeat: repeat-x;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#222222', endColorstr='#222222', GradientType=0);}
+
+
+    }
 .navbar a:hover {
     text-decoration: underline;
 
