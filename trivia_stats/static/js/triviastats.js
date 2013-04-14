@@ -1,4 +1,7 @@
 function homepage_init() {
+//    Placeholder fix for IE9.
+    $('input, textarea').placeholder();
+    // Set up countdown/countup widget
     var now = Date.now();
 //    var now = new Date(2013, 3, 19, 19, 0, 0, 0);
     // Month is 3 because Javascript has Jan = 0..
