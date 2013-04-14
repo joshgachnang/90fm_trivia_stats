@@ -1,11 +1,12 @@
 function homepage_init() {
+    var now, trivia_start;
 //    Placeholder fix for IE9.
     $('input, textarea').placeholder();
     // Set up countdown/countup widget
-    var now = Date.now();
+    now = Date.now();
 //    var now = new Date(2013, 3, 19, 19, 0, 0, 0);
     // Month is 3 because Javascript has Jan = 0..
-    var trivia_start = new Date(2013, 3, 19, 18, 0, 0, 0);
+    trivia_start = new Date(2013, 3, 19, 18, 0, 0, 0);
 //    console.log("Now: ", now, " Trivia Start: ", trivia_start);
     if (now < trivia_start) {
 //        console.log("Not trivia time yet!");
