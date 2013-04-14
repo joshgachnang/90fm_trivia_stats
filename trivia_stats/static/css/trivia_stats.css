@@ -87,7 +87,7 @@ body {
 }
 .search-query {
     float:right;
-    margin-top:5px;
+    margin-top:0;
     margin-left:380px;
 }
 
@@ -223,7 +223,7 @@ body {
     border-bottom-left-radius: 0;
     border:none;
     border-bottom:1px solid #ddd;
-    height:25px;
+    height:26px;
 }
 .input-prepend .add-on-bottom:first-child {
     /*border-top:none;*/
@@ -258,6 +258,7 @@ input[type="text"][class~="notification_input"]
     border-top-left-radius:0;
     text-shadow:none;
     box-shadow:none;
+
     /*color:red;*/
 }
 input[type="text"][class~="notification_input_top"] {
@@ -267,6 +268,7 @@ input[type="text"][class~="notification_input_top"] {
     border:none;
     border-bottom:1px solid #ddd;
     border-bottom-right-radius:0;
+    padding:0;
 }
 input[type="text"][class~="notification_input_bottom"]{
     border-top:none;
@@ -276,6 +278,7 @@ input[type="text"][class~="notification_input_bottom"]{
     /*border-bottom:1px solid black;*/
     border:none;
     border-top-right-radius:0;
+    padding:0;
 }
 .cellphone_icon {
     height:13px;
