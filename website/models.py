@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.localflavor.us.forms import USPhoneNumberField
-from django.forms import ModelForm, Form, CharField
+from django.forms import ModelForm, Form, CharField, EmailField
 from django.conf import settings
 from BeautifulSoup import BeautifulStoneSoup, BeautifulSoup
 import datetime
@@ -30,6 +30,8 @@ from pygooglechart import XYLineChart
 import boto.ses as ses
 ses_conn = ses.connect_to_region('us-east-1')
 from django.conf import settings
+from django.db import IntegrityError
+
 
 
 class Score(models.Model):
@@ -143,7 +145,16 @@ class TwilioManager(object):
                     print "Need a phone_number!"
                     return HttpResponseServerError("Invalid phone number")
                 sub = SMSSubscriber(team_name=team_name, phone_number=number)
-                sub.save()
+                if len(SMSSubscriber.objects.filter(phone_number=number)) > 0:
+                    print "Duplicate Phone Number: {0}".format(number)
+                    messages.error(request, "Cannot register multiple times for phone number: {0}".format(number))
+                    return redirect('/')
+                try:
+                    sub.save()
+                except Exception as e:
+                    print "Duplicate Phone Number: {0}".format(number)
+                    messages.error(request, "Cannot register multiple times for phone number: {0}".format(number))
+                    return redirect('/')
 
                 # Notify of subscription
                 c = Context({'number': number, 'team_name': team_name})
@@ -196,7 +207,17 @@ class EmailManager(object):
                     team_name = None
                 email = form.cleaned_data['email']
                 sub = EmailSubscriber(email=email, team_name=team_name)
-                sub.save()
+                if len(EmailSubscriber.objects.filter(email=email)) > 0:
+                    print "Duplicate Email: {0}".format(email)
+                    messages.error(request, "Cannot register multiple times for email: {0}".format(email))
+                    return redirect('/')
+                try:
+                    sub.save()
+                except Exception as e:
+                    print "Duplicate Email: {0}".format(email)
+                    messages.error(request, "Cannot register multiple times for email: {0}".format(email))
+                    return redirect('/')
+
 
                 # Notify of subscription
                 print team_name, email
@@ -452,9 +473,9 @@ class EmailSubscriber(models.Model):
     #def __repr__(self):
         #return self.__unicode__()
 
-class EmailSubscriberForm(ModelForm):
-    class Meta:
-        model = EmailSubscriber
+class EmailSubscriberForm(Form):
+    email = EmailField()
+    team_name = CharField(max_length=36, help_text="(optional)", required=False)
 
 
 class EmailUnsubscribeForm(Form):
