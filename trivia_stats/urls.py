@@ -35,3 +35,5 @@ urlpatterns += patterns('website.views',
     # (r'^years/(?P<year>\d+)/$', 'past_year_hours'),
     (r'^score/(?P<year>\d{4})/(?P<hour>\d{1,2})/$', 'year_hour_overview'),
 )
+
+urlpatterns += (url(r'^admin/django-ses/', include('django_ses.urls')),)

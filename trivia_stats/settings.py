@@ -5,7 +5,7 @@ import os
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 PROJECT_DIR = os.path.dirname(os.path.dirname(__file__))
-print PROJECT_DIR
+# print PROJECT_DIR
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )
@@ -137,6 +137,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     'django.contrib.admindocs',
+    'django_ses',
     'website',
 )
 
