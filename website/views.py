@@ -35,7 +35,6 @@ logger = logging.getLogger('logger')
 ##############################################################################
 def home(request):
     if request.method == 'GET':
-        logger.error('test')
         template_data = {}
         template_data['email_form'] = EmailSubscriberForm()
         template_data['sms_form'] = SMSSubscriberForm()
