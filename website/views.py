@@ -108,7 +108,7 @@ def year_hour_overview(request, year, hour):
     template_data['hour'] = year
     template_data['year'] = hour
     scores = Score.objects.filter(year=year, hour=hour).order_by('-score')
-    prev_scores = Score.objects.filter(year=2012).filter(hour__lt=54).values_list('hour', flat=True).distinct().order_by('-hour')
+    prev_scores = Score.objects.filter(year=2012).filter(hour__lt=hour).values_list('hour', flat=True).distinct().order_by('-hour')
     if len(prev_scores) > 0:
         prev_hour = prev_scores[0]
         prev_hour_scores = Score.objects.filter(year=2012).filter(hour=prev_hour)
@@ -121,6 +121,7 @@ def year_hour_overview(request, year, hour):
         team['score_change'] = 0
         team['place_change'] = 0
         if prev_hour:
+            print prev_hour
             prev_team = prev_hour_scores.filter(team_name=team['team_name'])
             if prev_team and len(prev_team) > 0:
                 print prev_team[0], prev_team[0].score, team['score'], prev_team[0].place, team['place']
