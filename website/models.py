@@ -35,7 +35,8 @@ import boto.ses as ses
 ses_conn = ses.connect_to_region('us-east-1')
 from django.conf import settings
 from django.db import IntegrityError
-
+import logging
+logger = logging.getLogger('logger')
 
 class Score(models.Model):
     # This should be team_name for consistency..
@@ -71,11 +72,13 @@ class TwilioManager(object):
         from_number = self.get_twilio_number()
 
         if account is None or token is None or from_number is None:
-            print "Missing token, account, or from_number"
+            logger.error("Missing token, account, or from_number")
+            return
 
         client = TwilioRestClient(account, token)
         if client is None:
-            print "Client failed."
+            logger.error("Client failed.")
+            return
 
         if hour is None:
             hour = get_last_hour()
@@ -83,7 +86,7 @@ class TwilioManager(object):
             if user.team_name:
                 score = Score.objects.filter(hour=hour).filter(team_name=user.team_name)
                 if len(score) != 1:
-                    print "Failed sms notify for hour %d for team name %s, %d scores found.." % (int(hour), user.team_name, len(score))
+                    logger.warning("Failed sms notify for hour %d for team name %s, %d scores found.." % (int(hour), user.team_name, len(score)))
                     continue
                 else:
                     try:
@@ -100,8 +103,8 @@ class TwilioManager(object):
                         # (get_current_hour(), score.team_name, score.place, score.score),
                         # 'noreply@triviastats.com', user.email, fail_silently=False)
                     except TwilioRestException, e:
-                        print "SMS for user %s failed." % (user, )
-                        print e
+                        logger.exception("SMS for user {0} failed.".format(user))
+                        return
             else:
                 try:
                     # Max length of team name is 36
@@ -112,8 +115,8 @@ class TwilioManager(object):
                     # get_current_hour(), 'noreply@triviastats.com', user.email,
                     # fail_silently=False)
                 except TwilioRestException, e:
-                    print "SMS for user %s failed." % user
-                    print e
+                    logger.exception("SMS for user {0} failed.".format(user))
+                    return
 
     def sms_update(self,):
         hour = get_last_hour()
@@ -126,8 +129,7 @@ class TwilioManager(object):
                 try:
                     score = Score.objects.filter(team_name=sub.team_name.upper().get(hour=get_last_hour()))
                 except Exception, e:
-                    print e
-                    print "Team name doesn't exist or has too many returned..", sub.phone_number, sub.team_name
+                    logger.exception("Team name {0} doesn't exist or has too many returned for SMS: {1}".format(sub.team_name, sub.phone_number))
             if score:
                 text_content = "%s Score: %d Place: %d. See more at TriviaStats.com/hour/%d" % (
                     sub.team_name, score.score, score.place, hour)
@@ -135,7 +137,7 @@ class TwilioManager(object):
                 text_content = "Trivia Stats: Scores for Hour %d have been updated. See them at TriviaStats.com/hour/%d" % (hour, hour)
             client = TwilioRestClient(settings.TWILIO_ACCOUNT, settings.TWILIO_AUTH)
             message = client.sms.messages.create(to=sub.phone_number, from_=settings.TWILIO_NUMBER, body=text_content)
-            print 'message sent to user'
+            logger.info('message sent to user: {0}'.format(sub.phone_number))
 
     def sms_subscribe(self, request):
         if request.method == 'POST':
@@ -147,17 +149,17 @@ class TwilioManager(object):
                     team_name = None
                 number = self.clean_number(form.cleaned_data['phone_number'])
                 if number == None:
-                    print "Need a phone_number!"
+                    logger.warning("Need a phone_number!")
                     return HttpResponseServerError("Invalid phone number")
                 sub = SMSSubscriber(team_name=team_name, phone_number=number)
                 if len(SMSSubscriber.objects.filter(phone_number=number)) > 0:
-                    print "Duplicate Phone Number: {0}".format(number)
+                    logger.warning("Duplicate Phone Number: {0}".format(number))
                     messages.error(request, "Cannot register multiple times for phone number: {0}".format(number))
                     return redirect('/')
                 try:
                     sub.save()
                 except Exception as e:
-                    print "Duplicate Phone Number: {0}".format(number)
+                    logger.warning("Duplicate Phone Number: {0}".format(number))
                     messages.error(request, "Cannot register multiple times for phone number: {0}".format(number))
                     return redirect('/')
 
@@ -166,7 +168,7 @@ class TwilioManager(object):
                 text = get_template('subscribe_sms.txt')
                 text_content = text.render(c)
                 if len(text_content) > 140:
-                    print "More than one message!!"
+                    logger.warning("More than one message!! Message: {0}".format(text_content))
 
                 client = TwilioRestClient(self.get_twilio_account(), self.get_twilio_token())
                 # print client
@@ -202,7 +204,6 @@ class TwilioManager(object):
 
 class EmailManager(object):
     def email_subscribe(self, request):
-        print 'EMAIL SUBSCRIBE'
         if request.method == 'POST':
             form = EmailSubscriberForm(request.POST)
             if form.is_valid():
@@ -213,18 +214,17 @@ class EmailManager(object):
                 email = form.cleaned_data['email']
                 sub = EmailSubscriber(email=email, team_name=team_name)
                 if len(EmailSubscriber.objects.filter(email=email)) > 0:
-                    print "Duplicate Email: {0}".format(email)
+                    logger.warning("Duplicate Email: {0}".format(email))
                     messages.error(request, "Cannot register multiple times for email: {0}".format(email))
                     return redirect('/')
                 try:
                     sub.save()
                 except Exception as e:
-                    print "Duplicate Email: {0}".format(email)
+                    logger.warning("Duplicate Email: {0}".format(email))
                     messages.error(request, "Cannot register multiple times for email: {0}".format(email))
                     return redirect('/')
 
                 # Notify of subscription
-                print team_name, email
                 c = Context({'email': email, 'team_name': team_name})
                 text = get_template('subscribe_email.txt')
                 text_content = text.render(c)
@@ -240,12 +240,12 @@ class EmailManager(object):
                 #     print e
                 #     return HttpResponse(e)
                 if team_name:
-                    messages.success(request, "Email %s for team %s successfully added!" % (email, team_name))
+                    messages.success(request, "Email {0} for team {1} successfully added!".format(email, team_name))
                 else:
-                    messages.success(request, "Email %s successfully added!" % (email))
+                    messages.success(request, "Email {0} successfully added!".format(email))
             else:
                 # TODO add message about why this doesn't work
-                print 'Invalid Email or Team Name', form
+                logger.warning('Invalid Email or Team Name')
                 messages.error(request, 'Invalid Email or Team Name')
             return redirect('/')
 
@@ -270,37 +270,33 @@ class EmailManager(object):
         for user in EmailSubscriber.objects.all():
             if user.team_name:
                 score = Score.objects.filter(year=year).filter(hour=hour).filter(team_name=user.team_name.strip())
-                print year, hour
                 if len(score) != 1:
-                    print "Failed email notify for hour %d for team name %s. Found %s scores." % (int(hour), user.team_name.strip(), len(score))
+                    logger.error("Failed email notify for hour {0} for team name {1}. Found {2} scores.".format(int(hour), user.team_name.strip(), len(score)))
                     continue
                 else:
                     score = score[0]
                     try:
                         send_mail(subject='Trivia Scores Updated for Hour %d. %s is in %d place with %d points.' % (hour, user.team_name, score.place, score.score), message='Trivia scores for Hour %d have been posted. %s is in %d place with %d points. You can check your current stats at <a href="http://triviastats.com/team/%s">TriviaStats.com</a>' % (hour, user.team_name, score.place, score.score, user.team_name.replace(' ', '_')), from_email='noreply@triviastats.com', recipient_list=[user.email, ], fail_silently=False)
                     except smtplib.SMTPException, e:
-                        print "Emailing for user %s failed." % user
-                        print e
+                        logger.error("Emailing for user %s failed.".format(user))
             else:
                 try:
                     send_mail(subject='Trivia Scores Updated for Hour %d' % hour, message='Trivia scores for Hour %d have been posted. You can check your current stats at <a href="http://triviastats.com">TriviaStats.com</a>' % hour, from_email='noreply@triviastats.com', recipient_list=[user.email], fail_silently=False)
                 except smtplib.SMTPException, e:
-                    print "Emailing for user %s failed." % user
-                    print e
+                    logger.error("Emailing for user %s failed.".format(user))
 
     def send_email(self, subscriber):
         last_hour = get_last_hour()
         top_ten = get_top_ten_teams(Settings.objects.all()[0].lasthour)
-        print top_ten
         if subscriber is None:
             return
 
         if subscriber.team_name:
             score = Score.objects.filter(team_name=subscriber.team_name).filter(hour=last_hour)
             if score is None:
-                print "Couldn't find score for Hour %d for Team %s", (last_hour, subscriber.team_name)
+                logger.error("Couldn't find score for Hour {0} for Team {1}".format((last_hour, subscriber.team_name)))
         else:
-            print "No team name. Continuing."
+            logger.info("No team name. Continuing.")
         if score:
             subject = "Trivia Scores Updated for Hour %d. %s is in %d place with %d points." % (
                 last_hour, subscriber.team_name, score.place, score.score)
@@ -312,21 +308,11 @@ class EmailManager(object):
             html_body = "Trivia scores for Hour %d have been posted. You can check your current stats at <a href='http://triviastats.com'>TriviaStats.com</a>" % (last_hour, )
         ses_conn.send_email(source="TriviaStats@triviastats.com", subject=subject, body=html_body,
                             to_addresses=(subscriber.email, ), format='html',)
+        logger.info("Sent email to {0}".format(subscriber.email))
 
     def email_update(self, ):
         for sub in EmailSubscriber.objects.all():
-            if sub.email == None:
-                print "Invalid email for ", sub
-                continue
-
             self.send_email(sub)
-            # c = Context({'email': email, 'team_name': team_name, 'top_ten': top_ten})
-            # subject = "Trivia Stats: Hour %d, %d Have Been Posted" % (Settings.objects.all()[0].last_hour, get_current_year(),)
-            # html_content = render_to_string('update_email.html', c)
-            # text_content = strip_tags(html_content)
-            # msg = EmailMultiAlternatives(subject, text_content, settings.EMAIL_FROM_ADDRESS, [email])
-            # msg.attach_alternative(html_content, "text/html")
-            # msg.send()
 
 
 class Scraper(object):
@@ -341,7 +327,7 @@ class Scraper(object):
     # Utility function for scraping a year. Useful for setting up database with previous years.
     def scrape_prev(self, year, hour=None, force=False):
         if year is None:
-            print "Year is None."
+            logger.error("Year is None.")
             return
         s = []
         if hour:
@@ -351,7 +337,7 @@ class Scraper(object):
         for hr in hours:
             success = self.scrape_year_hour(year, hr, force=force)
             time.sleep(.5)
-            print "Success for hour {0}".format(hr)
+            plogger.info("Success for hour {0}".format(hr))
             if success:
                 s.append(hr)
         if len(s) > 0:
@@ -360,7 +346,7 @@ class Scraper(object):
             sms.sms_notify(s[-1])
             email.email_notify(s[-1])
 
-        print "Success for hours: ", s
+        logger.info("Success for hours: {0}".format(s))
 
     def spa(self, ):
         for i in range(2009, 2012):
@@ -373,7 +359,7 @@ class Scraper(object):
             # print len(query)
             # for s in query:
             #     print s
-            print "Already in DB"
+            logger.info("Already in DB")
             return False
 
         # Trivia has a discrepancy between 02 and 2 for hours..
@@ -382,32 +368,28 @@ class Scraper(object):
                 # Add 0 to the front
                 hr = "0%d" % hr
         page = page_template[str(yr)] % (str(yr), str(hr))
-        print "Getting page: {0}".format(page)
+        logger.info("Getting page: {0}".format(page))
         try:
             p = urllib2.urlopen(page)
         except urllib2.HTTPError, e:
             # If hour 54, might need to use a special page for previous years.
-            print "Checking for hour 54 page. Yr: {0}, Hr: {1}".format(yr, hr)
-            print "Hour 54 Finals: ", hour_54_page
+            logger.info("Checking for hour 54 page. Yr: {0}, Hr: {1}".format(yr, hr))
+            logger.info("Hour 54 Finals: ", hour_54_page)
             if str(yr) in hour_54_page and hr == 54:
                 try:
                     page = hour_54_page[str(yr)]
                     p = urllib2.urlopen(page)
                 except urllib2.HTTPError, e:
-                    print("Can't scrape either page 54 or final page.")
+                    logger.error("Can't scrape either page 54 or final page.")
                     return False
             else:
-                print("No data for this hour (yet?): {0}".format(hr))
+                logger.info("No data for this hour (yet?): {0}".format(hr))
                 return False
-        # print "p: ", p
         soup = BeautifulSoup(''.join(p.read()))
-        # print "soup: ", soup
         p.close()
 
         teams = soup.findAll('dd')
         place_score = soup.findAll('dt')
-        # print "place_score: ", place_score
-        # print "team: ", teams
 
         bulk_list = []
         # Drop all teams into a list of lists:
@@ -426,7 +408,6 @@ class Scraper(object):
             score = reg[1]
             # Generate teams list
             teams_list = teams[i].findAll('li')
-            # print teams_list
 
             for j in range(0, len(teams_list)):
                 # Isn't this uggggggggly?
@@ -586,11 +567,9 @@ def get_top_ten_teams(year=None, hour=None):
         year = get_last_year()
     if hour is None:
         hour = get_last_hour()
-    print "last year/hour: {0}, hr {1}".format(year, hour)
-    top_ten = []
     place = 1
+
     scores = Score.objects.filter(year=year).filter(hour=hour).order_by('place')[0:10]
-    print "Top Teams for {0} Hr {1}".format(year, hour), scores
     return scores
 
 
@@ -601,9 +580,9 @@ def post_to_twitter(message):
     t.account.verify_credentials()
     if settings.DEBUG:
         # Don't tweet in dev.
-        print "Would tweet message: {0}".format(message)
+        logger.info("Would tweet message: {0}".format(message))
     else:
-        print t.statuses.update(status=message)
+        logger.info(t.statuses.update(status=message))
 
 page_template = {'2012': 'http://90fmtrivia.org/TriviaScores%s/scorePages/results%s.htm', '2011': 'http://90fmtrivia.org/TriviaScores%s/results%s.htm', '2010': 'http://90fmtrivia.org/scores_page/Scores%s/scores/results%s.htm', '2009': 'http://90fmtrivia.org/scores_page/Scores%s/results%s.htm'}
 hour_54_page = {'2012': 'http://90fmtrivia.org/TriviaScores2012/scorePages/results.htm'}

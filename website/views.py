@@ -28,19 +28,20 @@ import boto.ses as ses
 ses_conn = ses.connect_to_region('us-east-1')
 from django.conf import settings
 
-
+import logging
+logger = logging.getLogger('logger')
 ##############################################################################
 # Public Views
 ##############################################################################
 def home(request):
     if request.method == 'GET':
+        logger.error('test')
         template_data = {}
         template_data['email_form'] = EmailSubscriberForm()
         template_data['sms_form'] = SMSSubscriberForm()
         # template_data['latest_hour'] = get_last_hour()
         # template_data['latest_year'] = get_last_year()
         template_data['top_teams'] = get_top_ten_teams()
-        print "SMS: ", template_data['sms_form']
         return render_to_response("homepage.html", template_data, context_instance=RequestContext(request))
 
 # Displays all the information for a team. If year is specified, only for that year.
@@ -67,7 +68,6 @@ def team(request, team_name, team_year=None):
     template_data['scores'] = []
     for year in scores.values_list('year', flat=True).distinct().order_by('-year'):
         template_data['scores'].append(scores.filter(year=year).order_by('-hour'))
-    print template_data
     return render_to_response("team.html", template_data, context_instance=RequestContext(request))
 
 # Displays a list of teams, year combos matching the search.
@@ -76,7 +76,6 @@ def team(request, team_name, team_year=None):
 def search(request):
     template_data = {}
     if request.method == 'POST':
-        print "POST", request.POST
         form = SearchForm(request.POST)
         if form.is_valid():
             search = form.cleaned_data['search']
@@ -84,11 +83,9 @@ def search(request):
                 team_name__icontains=search).values_list('team_name', 'year').distinct().order_by('-year')
             teams = []
             for team in t:
-                print "team 0", team[0], type(team[0])
                 url = team[0].replace(' ', '_')
                 teams.append({'team_name': team[0], 'year': team[1], 'url': url})
             template_data['teams'] = teams
-        print template_data
         return render_to_response("search_results.html", template_data, context_instance=RequestContext(request))
     else:
         return HttpResponseBadRequest("Only POSTs allowed.")
@@ -116,7 +113,6 @@ def archive(request):
     template_data['scores'] = []
     for year in Score.objects.values_list('year', flat=True).distinct().order_by('-year'):
         template_data['scores'].append(get_top_ten_teams(year, 54))
-    print template_data
     return render_to_response("archive.html", template_data, context_instance=RequestContext(request))
 
 # Email/SMS Subscriptions
