@@ -22,8 +22,15 @@
 			<tr>
 <!-- 				<td>{{ team }} </td> -->
 				<td><a href='/team/{{ scores.url }}'>{{ scores.team_name }}</a></td>
-				<td>{{ scores.score }}</td>
-				<td>{{ scores.place }}</td>
+				<td>{{ scores.score }} (+{{ scores.score_change }})</td>
+				<td>{{ scores.place }} {% if scores.place_change > 0 %}
+                        (<i class="icon-green icon-arrow-up"></i>{{ scores.place_change }})
+                    {% elif scores.place_change < 0 %}
+                        (<i class="icon-red icon-arrow-down"></i>{{ scores.place_change_abs }})
+                    {% else %}
+                        ({{ scores.place_change }})
+                    {% endif %}</td>
+
 			</tr>
 		{% endfor %}
 		</tbody>

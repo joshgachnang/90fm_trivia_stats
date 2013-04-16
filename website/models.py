@@ -45,6 +45,8 @@ class Score(models.Model):
     hour = models.IntegerField(db_index=True)
     place = models.IntegerField(db_index=True)
     score = models.IntegerField(db_index=True)
+    score_change = 0
+    place_change = 0
 
     def url(self):
         return self.team_name.replace(' ', '_')
@@ -337,7 +339,7 @@ class Scraper(object):
         for hr in hours:
             success = self.scrape_year_hour(year, hr, force=force)
             time.sleep(.5)
-            plogger.info("Success for hour {0}".format(hr))
+            logger.info("Success for hour {0}".format(hr))
             if success:
                 s.append(hr)
         if len(s) > 0:
@@ -430,6 +432,28 @@ class Scraper(object):
         # insert_bulk(db)
         # post_to_twitter("Hour {0} scores posted!".format(hr))
         return True
+
+    # def calculate_changes(self, year, hour):
+    #     """
+    #     Should only be called after year/hour has been scraped.
+    #     """
+    #     hour_list = Score.objects.filter(year=2012).values_list('hour').distinct().order_by('-hour')
+    #     if len(hour_list) == 0:
+    #         logger.warning("Could not calculate changes for year {0} hour {1}, no scores.")
+    #         return
+    #     elif len(hour_list) == 1:
+    #         logger.warning("First hour, ignoring.")
+    #     # Find hour before hours.
+    #     for past_hour in hour_list:
+    #         if hour < past_hour:
+    #             prev_hour = past_hour
+    #             break
+    #     if prev_hour is None:
+    #         logger.warning("Previous hour is none for year {0} hour {1}".format(year, hour))
+    #     # Get all scores for this hour and last hour.
+    #     scores = Score.objects.filter(year=year).filter(hour=hour)
+    #     prev_scores = Score.objects.filter(year=year).filter(hour=prev_hour)
+
 
 
 class AvailableHours(models.Model):

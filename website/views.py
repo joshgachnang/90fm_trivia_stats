@@ -65,8 +65,18 @@ def team(request, team_name, team_year=None):
     if len(scores) == 0:
         return HttpResponseNotFound("Can't find data for team: {0}".format(team_name))
     template_data['scores'] = []
+    temp_scores = []
     for year in scores.values_list('year', flat=True).distinct().order_by('-year'):
-        template_data['scores'].append(scores.filter(year=year).order_by('-hour'))
+        temp_scores.append(scores.filter(year=year).order_by('-hour'))
+    for year in temp_scores:
+        i = 0
+        while i + 1 < len(year):
+            print year[i]
+            year[i].score_change = year[i].score - year[i+1].score
+            year[i].place_change = year[i+1].place - year[i].place
+            print "YEAR", year[i].score_change
+            i += 1
+        template_data['scores'].append(year)
     return render_to_response("team.html", template_data, context_instance=RequestContext(request))
 
 # Displays a list of teams, year combos matching the search.
@@ -97,11 +107,28 @@ def year_hour_overview(request, year, hour):
     template_data['hour'] = year
     template_data['year'] = hour
     scores = Score.objects.filter(year=year, hour=hour).order_by('-score')
+    prev_scores = Score.objects.filter(year=2012).filter(hour__lt=54).values_list('hour', flat=True).distinct().order_by('-hour')
+    if len(prev_scores) > 0:
+        prev_hour = prev_scores[0]
+        prev_hour_scores = Score.objects.filter(year=2012).filter(hour=prev_hour)
+    else:
+        prev_hour = None
     template_data['teams'] = []
     for score in scores:
         team = model_to_dict(score)
         team['url'] = team['team_name'].replace(' ', '_')
+        team['score_change'] = 0
+        team['place_change'] = 0
+        if prev_hour:
+            prev_team = prev_hour_scores.filter(team_name=team['team_name'])
+            if prev_team and len(prev_team) > 0:
+                print prev_team[0], prev_team[0].score, team['score'], prev_team[0].place, team['place']
+                team['score_change'] = team['score'] - prev_team[0].score
+                team['place_change'] = prev_team[0].place - team['place']
+                team['place_change_abs'] = abs(team['place_change'])
+        print team
         template_data['teams'].append(team)
+    print template_data['teams']
     return render_to_response('hour.html', template_data, context_instance=RequestContext(request))
 
 # List years, and which teams were in first.

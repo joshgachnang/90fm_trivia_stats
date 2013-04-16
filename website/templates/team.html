@@ -11,6 +11,7 @@
             <th>Hour</th>
             <th>Place</th>
             <th>Score</th>
+            <th>+/-</th>
         </thead>
         <tbody>
             {% for score in year_scores %}
@@ -19,6 +20,19 @@
                     <td>{{ score.hour }}</td>
                     <td>{{ score.place }}</td>
                     <td>{{ score.score }}</td>
+                    <td>{% if score.place_change > 0 %}
+                            <i class="icon-green icon-arrow-up"></i>
+                            {{ score.place_change }}
+                        {% elif score.place_change < 0 %}
+                            <i class="icon-red icon-arrow-down"></i>
+                            {{ score.place_change }}
+                        {% else %}
+                            {{ score.place_change }}
+                        {% endif %}
+                        (+{{ score.score_change }})
+
+
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>

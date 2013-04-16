@@ -437,3 +437,6 @@ h2 {
     margin-right:10px;
     width:300px;
 }
+
+.icon-red {background-image:url("/static/img/glyphicons-halflings-red.png")}
+.icon-green {background-image:url("/static/img/glyphicons-halflings-green.png")}
