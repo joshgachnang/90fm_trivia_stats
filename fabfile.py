@@ -6,8 +6,9 @@ import os
 import time
 # import requests
 
-#env.hosts = ['triviastats.com']
+# env.hosts = ['triviastats.com']
 env.user = "triviastats"
+
 
 def update_django_project(path, branch):
     """ Updates the remote django project.
@@ -26,13 +27,15 @@ def django_functions(path, settings):
             sudo('pip install -r ' + os.path.join(path, 'requirements.txt'))
             sudo('python manage.py syncdb --settings={0}'.format(settings))
             # sudo('python manage.py collectstatic -c --noinput --settings={0}'.format(settings))
-            #sudo('python manage.py migrate') # if you use south
+            # sudo('python manage.py migrate') # if you use south
+
 
 def south_migration(path, settings):
     with cd(path):
         with prefix('source ' + os.path.join(path, 'bin/activate')):
 
-            sudo('python manage.py migrate'.format(settings)) # if you use south
+            sudo('python manage.py migrate'.format(settings))  # if you use south
+
 
 def update_permissions(path):
     with cd(path):
@@ -75,4 +78,3 @@ def production():
 
 # def testing():
 #     env.hosts = ['testing.triviastats.com']
-

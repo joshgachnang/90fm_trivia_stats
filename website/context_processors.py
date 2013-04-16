@@ -8,4 +8,3 @@ def default_template_variables(request):
     template_data['during_trivia'] = during_trivia()
     template_data['trivia_start_time'] = get_start_time()
     return template_data
-

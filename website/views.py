@@ -8,7 +8,8 @@ from website.models import Score,  Settings, SMSSubscriberForm, EmailSubscriberF
     get_top_ten_teams, TwilioManager, EmailManager
 from BeautifulSoup import BeautifulStoneSoup, BeautifulSoup
 import urllib2
-import sys, os
+import sys
+import os
 import re
 import time
 import datetime
@@ -45,6 +46,8 @@ def home(request):
 # Displays all the information for a team. If year is specified, only for that year.
 # team_name: str
 # team_year: int
+
+
 def team(request, team_name, team_year=None):
     team_name = team_name.replace('_', ' ')
     template_data = {}
@@ -68,6 +71,8 @@ def team(request, team_name, team_year=None):
     return render_to_response("team.html", template_data, context_instance=RequestContext(request))
 
 # Displays a list of teams, year combos matching the search.
+
+
 def search(request):
     template_data = {}
     if request.method == 'POST':
@@ -75,7 +80,8 @@ def search(request):
         form = SearchForm(request.POST)
         if form.is_valid():
             search = form.cleaned_data['search']
-            t = Score.objects.filter(team_name__icontains=search).values_list('team_name', 'year').distinct().order_by('-year')
+            t = Score.objects.filter(
+                team_name__icontains=search).values_list('team_name', 'year').distinct().order_by('-year')
             teams = []
             for team in t:
                 print "team 0", team[0], type(team[0])
@@ -88,6 +94,8 @@ def search(request):
         return HttpResponseBadRequest("Only POSTs allowed.")
 
 # Gives the teams and scores for a certain hour in a year
+
+
 def year_hour_overview(request, year, hour):
     template_data = {}
     template_data['hour'] = year
@@ -101,6 +109,8 @@ def year_hour_overview(request, year, hour):
     return render_to_response('hour.html', template_data, context_instance=RequestContext(request))
 
 # List years, and which teams were in first.
+
+
 def archive(request):
     template_data = {}
     template_data['scores'] = []
@@ -110,24 +120,27 @@ def archive(request):
     return render_to_response("archive.html", template_data, context_instance=RequestContext(request))
 
 # Email/SMS Subscriptions
+
+
 def email_subscribe(request):
     em = EmailManager()
     return em.email_subscribe(request)
 
+
 def email_unsubscribe(request):
     pass
+
+
 def sms_subscribe(request):
     tm = TwilioManager()
     return tm.sms_subscribe(request)
+
 
 def sms_unsubscribe(request):
     pass
 ##############################################################################
 # Auxillary Functions
 ##############################################################################
-
-
-
 
 
 def get_referer_view(request, default=None):
