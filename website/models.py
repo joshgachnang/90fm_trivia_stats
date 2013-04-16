@@ -169,7 +169,7 @@ class TwilioManager(object):
                     print "More than one message!!"
 
                 client = TwilioRestClient(self.get_twilio_account(), self.get_twilio_token())
-                print client
+                # print client
                 # try:
                 message = client.sms.messages.create(to=number, from_=settings.TWILIO_NUMBER, body=text_content)
                 # except TwilioRestException, e:
@@ -371,8 +371,8 @@ class Scraper(object):
         query = Score.objects.filter(year=int(yr)).filter(hour=int(hr))
         if len(query) != 0 and force is False:
             # print len(query)
-            for s in query:
-                print s
+            # for s in query:
+            #     print s
             print "Already in DB"
             return False
 
