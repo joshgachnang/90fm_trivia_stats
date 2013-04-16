@@ -47,6 +47,7 @@ class Score(models.Model):
     score = models.IntegerField(db_index=True)
     score_change = 0
     place_change = 0
+    place_change_abs = 0
 
     def url(self):
         return self.team_name.replace(' ', '_')

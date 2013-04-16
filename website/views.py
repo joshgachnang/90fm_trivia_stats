@@ -71,10 +71,11 @@ def team(request, team_name, team_year=None):
     for year in temp_scores:
         i = 0
         while i + 1 < len(year):
-            print year[i]
+            # print year[i]
             year[i].score_change = year[i].score - year[i+1].score
             year[i].place_change = year[i+1].place - year[i].place
-            print "YEAR", year[i].score_change
+            year[i].place_change_abs = abs(year[i].place_change)
+            # print "YEAR", year[i].score_change
             i += 1
         template_data['scores'].append(year)
     return render_to_response("team.html", template_data, context_instance=RequestContext(request))
