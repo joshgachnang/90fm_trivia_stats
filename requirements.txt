@@ -12,5 +12,6 @@ pycrypto==2.6
 pygooglechart==0.3.0
 six==1.2.0
 twilio==3.4.3
+twitter==1.9.2
 unittest2==0.5.1
 wsgiref==0.1.2
