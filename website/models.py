@@ -30,7 +30,7 @@ from django.template.loader import render_to_string
 import smtplib
 from django.db import transaction
 from pygooglechart import XYLineChart
-import twitter
+# import twitter
 import boto.ses as ses
 ses_conn = ses.connect_to_region('us-east-1')
 from django.conf import settings
@@ -428,7 +428,7 @@ class Scraper(object):
                 # {4}".format(year, hour, name, score, place)
         Score.objects.bulk_create(bulk_list)
         # insert_bulk(db)
-        post_to_twitter("Hour {0} scores posted!".format(hr))
+        # post_to_twitter("Hour {0} scores posted!".format(hr))
         return True
 
 
