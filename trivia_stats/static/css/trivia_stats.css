@@ -447,7 +447,7 @@ h2 {
     text-align:center;
 }
 .social_box_icons {
-    width:160px;
+    width:300px;
     margin:0 auto;
 }
 .share_box {
@@ -461,6 +461,13 @@ h2 {
     margin:0 auto;
     width:250px;
 }
-
+.twitter_follow {
+    margin:0 auto;
+    width:180px;
+}
+.github_follow {
+    margin:0 auto;
+    width:250px;
+}
 .icon-red {background-image:url("/static/img/glyphicons-halflings-red.png")}
 .icon-green {background-image:url("/static/img/glyphicons-halflings-green.png")}
