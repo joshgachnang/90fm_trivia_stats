@@ -1,8 +1,12 @@
 from django.conf import settings
 from django.conf.urls import *
-
+from django.conf.urls.defaults import *
 from django.contrib import admin
 admin.autodiscover()
+from django.conf.urls.defaults import patterns, include, url
+from django.views.generic.base import TemplateView, RedirectView
+from django.http import HttpResponse
+
 
 
 handler500 = "pinax.server_error"
@@ -34,6 +38,9 @@ urlpatterns += patterns('website.views',
                         # (r'^years/$', 'past_years'),
                         # (r'^years/(?P<year>\d+)/$', 'past_year_hours'),
                        (r'^score/(?P<year>\d{4})/(?P<hour>\d{1,2})/$', 'year_hour_overview'),
-                        )
+
+                       (r'^robots\.txt$', lambda r: HttpResponse('User-agent: Google\nDisallow:"', mimetype="text/plain")),
+                       url(r'^favicon\.ico$', RedirectView.as_view(url='/static/img/favicon.ico')),
+                       )
 
 urlpatterns += (url(r'^admin/django-ses/', include('django_ses.urls')),)
