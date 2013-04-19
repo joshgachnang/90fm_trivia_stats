@@ -431,11 +431,35 @@ h2 {
     font-weight:bold;
 }
 
-/*Notifications*/
+/* Notifications */
 .alert {
     float:right;
     margin-right:10px;
     width:300px;
+}
+
+/* Social and Share */
+.social_box {
+    height:150px;
+    background: #6FC3DF;
+}
+.social_box h3 {
+    text-align:center;
+}
+.social_box_icons {
+    width:160px;
+    margin:0 auto;
+}
+.share_box {
+    height:150px;
+    background: #6FC3DF;
+}
+.share_box h3 {
+    text-align:center;
+}
+.share_box_icons {
+    margin:0 auto;
+    width:250px;
 }
 
 .icon-red {background-image:url("/static/img/glyphicons-halflings-red.png")}
