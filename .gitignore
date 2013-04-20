@@ -4,7 +4,7 @@
 *local_settings.py*
 *private_config.py*
 *.idea
-
+log/
 # Ignore all the virtualenv stuff except the actual packages
 # themselves
 /bin
