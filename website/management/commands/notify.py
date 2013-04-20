@@ -12,9 +12,12 @@ class Command(BaseCommand):
     help = 'Forces resending notifications.'
 
     def handle(self, *args, **options):
+        
         if options['sms']:
             tm = TwilioManager()
             tm.sms_notify()
+            print "Sent SMS."
         if options['email']:
             em = EmailManager()
             em.email_notify()
+            print "Sent emails."
