@@ -101,7 +101,7 @@ class TwilioManager(object):
                             client.sms.messages.create(to=user.phone_number, from_=from_number, body="Trivia Scores for Hour %d. %s in %d place with %d points. Check scores at http://triviastats.com." % (hour, user.team_name, score.place, score.score))
                             logger.info("Sent SMS to: {0}, {1}".format(user.phone_number, user.team_name))
                         else:
-                            logger.info("Would have sent SMS to: {0}, {1}".format(user.phone_number, user.team_name))
+                            logger.info("Would have sent SMS to: {0}, {1} for hour {2}".format(user.phone_number, user.team_name, hour))
                         # send_mail('Trivia Scores Updated for Hour %d. %s is in %d place with %d
                         # points.' % (get_current_hour(), score.team_name, score.place,
                         # score.score), 'Trivia scores for Hour %d have been posted. %s is in %d
@@ -119,7 +119,7 @@ class TwilioManager(object):
                         client.sms.messages.create(to=user.phone_number, from_=from_number, body="Trivia Scores for Hour %d. Check scores at http://triviastats.com." % (hour, ))
                         logger.info("Sent SMS to: {0}".format(user.phone_number))
                     else:
-                        logger.info("Would have sent SMS to: {0}".format(user.phone_number))
+                        logger.info("Would have sent SMS to: {0} for hour {1}".format(user.phone_number, hour))
                     # send_mail('Trivia Scores Updated for Hour %d' % get_current_hour(),
                     # 'Trivia scores for Hour %d have been posted. You can check your current
                     # stats at <a href="http://triviastats.com">TriviaStats.com</a>' %
@@ -290,7 +290,7 @@ class EmailManager(object):
                             send_mail(subject='Trivia Scores Updated for Hour %d. %s is in %d place with %d points.' % (hour, user.team_name, score.place, score.score), message='Trivia scores for Hour %d have been posted. %s is in %d place with %d points. You can check your current stats at <a href="http://triviastats.com/team/%s">TriviaStats.com</a>' % (hour, user.team_name, score.place, score.score, user.team_name.replace(' ', '_')), from_email='noreply@triviastats.com', recipient_list=[user.email, ], fail_silently=False)
                             logger.info("Sent email to {0}: {1}".format(user.email, user.team_name))
                         else:
-                            logger.info("Would have sent email to {0}: {1}".format(user.email, user.team_name))
+                            logger.info("Would have sent email to {0}: {1} for hour {2}".format(user.email, user.team_name, hour))
                     except smtplib.SMTPException, e:
                         logger.error("Emailing for user %s failed.".format(user))
             else:
@@ -299,7 +299,7 @@ class EmailManager(object):
                         send_mail(subject='Trivia Scores Updated for Hour %d' % hour, message='Trivia scores for Hour %d have been posted. You can check your current stats at <a href="http://triviastats.com">TriviaStats.com</a>' % hour, from_email='noreply@triviastats.com', recipient_list=[user.email], fail_silently=False)
                         logger.info("Sent email to {0}".format(user.email))
                     else:
-                        logger.info("Would have sent email to {0}".format(user.email))
+                        logger.info("Would have sent email to {0} for hour {1}".format(user.email, hour))
                 except smtplib.SMTPException, e:
                     logger.error("Emailing for user %s failed.".format(user))
 
