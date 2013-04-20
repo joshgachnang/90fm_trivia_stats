@@ -27,11 +27,10 @@ from django.template.loader import render_to_string
 import smtplib
 from django.db import transaction
 from pygooglechart import XYLineChart
-
-
 import boto.ses as ses
 ses_conn = ses.connect_to_region('us-east-1')
 from django.conf import settings
+
 
 class Score(models.Model):
     # This should be team_name for consistency..
@@ -50,6 +49,7 @@ class Score(models.Model):
     class Meta:
         unique_together = (("team_name", "hour", "year"))
 
+
 class ScoreManager(object):
     """
     Utility functions for creating and manipulating scores
@@ -58,8 +58,6 @@ class ScoreManager(object):
         pass
     def scrape_all(self):
         pass
-
-
 
 
 class TwilioManager(object):

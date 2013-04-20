@@ -48,12 +48,14 @@ Dark: #0C141F
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
-    background-image: -webkit-linear-gradient(top,#222,#222);
+    background-image:none;
+    /*background-image: -webkit-linear-gradient(top,#222,#222);*/
     border-color: #222;
     background-color: #222;
+
 }
 .navbar a:hover {
-    color:red;
+    text-decoration: underline;
 
 }
 
@@ -321,37 +323,101 @@ h2 {
     border:none;
     background-color:#6FC3DF;
     width:300px;
+    height:250px;
+    margin:20px auto 0px auto;
 }
 .cur_days {
     background:#222;
     color: #DF740C;
-    width: 200px;
-    font-size:200%;
+    width: 258px;
+    font-size:300%;
     float:left;
+    margin-right:10px;
+    height:90px;
+    margin-bottom:20px;
+    padding-top:20px;
+    text-align:center;
+}
+.cur_days p {
+    color: #DF740C;
+    margin-bottom:10px;
+    font-weight:bold;
+    line-height:70%;
 }
 .cur_days_label {
+    background:#222;
+    color: #DF740C;
+    width: 200px;
+    font-size:300%;
     float:left;
-    width:100px;
+    margin-right:10px;
+    height:60px;
+    margin-bottom:20px;
+    padding-top:40px;
+    text-align:center;
 }
 .cur_hours {
     width:80px;
     background:#222;
     color: #DF740C;
-    margin-right:20px;
+    margin-right:6px;
     float:left;
 }
 .cur_minutes {
     width:80px;
     background:#222;
     color: #DF740C;
-    margin-left:10px;
-    margin-right:10px;
+    margin-left:3px;
+    margin-right:3px;
     float:left;
 }
 .cur_seconds {
     width:80px;
     background:#222;
     color: #DF740C;
-    margin-left:20px;
+    margin-left:6px;
     float:left;
+
+}
+.chms {
+    font-size:300%;
+    height:60px;
+    text-align:center;
+    padding-top:40px;
+    font-weight:bold;
+}
+
+/*During Trivia Timer*/
+.trivia_hours {
+    width:180px;
+    background:#222;
+    color: #DF740C;
+    margin-right:6px;
+    float:left;
+    margin-left:60px;
+    margin-right:60px;
+    margin-bottom:10px;
+}
+.trivia_minutes {
+    width:85px;
+    background:#222;
+    color: #DF740C;
+    margin-left:60px;
+    margin-right:3px;
+    float:left;
+}
+.trivia_seconds {
+    width:85px;
+    background:#222;
+    color: #DF740C;
+    margin-left:6px;
+    float:left;
+
+}
+.trivia_chms {
+    font-size:300%;
+    height:60px;
+    text-align:center;
+    padding-top:40px;
+    font-weight:bold;
 }
