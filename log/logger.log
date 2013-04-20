@@ -1,0 +1,10 @@
+INFO 2013-04-19 22:08:09,332 models 13153 139733109360384 Getting page: http://90fmtrivia.org/TriviaScores2013/scorePages/results.htm
+INFO 2013-04-19 22:08:11,114 models 13153 139733109360384 Success for hour 1
+INFO 2013-04-19 22:08:13,282 models 13153 139733109360384 Sent SMS to: 6083015887
+INFO 2013-04-19 22:08:14,204 models 13153 139733109360384 Sent email to josh@pcsforeducation.com
+INFO 2013-04-19 22:08:14,204 models 13153 139733109360384 Success for hours: [1]
+INFO 2013-04-19 22:12:53,872 models 13382 140690607007488 Getting page: http://90fmtrivia.org/TriviaScores2013/scorePages/results.htm
+INFO 2013-04-19 22:13:00,372 models 13382 140690607007488 Success for hour 1
+INFO 2013-04-19 22:13:02,524 models 13382 140690607007488 Sent SMS to: 6083015887
+INFO 2013-04-19 22:13:03,349 models 13382 140690607007488 Sent email to josh@pcsforeducation.com
+INFO 2013-04-19 22:13:03,349 models 13382 140690607007488 Success for hours: [1]

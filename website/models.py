@@ -352,8 +352,8 @@ class Scraper(object):
         if len(s) > 0:
             sms = TwilioManager()
             email = EmailManager()
-            sms.sms_notify(s[-1])
-            email.email_notify(s[-1])
+            sms.sms_notify()
+            email.email_notify()
 
         logger.info("Success for hours: {0}".format(s))
 
