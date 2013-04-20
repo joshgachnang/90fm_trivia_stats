@@ -1,5 +1,5 @@
 function homepage_init() {
-    var now, trivia_start;
+    var now, trivia_start, trivia_start_count_up;
 //    Placeholder fix for IE9.
     $('input, textarea').placeholder();
     // Set up countdown/countup widget
@@ -7,6 +7,8 @@ function homepage_init() {
 //    var now = new Date(2013, 3, 19, 19, 0, 0, 0);
     // Month is 3 because Javascript has Jan = 0..
     trivia_start = new Date(2013, 3, 19, 18, 0, 0, 0);
+    // Since hour 1 starts right away..
+    trivia_start_count_up = new Date(2013, 3, 19, 17, 0, 0, 0);
 //    console.log("Now: ", now, " Trivia Start: ", trivia_start);
     if (now < trivia_start) {
 //        console.log("Not trivia time yet!");
@@ -18,7 +20,7 @@ function homepage_init() {
     } else {
 //        $("#current_hour").html("<h3>Current Hour</h3>");
 //        console.log("Trivia time!");
-        $("#countdown").countdown({since: trivia_start, format: 'HMS', layout: '<div class="trivia_hours trivia_chms">Hour {hn}</div>' +
+        $("#countdown").countdown({since: trivia_start_count_up, format: 'HMS', layout: '<div class="trivia_hours trivia_chms">Hour {hn}</div>' +
             '<div class="trivia_minutes trivia_chms">{mn}</div>' +
             '<div class="trivia_seconds trivia_chms">{sn}</div>'});
     }
