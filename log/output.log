@@ -641,3 +641,24 @@ INFO 2013-04-19 20:48:37,666 models 9789 140723664312064 Success for hours: [1]
 INFO 2013-04-19 20:50:31,541 models 9971 140181728245504 Getting page: http://90fmtrivia.org/TriviaScores2013/scorePages/results.htm
 INFO 2013-04-19 20:50:32,785 models 9971 140181728245504 Success for hour 1
 INFO 2013-04-19 20:50:33,399 models 9971 140181728245504 Success for hours: [1]
+INFO 2013-04-19 20:59:04,545 models 10501 140288227317504 Getting page: http://90fmtrivia.org/TriviaScores2013/scorePages/results.htm
+INFO 2013-04-19 20:59:06,220 models 10501 140288227317504 Success for hour 1
+INFO 2013-04-19 20:59:07,214 models 10501 140288227317504 Sent email to josh@pcsforeducation.com
+INFO 2013-04-19 20:59:07,215 models 10501 140288227317504 Success for hours: [1]
+INFO 2013-04-19 20:59:44,006 models 10553 139859454437120 Getting page: http://90fmtrivia.org/TriviaScores2013/scorePages/results.htm
+INFO 2013-04-19 20:59:45,373 models 10553 139859454437120 Success for hour 1
+INFO 2013-04-19 20:59:46,776 models 10553 139859454437120 Sent SMS to: 6083015887
+INFO 2013-04-19 20:59:47,362 models 10553 139859454437120 Sent email to josh@pcsforeducation.com
+INFO 2013-04-19 20:59:47,363 models 10553 139859454437120 Success for hours: [1]
+INFO 2013-04-19 21:05:34,084 models 10796 139664471570176 Already in DB
+INFO 2013-04-19 21:05:34,586 models 10796 139664471570176 Success for hour 1
+INFO 2013-04-19 21:05:34,586 models 10796 139664471570176 Success for hours: []
+INFO 2013-04-19 21:07:09,947 models 10830 139697104602880 Already in DB
+INFO 2013-04-19 21:07:10,448 models 10830 139697104602880 Success for hour 1
+INFO 2013-04-19 21:07:10,448 models 10830 139697104602880 Success for hours: []
+INFO 2013-04-19 21:09:12,267 models 10903 139947556595456 Getting page: http://90fmtrivia.org/TriviaScores2013/scorePages/results.htm
+INFO 2013-04-19 21:12:01,432 models 10940 139818910349056 Getting page: http://90fmtrivia.org/TriviaScores2013/scorePages/results.htm
+INFO 2013-04-19 21:12:02,730 models 10940 139818910349056 Success for hour 1
+INFO 2013-04-19 21:12:03,985 models 10940 139818910349056 Sent SMS to: 6083015887
+INFO 2013-04-19 21:12:04,649 models 10940 139818910349056 Sent email to josh@pcsforeducation.com
+INFO 2013-04-19 21:12:04,649 models 10940 139818910349056 Success for hours: [1]

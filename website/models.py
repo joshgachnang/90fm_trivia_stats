@@ -363,13 +363,7 @@ class Scraper(object):
 
     def scrape_year_hour(self, yr, hr, force=False):
     # Add check right here to see if data already exists for the given year/hour
-        query = Score.objects.filter(year=int(yr)).filter(hour=int(hr))
-        if len(query) != 0 and force is False:
-            # print len(query)
-            # for s in query:
-            #     print s
-            logger.info("Already in DB")
-            return False
+
 
         # Trivia has a discrepancy between 02 and 2 for hours..
         if int(hr) < 10:
@@ -407,6 +401,13 @@ class Scraper(object):
         hour = self.text2int(hour.lower())
         hour = int(hour)
         print "HOUR", hour
+        query = Score.objects.filter(year=int(yr)).filter(hour=int(hour))
+        if len(query) != 0 and force is False:
+            # print len(query)
+            # for s in query:
+            #     print s
+            logger.info("Already in DB")
+            return False
         bulk_list = []
         # Drop all teams into a list of lists:
         # 0: Team name 1: Place 2: Points
@@ -436,7 +437,7 @@ class Scraper(object):
                 name = teams_list[j].string.replace(
                     '&#160;', ' ').replace('&amp;', '&').replace('&quot;', '"').replace('&nbsp;', ' ')
                 year = int(yr)
-                hour = int(hr)
+                # hour = int(hr)
 
                 # (team_name, year, hour, place, score)
                 bulk_list.append(Score(team_name=name, year=year, hour=hour, place=place, score=score))
