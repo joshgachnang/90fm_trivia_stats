@@ -582,3 +582,62 @@ INFO 2013-04-19 02:16:18,499 models 4773 139960695658240 Hour 54 Finals:
 INFO 2013-04-19 02:16:18,499 models 4773 139960695658240 No data for this hour (yet?): 54
 INFO 2013-04-19 02:16:18,999 models 4773 139960695658240 Success for hour 54
 INFO 2013-04-19 02:16:19,000 models 4773 139960695658240 Success for hours: []
+INFO 2013-04-19 20:21:22,692 models 8954 140193929541376 Getting page: http://90fmtrivia.org/TriviaScores2013/scorePages/results.htm
+INFO 2013-04-19 20:21:23,880 models 8954 140193929541376 Success for hour 1
+INFO 2013-04-19 20:21:23,886 models 8954 140193929541376 Getting page: http://90fmtrivia.org/TriviaScores2013/scorePages/results.htm
+INFO 2013-04-19 20:21:25,092 models 8954 140193929541376 Success for hour 2
+INFO 2013-04-19 20:21:25,096 models 8954 140193929541376 Getting page: http://90fmtrivia.org/TriviaScores2013/scorePages/results.htm
+INFO 2013-04-19 20:21:26,240 models 8954 140193929541376 Success for hour 3
+INFO 2013-04-19 20:21:26,247 models 8954 140193929541376 Getting page: http://90fmtrivia.org/TriviaScores2013/scorePages/results.htm
+INFO 2013-04-19 20:29:12,984 models 9139 140229104903936 Already in DB
+INFO 2013-04-19 20:29:13,485 models 9139 140229104903936 Success for hour 1
+INFO 2013-04-19 20:29:13,485 models 9139 140229104903936 Success for hours: []
+INFO 2013-04-19 20:32:09,081 models 9254 140666803697408 Already in DB
+INFO 2013-04-19 20:32:09,582 models 9254 140666803697408 Success for hour 1
+INFO 2013-04-19 20:32:09,582 models 9254 140666803697408 Success for hours: []
+INFO 2013-04-19 20:35:18,027 models 9276 140437124011776 Getting page: http://90fmtrivia.org/TriviaScores2013/scorePages/results.htm
+INFO 2013-04-19 20:35:19,479 models 9276 140437124011776 Success for hour 1
+ERROR 2013-04-19 20:35:19,507 models 9276 140437124011776 Failed email notify for hour 1 for team name WII R URE FIRE UR DESIRE. Found 0 scores.
+ERROR 2013-04-19 20:35:19,640 models 9276 140437124011776 Failed email notify for hour 1 for team name WWII. Found 0 scores.
+INFO 2013-04-19 20:36:14,746 models 9294 140026951419648 Getting page: http://90fmtrivia.org/TriviaScores2013/scorePages/results.htm
+INFO 2013-04-19 20:36:34,429 models 9306 140280466061056 Getting page: http://90fmtrivia.org/TriviaScores2013/scorePages/results.htm
+INFO 2013-04-19 20:36:48,283 models 9316 140268784273152 Getting page: http://90fmtrivia.org/TriviaScores2013/scorePages/results.htm
+INFO 2013-04-19 20:36:49,671 models 9316 140268784273152 Success for hour 1
+ERROR 2013-04-19 20:36:49,678 models 9316 140268784273152 Failed email notify for hour 1 for team name WII R URE FIRE UR DESIRE. Found 0 scores.
+ERROR 2013-04-19 20:36:49,779 models 9316 140268784273152 Failed email notify for hour 1 for team name WWII. Found 0 scores.
+INFO 2013-04-19 20:37:11,732 models 9326 139902194030336 Getting page: http://90fmtrivia.org/TriviaScores2013/scorePages/results.htm
+INFO 2013-04-19 20:37:13,475 models 9326 139902194030336 Success for hour 1
+ERROR 2013-04-19 20:37:13,483 models 9326 139902194030336 Failed email notify for hour 1 for team name WII R URE FIRE UR DESIRE. Found 0 scores.
+ERROR 2013-04-19 20:37:13,663 models 9326 139902194030336 Failed email notify for hour 1 for team name WWII. Found 0 scores.
+INFO 2013-04-19 20:37:22,974 models 9336 139842367563520 Getting page: http://90fmtrivia.org/TriviaScores2013/scorePages/results.htm
+INFO 2013-04-19 20:37:24,315 models 9336 139842367563520 Success for hour 1
+ERROR 2013-04-19 20:37:24,322 models 9336 139842367563520 Failed email notify for hour 1 for team name WII R URE FIRE UR DESIRE. Found 0 scores.
+ERROR 2013-04-19 20:37:24,456 models 9336 139842367563520 Failed email notify for hour 1 for team name WWII. Found 0 scores.
+INFO 2013-04-19 20:37:56,449 models 9350 140213384201984 Getting page: http://90fmtrivia.org/TriviaScores2013/scorePages/results.htm
+INFO 2013-04-19 20:37:58,070 models 9350 140213384201984 Success for hour 1
+ERROR 2013-04-19 20:37:58,077 models 9350 140213384201984 Failed email notify for hour 1 for team name WII R URE FIRE UR DESIRE. Found 0 scores.
+ERROR 2013-04-19 20:37:58,142 models 9350 140213384201984 Failed email notify for hour 1 for team name WWII. Found 0 scores.
+INFO 2013-04-19 20:38:10,514 models 9360 139991449683712 Getting page: http://90fmtrivia.org/TriviaScores2013/scorePages/results.htm
+INFO 2013-04-19 20:38:11,774 models 9360 139991449683712 Success for hour 1
+ERROR 2013-04-19 20:38:11,781 models 9360 139991449683712 Failed email notify for hour 1 for team name WII R URE FIRE UR DESIRE. Found 0 scores.
+ERROR 2013-04-19 20:38:11,839 models 9360 139991449683712 Failed email notify for hour 1 for team name WWII. Found 0 scores.
+INFO 2013-04-19 20:38:23,497 models 9372 140042858018560 Getting page: http://90fmtrivia.org/TriviaScores2013/scorePages/results.htm
+INFO 2013-04-19 20:38:24,910 models 9372 140042858018560 Success for hour 1
+ERROR 2013-04-19 20:38:24,918 models 9372 140042858018560 Failed email notify for hour 1 for team name WII R URE FIRE UR DESIRE. Found 0 scores.
+ERROR 2013-04-19 20:38:25,026 models 9372 140042858018560 Failed email notify for hour 1 for team name WWII. Found 0 scores.
+INFO 2013-04-19 20:41:04,455 models 9488 140235292972800 Getting page: http://90fmtrivia.org/TriviaScores2013/scorePages/results.htm
+INFO 2013-04-19 20:41:36,857 models 9499 140153643030272 Getting page: http://90fmtrivia.org/TriviaScores2013/scorePages/results.htm
+INFO 2013-04-19 20:41:52,766 models 9512 140170797602560 Getting page: http://90fmtrivia.org/TriviaScores2013/scorePages/results.htm
+INFO 2013-04-19 20:41:54,649 models 9512 140170797602560 Success for hour 1
+ERROR 2013-04-19 20:41:54,655 models 9512 140170797602560 Failed email notify for hour 1 for team name WII R URE FIRE UR DESIRE. Found 0 scores.
+ERROR 2013-04-19 20:41:54,809 models 9512 140170797602560 Failed email notify for hour 1 for team name WWII. Found 0 scores.
+INFO 2013-04-19 20:47:59,958 models 9727 140686751979264 Getting page: http://90fmtrivia.org/TriviaScores2013/scorePages/results.htm
+INFO 2013-04-19 20:48:01,051 models 9727 140686751979264 Success for hour 1
+ERROR 2013-04-19 20:48:01,058 models 9727 140686751979264 Failed email notify for hour 1 for team name WII R URE FIRE UR DESIRE. Found 0 scores.
+ERROR 2013-04-19 20:48:01,153 models 9727 140686751979264 Failed email notify for hour 1 for team name WWII. Found 0 scores.
+INFO 2013-04-19 20:48:35,565 models 9789 140723664312064 Getting page: http://90fmtrivia.org/TriviaScores2013/scorePages/results.htm
+INFO 2013-04-19 20:48:36,900 models 9789 140723664312064 Success for hour 1
+INFO 2013-04-19 20:48:37,666 models 9789 140723664312064 Success for hours: [1]
+INFO 2013-04-19 20:50:31,541 models 9971 140181728245504 Getting page: http://90fmtrivia.org/TriviaScores2013/scorePages/results.htm
+INFO 2013-04-19 20:50:32,785 models 9971 140181728245504 Success for hour 1
+INFO 2013-04-19 20:50:33,399 models 9971 140181728245504 Success for hours: [1]

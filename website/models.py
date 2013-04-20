@@ -335,6 +335,8 @@ class Scraper(object):
         s = []
         if hour:
             hours = range(hour, hour + 1)
+        elif year == 2013:
+            hours = [1]
         else:
             hours = range(1, 55)
         for hr in hours:
@@ -370,7 +372,10 @@ class Scraper(object):
             if int(yr) >= 2010:
                 # Add 0 to the front
                 hr = "0%d" % hr
-        page = page_template[str(yr)] % (str(yr), str(hr))
+        if yr <= 2012:
+            page = page_template[str(yr)] % (str(yr), str(hr))
+        else:
+            page = page_template[str(yr)] % (str(yr))
         logger.info("Getting page: {0}".format(page))
         try:
             p = urllib2.urlopen(page)
@@ -393,7 +398,11 @@ class Scraper(object):
 
         teams = soup.findAll('dd')
         place_score = soup.findAll('dt')
-
+        hour = soup.findAll('h1')[0]
+        hour = " ".join(hour.string.split()[5:])
+        hour = self.text2int(hour.lower())
+        hour = int(hour)
+        print "HOUR", hour
         bulk_list = []
         # Drop all teams into a list of lists:
         # 0: Team name 1: Place 2: Points
@@ -455,6 +464,35 @@ class Scraper(object):
     #     scores = Score.objects.filter(year=year).filter(hour=hour)
     #     prev_scores = Score.objects.filter(year=year).filter(hour=prev_hour)
 
+    def text2int(self, textnum, numwords={}):
+        if not numwords:
+            units = [
+                "zero", "one", "two", "three", "four", "five", "six", "seven", "eight",
+                "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen",
+                "sixteen", "seventeen", "eighteen", "nineteen",
+                ]
+
+            tens = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"]
+
+            scales = ["hundred", "thousand", "million", "billion", "trillion"]
+
+            numwords["and"] = (1, 0)
+            for idx, word in enumerate(units):    numwords[word] = (1, idx)
+            for idx, word in enumerate(tens):     numwords[word] = (1, idx * 10)
+            for idx, word in enumerate(scales):   numwords[word] = (10 ** (idx * 3 or 2), 0)
+
+        current = result = 0
+        for word in textnum.split():
+            if word not in numwords:
+                raise Exception("Illegal word: " + word)
+
+            scale, increment = numwords[word]
+            current = current * scale + increment
+            if scale > 100:
+                result += current
+                current = 0
+
+        return result + current
 
 
 class AvailableHours(models.Model):
@@ -609,7 +647,7 @@ def post_to_twitter(message):
     else:
         logger.info(t.statuses.update(status=message))
 
-page_template = {'2013': 'http://90fmtrivia.org/TriviaScores%s/scorePages/results%s.htm', '2012': 'http://90fmtrivia.org/TriviaScores%s/scorePages/results%s.htm', '2011': 'http://90fmtrivia.org/TriviaScores%s/results%s.htm', '2010': 'http://90fmtrivia.org/scores_page/Scores%s/scores/results%s.htm', '2009': 'http://90fmtrivia.org/scores_page/Scores%s/results%s.htm'}
+page_template = {'2013': 'http://90fmtrivia.org/TriviaScores%s/scorePages/results.htm', '2012': 'http://90fmtrivia.org/TriviaScores%s/scorePages/results%s.htm', '2011': 'http://90fmtrivia.org/TriviaScores%s/results%s.htm', '2010': 'http://90fmtrivia.org/scores_page/Scores%s/scores/results%s.htm', '2009': 'http://90fmtrivia.org/scores_page/Scores%s/results%s.htm'}
 hour_54_page = {'2012': 'http://90fmtrivia.org/TriviaScores2012/scorePages/results.htm'}
 # These are the dates of Trivia, with the year being the key, and the beginning day being the data.
 trivia_dates = {"2011": "April 8", "2012": "April 20", "2013": "April 19", "2014": "April 11", "2015": "April 17",

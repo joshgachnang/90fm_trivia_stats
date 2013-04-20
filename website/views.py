@@ -34,14 +34,13 @@ logger = logging.getLogger('logger')
 # Public Views
 ##############################################################################
 def home(request):
-    if request.method == 'GET':
-        template_data = {}
-        template_data['email_form'] = EmailSubscriberForm()
-        template_data['sms_form'] = SMSSubscriberForm()
-        # template_data['latest_hour'] = get_last_hour()
-        # template_data['latest_year'] = get_last_year()
-        template_data['top_teams'] = get_top_ten_teams()
-        return render_to_response("homepage.html", template_data, context_instance=RequestContext(request))
+    template_data = {}
+    template_data['email_form'] = EmailSubscriberForm()
+    template_data['sms_form'] = SMSSubscriberForm()
+    # template_data['latest_hour'] = get_last_hour()
+    # template_data['latest_year'] = get_last_year()
+    template_data['top_teams'] = get_top_ten_teams()
+    return render_to_response("homepage.html", template_data, context_instance=RequestContext(request))
 
 # Displays all the information for a team. If year is specified, only for that year.
 # team_name: str
