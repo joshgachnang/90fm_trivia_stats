@@ -85,9 +85,10 @@ class TwilioManager(object):
 
         # if hour is None:
         hour = get_last_hour()
+        year = get_last_year()
         for user in SMSSubscriber.objects.all():
             if user.team_name:
-                score = Score.objects.filter(hour=hour).filter(team_name=user.team_name)
+                score = Score.objects.filter(hour=hour).filter(year=year).filter(team_name=user.team_name)
                 if len(score) != 1:
                     logger.warning("Failed sms notify for hour %d for team name %s, %d scores found.." % (int(hour), user.team_name, len(score)))
                     continue
