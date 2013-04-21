@@ -337,8 +337,12 @@ class EmailManager(object):
 class Scraper(object):
 # During Trivia, scrapes each minute to see if a new page is up yet.
     def scraper(self, ):
-        if during_trivia():
-            # Scrape for new hours
+        now = datetime.datetime.now()
+        start_str = "%d %s %s" % (trivia_start_hour, trivia_dates[str(now.year)], now.year)
+        start = datetime.datetime.strptime(start_str, "%H %B %d %Y")
+        end = start + datetime.timedelta(hours=60)
+
+        if (start < now < end):
             self.scrape_prev(get_current_year())
         else:
             return HttpResponse("Not during Trivia")
