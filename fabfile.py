@@ -29,6 +29,15 @@ def django_functions(path, settings):
             # sudo('python manage.py collectstatic -c --noinput --settings={0}'.format(settings))
             # sudo('python manage.py migrate') # if you use south
 
+def copy_database():
+    db_settings = {
+        "user": "triviastats",
+        "password": "",
+        "host": "",
+        "original_db": "",
+        "new_db": ""
+    }
+    sudo("mysqldump --lock-tables=false -u {user} -p{password} -h {host} {original_db} | mysql -u {user} -p{password} -h {host} {new_db}".format(**db_settings))
 
 def south_migration(path, settings):
     with cd(path):
