@@ -87,7 +87,7 @@ class TwilioManager(object):
         year = get_last_year()
         for user in SMSSubscriber.objects.all():
             if user.team_name:
-                score = Score.objects.filter(hour=hour).filter(year=year).filter(team_name=user.team_name)
+                score = Score.objects.filter(hour=hour).filter(year=year).filter(team_name__contains=user.team_name)
                 if len(score) != 1:
                     logger.warning("Failed sms notify for hour %d for team name %s, %d scores found.." % (int(hour), user.team_name, len(score)))
                     continue
@@ -279,7 +279,7 @@ class EmailManager(object):
         hour = get_last_hour()
         for user in EmailSubscriber.objects.all():
             if user.team_name:
-                score = Score.objects.filter(year=year).filter(hour=hour).filter(team_name=user.team_name.strip())
+                score = Score.objects.filter(year=year).filter(hour=hour).filter(team_name__contains=user.team_name.strip())
                 if len(score) != 1:
                     logger.error("Failed email notify for hour {0} for team name {1}. Found {2} scores.".format(int(hour), user.team_name.strip(), len(score)))
                     continue
