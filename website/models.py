@@ -29,7 +29,6 @@ from django.utils.html import strip_tags
 from django.template.loader import render_to_string
 import smtplib
 from django.db import transaction
-from pygooglechart import XYLineChart
 # import twitter
 import boto.ses as ses
 ses_conn = ses.connect_to_region('us-east-1')
@@ -668,7 +667,13 @@ def post_to_twitter(message):
     else:
         logger.info(t.statuses.update(status=message))
 
-page_template = {'2013': 'http://90fmtrivia.org/TriviaScores%s/scorePages/results.htm', '2012': 'http://90fmtrivia.org/TriviaScores%s/scorePages/results%s.htm', '2011': 'http://90fmtrivia.org/TriviaScores%s/results%s.htm', '2010': 'http://90fmtrivia.org/scores_page/Scores%s/scores/results%s.htm', '2009': 'http://90fmtrivia.org/scores_page/Scores%s/results%s.htm'}
+page_template = {
+    '2014': 'http://90fmtrivia.org/TriviaScores%s/scorePages/results.html',
+    '2013': 'http://90fmtrivia.org/TriviaScores%s/scorePages/results.htm',
+    '2012': 'http://90fmtrivia.org/TriviaScores%s/scorePages/results%s.htm',
+    '2011': 'http://90fmtrivia.org/TriviaScores%s/results%s.htm',
+    '2010': 'http://90fmtrivia.org/scores_page/Scores%s/scores/results%s.htm',
+    '2009': 'http://90fmtrivia.org/scores_page/Scores%s/results%s.htm'}
 hour_54_page = {'2012': 'http://90fmtrivia.org/TriviaScores2012/scorePages/results.htm'}
 # These are the dates of Trivia, with the year being the key, and the beginning day being the data.
 trivia_dates = {"2011": "April 8", "2012": "April 20", "2013": "April 19", "2014": "April 11", "2015": "April 17",

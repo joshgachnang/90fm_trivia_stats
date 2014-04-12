@@ -6,7 +6,7 @@ import os
 import time
 # import requests
 
-# env.hosts = ['triviastats.com']
+env.hosts = ['triviastats.com']
 env.user = "triviastats"
 
 
