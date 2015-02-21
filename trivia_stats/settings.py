@@ -91,6 +91,8 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "trivia_stats/static"),
 )
 
+STATIC_ROOT = os.path.join(BASE_DIR, "staticroot")
+
 # Serve the frontend files while developing
 if DEBUG:
     STATICFILES_DIRS += ('frontend',)

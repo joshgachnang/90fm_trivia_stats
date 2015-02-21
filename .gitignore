@@ -9,12 +9,8 @@ log/
 # themselves
 /bin
 /include
-/lib/python*/*
-#!/lib/python*/site-packages
+/lib/
 local/
-/build/
+build/
 # Ignore easyinstall and setuptools
-/lib/python*/site-packages/easy-install.pth
-/lib/python*/site-packages/setuptools.pth
-/lib/python*/site-packages/setuptools-*
-/lib/python*/site-packages/pip-*
+db.sqlite3
