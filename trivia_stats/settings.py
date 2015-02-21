@@ -38,6 +38,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
     'website'
 )
 
@@ -69,6 +70,10 @@ DEFAULT_DATABASE = {
 }
 
 DATABASES = os.environ.get('DJANGO_DATABASE', DEFAULT_DATABASE)
+
+REST_FRAMEWORK = {
+    'PAGINATE_BY': 100
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.7/topics/i18n/

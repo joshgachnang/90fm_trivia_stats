@@ -1,13 +1,19 @@
 from django.conf.urls import *
 from django.contrib import admin
+from website import api
 
 admin.autodiscover()
 from django.conf.urls import patterns, include, url
 from django.views.generic.base import RedirectView
 from django.http import HttpResponse
+from rest_framework.routers import DefaultRouter
 
-
-handler500 = "pinax.server_error"
+# Create a router and register our viewsets with it.
+router = DefaultRouter()
+router.register(r'api/v1/users', api.UserViewSet)
+router.register(r'api/v1/email_subscribers', api.EmailSubscriberViewSet)
+router.register(r'api/v1/sms_subscribers', api.SMSSubscriberViewSet)
+router.register(r'api/v1/scores', api.ScoreViewSet)
 
 urlpatterns = patterns(
     "",
@@ -18,7 +24,8 @@ urlpatterns = patterns(
 )
 urlpatterns += patterns(
     'website.views',
-    url(r"^$", "home", name="home"),
+    url(r'^', include(router.urls)),
+    url(r'^$', 'home', name='home'),
     # Utility function
     # (r'^scrape/(?P<yr>\d+)/(?P<hr>\d+)/$',
     # 'scrape_year_hour'),
@@ -48,4 +55,6 @@ urlpatterns += patterns(
         mimetype="text/plain")),
     url(r'^favicon\.ico$', RedirectView.as_view(
         url='/static/img/favicon.ico')),
+    url(r'^api-auth/',
+        include('rest_framework.urls', namespace='rest_framework'))
 )

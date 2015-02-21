@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 import re
 import urllib2
 import time
@@ -17,12 +18,18 @@ from django.template.loader import get_template
 from django.contrib import messages
 from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
+from rest_framework import serializers
 from twilio.rest import TwilioRestClient
 from twilio import TwilioRestException
 import twitter
 
 
 logger = logging.getLogger('logger')
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
 
 
 class Score(models.Model):
@@ -44,6 +51,11 @@ class Score(models.Model):
 
     class Meta:
         unique_together = ("team_name", "hour", "year")
+
+
+class ScoreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Score
 
 
 class TwilioManager(object):
@@ -702,6 +714,11 @@ class EmailSubscriber(models.Model):
             # return self.__unicode__()
 
 
+class EmailSubscriberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EmailSubscriber
+
+
 class EmailSubscriberForm(Form):
     email = EmailField()
     team_name = CharField(max_length=36, help_text="(optional)",
@@ -724,6 +741,11 @@ class SMSSubscriber(models.Model):
 
             # def __repr__(self):
             # return self.__unicode__()
+
+
+class SMSSubscriberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SMSSubscriber
 
 
 class SMSUnsubscribeForm(Form):
