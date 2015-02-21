@@ -44,7 +44,7 @@ RUN apt-get update && \
         sqlite3 \
         supervisor && \
         sudo easy_install -U pip && \
-        pip install uwsgi && \
+        pip install uwsgi supervisor-stdout && \
         ln -s /usr/bin/nodejs /usr/bin/node && \
         npm install -g bower gulp && \
         apt-get -y clean && \

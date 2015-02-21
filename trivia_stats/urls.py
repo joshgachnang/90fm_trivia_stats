@@ -49,5 +49,3 @@ urlpatterns += patterns(
     url(r'^favicon\.ico$', RedirectView.as_view(
         url='/static/img/favicon.ico')),
 )
-
-urlpatterns += (url(r'^admin/django-ses/', include('django_ses.urls')),)

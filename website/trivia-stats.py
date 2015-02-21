@@ -1,7 +1,7 @@
+import re
+
 from BeautifulSoup import BeautifulStoneSoup, BeautifulSoup
 import urllib
-import sys
-import re
 
 # REGEX
 # b = re.findall(r'\d+',a)

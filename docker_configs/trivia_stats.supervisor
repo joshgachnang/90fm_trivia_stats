@@ -1,4 +1,4 @@
-[program:trivai_stats]
+[program:trivia_stats]
 command = /usr/local/bin/uwsgi --ini /home/docker/code/uwsgi.ini
 stdout_logfile=/dev/fd/1
 stdout_logfile_maxbytes=0
@@ -9,3 +9,9 @@ command = /usr/sbin/nginx
 stdout_logfile=/dev/fd/1
 stdout_logfile_maxbytes=0
 redirect_stderr=true
+
+[eventlistener:stdout]
+command = supervisor_stdout
+buffer_size = 100
+events = PROCESS_LOG
+result_handler = supervisor_stdout:event_handler

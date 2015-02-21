@@ -1,8 +1,6 @@
 BeautifulSoup==3.2.1
 Django==1.7.4
 MySQL-python==1.2.5
-boto==2.36.0
-django-ses==0.7.0
 httplib2==0.9
 twilio==3.7.1
 twitter==1.16.0

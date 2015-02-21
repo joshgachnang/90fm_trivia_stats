@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+import json
 import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -37,7 +38,6 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # 'django_ses',
     'website'
 )
 
@@ -59,7 +59,7 @@ WSGI_APPLICATION = 'trivia_stats.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
 
-DATABASES = {
+DEFAULT_DATABASE = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'triviastats',
@@ -67,6 +67,8 @@ DATABASES = {
         'PASSWORD': 'triviastats'
     }
 }
+
+DATABASES = os.environ.get('DJANGO_DATABASE', DEFAULT_DATABASE)
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.7/topics/i18n/
@@ -100,4 +102,13 @@ if DEBUG:
 try:
     from local_settings import *
 except ImportError:
+    pass
+
+# Load environment overrides
+try:
+    env = os.environ.get('DJANGO_ENV', '{}')
+    for key, value in json.loads(env).items():
+        print("Overring setting: {} to {}".format(key, value))
+        vars()[key] = value
+except ValueError:
     pass

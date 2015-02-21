@@ -5,7 +5,6 @@ import datetime
 import smtplib
 import logging
 
-import boto.ses as ses
 from BeautifulSoup import BeautifulSoup
 
 from django.db import models
@@ -20,9 +19,9 @@ from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
 from twilio.rest import TwilioRestClient
 from twilio import TwilioRestException
+import twitter
 
 
-#ses_conn = ses.connect_to_region('us-east-1')
 logger = logging.getLogger('logger')
 
 
@@ -463,9 +462,9 @@ class EmailManager(object):
                         "check your current stats at <a " \
                         "href='http://triviastats.com'>TriviaStats.com</a>" % (
                             last_hour, )
-        # ses_conn.send_email(source="TriviaStats@triviastats.com",
-        #                     subject=subject, body=html_body,
-        #                     to_addresses=(subscriber.email, ), format='html', )
+        send_mail(source="TriviaStats@triviastats.com",
+                  subject=subject, body=html_body,
+                  to_addresses=(subscriber.email, ), format='html')
         logger.info("Sent email to {0}".format(subscriber.email))
 
     def email_update(self, ):
