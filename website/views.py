@@ -1,52 +1,33 @@
 # Create your views here.
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound, HttpResponseServerError, \
-    HttpResponseBadRequest
-from django.shortcuts import render_to_response, redirect
-from django.template import RequestContext, Context
-from website.models import Score,  Settings, SMSSubscriberForm, EmailSubscriberForm, EmailSubscriber, SMSSubscriber, \
-    SearchForm, get_last_hour, get_last_year, playing_this_year, get_current_hour, get_current_year, during_trivia,\
-    get_top_ten_teams, TwilioManager, EmailManager
-from BeautifulSoup import BeautifulStoneSoup, BeautifulSoup
-import urllib2
-import sys
-import os
+import logging
 import re
-import time
-import datetime
-# import settings
-from django.core.mail import send_mail
-from django.template.loader import get_template
 
-from django.contrib import messages
-from django.core.mail import EmailMultiAlternatives
-from django.utils.html import strip_tags
-from django.template.loader import render_to_string
+from django.http import HttpResponseNotFound, HttpResponseBadRequest
+from django.shortcuts import render_to_response
+from django.template import RequestContext
+from website.models import Score, SMSSubscriberForm, \
+    EmailSubscriberForm, SearchForm, get_last_hour, get_last_year, \
+    playing_this_year, \
+    get_top_ten_teams, TwilioManager, EmailManager
 from django.forms.models import model_to_dict
 
 
-import boto.ses as ses
-ses_conn = ses.connect_to_region('us-east-1')
-from django.conf import settings
-
-import logging
 logger = logging.getLogger('logger')
-##############################################################################
-# Public Views
-##############################################################################
+
+
 def home(request):
     template_data = {}
     template_data['email_form'] = EmailSubscriberForm()
     template_data['sms_form'] = SMSSubscriberForm()
-    # template_data['latest_hour'] = get_last_hour()
-    # template_data['latest_year'] = get_last_year()
     template_data['top_teams'] = get_top_ten_teams()
-    return render_to_response("homepage.html", template_data, context_instance=RequestContext(request))
+    return render_to_response("homepage.html", template_data,
+                              context_instance=RequestContext(request))
 
-# Displays all the information for a team. If year is specified, only for that year.
+
+# Displays all the information for a team. If year is specified, only for
+# that year.
 # team_name: str
 # team_year: int
-
-
 def team(request, team_name, team_year=None):
     team_name = team_name.replace('_', ' ')
     template_data = {}
@@ -54,34 +35,38 @@ def team(request, team_name, team_year=None):
     template_data['year'] = team_year
     # during = during_trivia()
 
-    # Check to ensure team is playing this year. Otherwise, just show previous years score.
+    # Check to ensure team is playing this year. Otherwise, just show
+    # previous years score.
     template_data['playing'] = playing_this_year(team_name)
     template_data['last_hour'] = get_last_hour()
     template_data['last_year'] = get_last_year()
 
     template_data['scores'] = {}
-    scores = Score.objects.filter(team_name=team_name.upper()).order_by('-year')
+    scores = Score.objects.filter(team_name=team_name.upper()).order_by(
+        '-year')
     if len(scores) == 0:
-        return HttpResponseNotFound("Can't find data for team: {0}".format(team_name))
+        return HttpResponseNotFound(
+            "Can't find data for team: {0}".format(team_name))
     template_data['scores'] = []
     temp_scores = []
-    for year in scores.values_list('year', flat=True).distinct().order_by('-year'):
+    for year in scores.values_list('year', flat=True).distinct().order_by(
+            '-year'):
         temp_scores.append(scores.filter(year=year).order_by('-hour'))
     for year in temp_scores:
         i = 0
         while i + 1 < len(year):
             # print year[i]
-            year[i].score_change = year[i].score - year[i+1].score
-            year[i].place_change = year[i+1].place - year[i].place
+            year[i].score_change = year[i].score - year[i + 1].score
+            year[i].place_change = year[i + 1].place - year[i].place
             year[i].place_change_abs = abs(year[i].place_change)
             # print "YEAR", year[i].score_change
             i += 1
         template_data['scores'].append(year)
-    return render_to_response("team.html", template_data, context_instance=RequestContext(request))
+    return render_to_response("team.html", template_data,
+                              context_instance=RequestContext(request))
+
 
 # Displays a list of teams, year combos matching the search.
-
-
 def search(request):
     template_data = {}
     if request.method == 'POST':
@@ -89,28 +74,36 @@ def search(request):
         if form.is_valid():
             search = form.cleaned_data['search']
             t = Score.objects.filter(
-                team_name__icontains=search).values_list('team_name', 'year').distinct().order_by('-year')
+                team_name__icontains=search).values_list('team_name',
+                                                         'year').distinct(
+
+            ).order_by(
+                '-year')
             teams = []
             for team in t:
                 url = team[0].replace(' ', '_')
-                teams.append({'team_name': team[0], 'year': team[1], 'url': url})
+                teams.append(
+                    {'team_name': team[0], 'year': team[1], 'url': url})
             template_data['teams'] = teams
-        return render_to_response("search_results.html", template_data, context_instance=RequestContext(request))
+        return render_to_response("search_results.html", template_data,
+                                  context_instance=RequestContext(request))
     else:
         return HttpResponseBadRequest("Only POSTs allowed.")
 
+
 # Gives the teams and scores for a certain hour in a year
-
-
 def year_hour_overview(request, year, hour):
     template_data = {}
     template_data['hour'] = year
     template_data['year'] = hour
     scores = Score.objects.filter(year=year, hour=hour).order_by('-score')
-    prev_scores = Score.objects.filter(year=2012).filter(hour__lt=hour).values_list('hour', flat=True).distinct().order_by('-hour')
+    prev_scores = Score.objects.filter(year=2012).filter(
+        hour__lt=hour).values_list('hour', flat=True).distinct().order_by(
+        '-hour')
     if len(prev_scores) > 0:
         prev_hour = prev_scores[0]
-        prev_hour_scores = Score.objects.filter(year=2012).filter(hour=prev_hour)
+        prev_hour_scores = Score.objects.filter(year=2012).filter(
+            hour=prev_hour)
     else:
         prev_hour = None
     template_data['teams'] = []
@@ -123,24 +116,29 @@ def year_hour_overview(request, year, hour):
             print prev_hour
             prev_team = prev_hour_scores.filter(team_name=team['team_name'])
             if prev_team and len(prev_team) > 0:
-                print prev_team[0], prev_team[0].score, team['score'], prev_team[0].place, team['place']
+                print prev_team[0], prev_team[0].score, team['score'], \
+                    prev_team[0].place, team['place']
                 team['score_change'] = team['score'] - prev_team[0].score
                 team['place_change'] = prev_team[0].place - team['place']
                 team['place_change_abs'] = abs(team['place_change'])
         print team
         template_data['teams'].append(team)
     print template_data['teams']
-    return render_to_response('hour.html', template_data, context_instance=RequestContext(request))
+    return render_to_response('hour.html', template_data,
+                              context_instance=RequestContext(request))
+
 
 # List years, and which teams were in first.
-
-
 def archive(request):
     template_data = {}
     template_data['scores'] = []
-    for year in Score.objects.values_list('year', flat=True).distinct().order_by('-year'):
+    for year in Score.objects.values_list('year',
+                                          flat=True).distinct().order_by(
+            '-year'):
         template_data['scores'].append(get_top_ten_teams(year, 54))
-    return render_to_response("archive.html", template_data, context_instance=RequestContext(request))
+    return render_to_response("archive.html", template_data,
+                              context_instance=RequestContext(request))
+
 
 # Email/SMS Subscriptions
 
@@ -161,9 +159,6 @@ def sms_subscribe(request):
 
 def sms_unsubscribe(request):
     pass
-##############################################################################
-# Auxillary Functions
-##############################################################################
 
 
 def get_referer_view(request, default=None):
