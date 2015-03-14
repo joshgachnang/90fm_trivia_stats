@@ -1,4 +1,5 @@
-from website.models import during_trivia, get_last_hour, get_last_year, get_start_time
+from website.models import during_trivia, get_last_hour, get_last_year, \
+    get_start_time
 
 
 def default_template_variables(request):

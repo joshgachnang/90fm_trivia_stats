@@ -8,15 +8,15 @@
 
 {% block body %}
 
-	<h2>{{ year }}</h2>
+  <h2>{{ year }}</h2>
 
-	<table>
-		<tbody>
-		{% for hour in hours %}
-			<tr>
-				<td><a href='/score/{{ year }}/{{ hour }}'>{{ hour }}</a></td>
-			</tr>
-		{% endfor %}
-		</tbody>
-	</table>
+  <table>
+    <tbody>
+    {% for hour in hours %}
+      <tr>
+        <td><a href='/score/{{ year }}/{{ hour }}'>{{ hour }}</a></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
 {% endblock %}

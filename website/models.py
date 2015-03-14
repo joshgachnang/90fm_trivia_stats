@@ -1,13 +1,12 @@
-from django.contrib.auth.models import User
-import re
 import urllib2
 import time
 import datetime
 import smtplib
 import logging
 
+from django.contrib.auth.models import User
+import re
 from BeautifulSoup import BeautifulSoup
-
 from django.db import models
 from django.forms import Form, CharField, EmailField
 from django.http import HttpResponse, HttpResponseServerError
@@ -22,7 +21,6 @@ from rest_framework import serializers
 from twilio.rest import TwilioRestClient
 from twilio import TwilioRestException
 import twitter
-
 
 logger = logging.getLogger('logger')
 
@@ -48,6 +46,7 @@ class Score(models.Model):
 
     def __unicode__(self):
         return 'Team: %s, %d Hour %d' % (self.team_name, self.year, self.hour)
+
 
     class Meta:
         unique_together = ("team_name", "hour", "year")
@@ -103,18 +102,19 @@ class TwilioManager(object):
                         # 3 for place, 5 for
                         # points = 134 max characters.
                         if not debug:
-                            client.sms.messages.create(to=user.phone_number,
-                                                       from_=from_number,
-                                                       body="Trivia Scores "
-                                                            "for Hour %d. %s "
-                                                            "in %d place "
-                                                            "with %d points. "
-                                                            "Check scores at "
-                                                            "http://triviastats.com." % (
-                                                                hour,
-                                                                user.team_name,
-                                                                score.place,
-                                                                score.score))
+                            client.sms.messages.create(
+                                to=user.phone_number,
+                                from_=from_number,
+                                body="Trivia Scores "
+                                     "for Hour %d. %s "
+                                     "in %d place "
+                                     "with %d points. "
+                                     "Check scores at "
+                                     "http://triviastats.com." % (
+                                         hour,
+                                         user.team_name,
+                                         score.place,
+                                         score.score))
                             logger.info("Sent SMS to: {0}, {1}".format(
                                 user.phone_number, user.team_name))
                         else:
@@ -461,19 +461,13 @@ class EmailManager(object):
                             score.score)
         else:
             subject = "Trivia Scores Updated for Hour %d." % (last_hour, )
-            text_body = "Trivia scores for Hour %d have been posted. You can " \
-                        "" \
-                        "" \
-                        "" \
-                        "check your current stats at TriviaStats.com" % (
-                            last_hour, )
-            html_body = "Trivia scores for Hour %d have been posted. You can " \
-                        "" \
-                        "" \
-                        "" \
-                        "check your current stats at <a " \
-                        "href='http://triviastats.com'>TriviaStats.com</a>" % (
-                            last_hour, )
+            text_body = ("Trivia scores for Hour %d have been posted. You can "
+                         "check your current stats at TriviaStats.com" %
+                         last_hour )
+            html_body = (
+            "Trivia scores for Hour %d have been posted. You can check your "
+            "current stats at <a "
+            "href='http://triviastats.com'>TriviaStats.com</a>" % last_hour)
         send_mail(source="TriviaStats@triviastats.com",
                   subject=subject, body=html_body,
                   to_addresses=(subscriber.email, ), format='html')
@@ -635,17 +629,17 @@ class Scraper(object):
     # """
     # hour_list = Score.objects.filter(year=2012).values_list(
     # 'hour').distinct().order_by('-hour')
-    #     if len(hour_list) == 0:
-    #         logger.warning("Could not calculate changes for year {0} hour
+    # if len(hour_list) == 0:
+    # logger.warning("Could not calculate changes for year {0} hour
     # {1}, no scores.")
-    #         return
-    #     elif len(hour_list) == 1:
-    #         logger.warning("First hour, ignoring.")
-    #     # Find hour before hours.
-    #     for past_hour in hour_list:
-    #         if hour < past_hour:
-    #             prev_hour = past_hour
-    #             break
+    # return
+    # elif len(hour_list) == 1:
+    # logger.warning("First hour, ignoring.")
+    # # Find hour before hours.
+    # for past_hour in hour_list:
+    # if hour < past_hour:
+    # prev_hour = past_hour
+    # break
     #     if prev_hour is None:
     #         logger.warning("Previous hour is none for year {0} hour {
     # 1}".format(year, hour))
@@ -669,11 +663,12 @@ class Scraper(object):
             scales = ["hundred", "thousand", "million", "billion", "trillion"]
 
             numwords["and"] = (1, 0)
-            for idx, word in enumerate(units):    numwords[word] = (1, idx)
-            for idx, word in enumerate(tens):     numwords[word] = (
-                1, idx * 10)
-            for idx, word in enumerate(scales):   numwords[word] = (
-                10 ** (idx * 3 or 2), 0)
+            for idx, word in enumerate(units):
+                numwords[word] = (1, idx)
+            for idx, word in enumerate(tens):
+                numwords[word] = (1, idx * 10)
+            for idx, word in enumerate(scales):
+                numwords[word] = (10 ** (idx * 3 or 2), 0)
 
         current = result = 0
         for word in textnum.split():
@@ -847,7 +842,6 @@ def get_top_ten_teams(year=None, hour=None):
         year = get_last_year()
     if hour is None:
         hour = get_last_hour()
-    place = 1
 
     scores = Score.objects.filter(year=year).filter(hour=hour).order_by(
         'place')[0:10]

@@ -1,18 +1,20 @@
 <p><em>Trivia Scores for Hour {{ hour }}</em></p>
 
 {% if team_name %}
-<p><em>{{ team_name }}</em></p>
-<hr>
-<p><em>Place:</em> {{ place }}</p>
-<p><em>Score:</em> {{ score }}</p>
+  <p><em>{{ team_name }}</em></p>
+  <hr>
+  <p><em>Place:</em> {{ place }}</p>
+  <p><em>Score:</em> {{ score }}</p>
 {% endif %}
 
 {% if top_ten %}
-	<p><em>Top 10 Teams</em></p>
-	{% for team in top_ten %}
-	<!-- Place, Team Name, Score -->
-		{{ team.0 }}: {{ team.1 }}, Score: {{ team.2 }} 
-	{% endfor %}
+  <p><em>Top 10 Teams</em></p>
+  {% for team in top_ten %}
+    <!-- Place, Team Name, Score -->
+    {{ team.0 }}: {{ team.1 }}, Score: {{ team.2 }}
+  {% endfor %}
 {% endif %}
 
-<h6>To unsubscribe, just go to <a href="http://TriviaStats.com/Email_Unsubscribe/">http://TriviaStats.com/Email_Unsubscribe/</a></h6>
+<h6>To unsubscribe, just go to <a
+    href="http://TriviaStats.com/Email_Unsubscribe/">http://TriviaStats.com/Email_Unsubscribe/</a>
+</h6>

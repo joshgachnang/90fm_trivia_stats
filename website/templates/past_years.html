@@ -7,15 +7,15 @@
 {% block body_class %}home{% endblock %}
 
 {% block body %}
-	
-	<h2>Past Years</h2>
-	<table>
-		<tbody>
-		{% for year in years %}
-			<tr>
-				<td><a href='/years/{{ year }}'>{{ year }}</a></td>
-			</tr>
-		{% endfor %}
-		</tbody>
-	</table>
+
+  <h2>Past Years</h2>
+  <table>
+    <tbody>
+    {% for year in years %}
+      <tr>
+        <td><a href='/years/{{ year }}'>{{ year }}</a></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
 {% endblock %}

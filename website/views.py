@@ -1,7 +1,7 @@
 # Create your views here.
 import logging
-import re
 
+import re
 from django.http import HttpResponseNotFound, HttpResponseBadRequest
 from django.shortcuts import render_to_response
 from django.template import RequestContext
@@ -10,7 +10,6 @@ from website.models import Score, SMSSubscriberForm, \
     playing_this_year, \
     get_top_ten_teams, TwilioManager, EmailManager
 from django.forms.models import model_to_dict
-
 
 logger = logging.getLogger('logger')
 

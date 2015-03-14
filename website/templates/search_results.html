@@ -7,21 +7,21 @@
 {% block body_class %}home{% endblock %}
 
 {% block body %}
-<div class="team_body">
+  <div class="team_body">
     <h2 xmlns="http://www.w3.org/1999/html">Search Results</h2>
     <table class="table table-bordered">
-        <thead>
-            <th>Team Name</th>
-            <th>Year</th>
-        </thead>
-        {% for team in teams %}
-            <tr>
-                <td><a href="/team/{{ team.url }}/">{{ team.team_name }}</a></td>
-                <td>{{ team.year }}</td>
-            </tr>
-        {% empty %}
-            <tr>Sorry, no teams found.</tr>
-        {% endfor %}
+      <thead>
+      <th>Team Name</th>
+      <th>Year</th>
+      </thead>
+      {% for team in teams %}
+        <tr>
+          <td><a href="/team/{{ team.url }}/">{{ team.team_name }}</a></td>
+          <td>{{ team.year }}</td>
+        </tr>
+      {% empty %}
+        <tr>Sorry, no teams found.</tr>
+      {% endfor %}
     </table>
-</div>
+  </div>
 {% endblock %}

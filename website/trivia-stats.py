@@ -1,7 +1,7 @@
-import re
-
-from BeautifulSoup import BeautifulStoneSoup, BeautifulSoup
 import urllib
+
+import re
+from BeautifulSoup import BeautifulSoup
 
 # REGEX
 # b = re.findall(r'\d+',a)
@@ -23,10 +23,12 @@ db = []
 for i in range(0, len(teams)):
 
     if len(place_score[i].contents) == 1:
-        reg = re.findall(r'([0-9]+)', place_score[i].contents[0].replace(',', ''))
+        reg = re.findall(r'([0-9]+)',
+                         place_score[i].contents[0].replace(',', ''))
     # Happens in first occurence only
     elif len(place_score[i].contents) == 2:
-        reg = re.findall(r'[0-9]{1,6}', place_score[i].contents[1].replace(',', ''))
+        reg = re.findall(r'[0-9]{1,6}',
+                         place_score[i].contents[1].replace(',', ''))
     else:
         # Broken..
         pass
@@ -41,10 +43,13 @@ for i in range(0, len(teams)):
         # Creates a list, with format noted above first for loop.
         # Replaces ugly HTML with chars.
         db.append(
-            (teams_list[j].string.replace('&#160;', ' ').replace('&amp;', '&').replace('&quot;', '"'), points, place))
+            (teams_list[j].string.replace('&#160;', ' ').replace('&amp;',
+                                                                 '&').replace(
+                '&quot;', '"'), points, place))
 
 for a in db:
     print a[0] + " " + a[1] + " " + a[2]
 
 # def getURL(int year, int hour):
-#  return "http://90fmtrivia.org/scores_page/Scores%d/scores/results%d.htm" % (year, hour)
+# return "http://90fmtrivia.org/scores_page/Scores%d/scores/results%d.htm" %
+#  (year, hour)
