@@ -63,6 +63,7 @@ WSGI_APPLICATION = 'trivia_stats.wsgi.application'
 DEFAULT_DATABASE = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
+        'HOST': '192.168.2.2',
         'NAME': 'triviastats',
         'USER': 'triviastats',
         'PASSWORD': 'triviastats'
@@ -72,7 +73,8 @@ DEFAULT_DATABASE = {
 DATABASES = os.environ.get('DJANGO_DATABASE', DEFAULT_DATABASE)
 
 REST_FRAMEWORK = {
-    'PAGINATE_BY': 100
+    'PAGINATE_BY': 100,
+    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',)
 }
 
 # Internationalization

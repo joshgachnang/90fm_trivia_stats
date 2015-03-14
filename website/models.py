@@ -28,6 +28,7 @@ logger = logging.getLogger('logger')
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
+        fields = ['id', 'username', 'first_name', 'last_name', 'email']
 
 
 class Score(models.Model):
@@ -862,6 +863,7 @@ def post_to_twitter(message):
 
 
 page_template = {
+    '2015': 'http://90fmtrivia.org/TriviaScores%s/scorePages/results.html',
     '2014': 'http://90fmtrivia.org/TriviaScores%s/scorePages/results.html',
     '2013': 'http://90fmtrivia.org/TriviaScores%s/scorePages/results.htm',
     '2012': 'http://90fmtrivia.org/TriviaScores%s/scorePages/results%s.htm',

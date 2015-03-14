@@ -9,8 +9,9 @@ from website.models import ScoreSerializer, SMSSubscriberSerializer, \
 class ScoreViewSet(viewsets.ReadOnlyModelViewSet):
     filter_fields = ('hour', 'year', 'team_name')
     search_fields = ('@team_name',)
-    ordering_fields = ('score', 'year', 'hour')
-    filter_backends = (filters.DjangoFilterBackend,)
+    ordering_fields = ('score', 'year', 'hour', 'place')
+    filter_backends = (filters.DjangoFilterBackend, filters.OrderingFilter,
+                       filters.SearchFilter)
     queryset = Score.objects.all()
     serializer_class = ScoreSerializer
 
