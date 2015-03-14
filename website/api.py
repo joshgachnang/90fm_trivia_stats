@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from rest_framework import filters
 from rest_framework import viewsets
 from website.models import ScoreSerializer, SMSSubscriberSerializer, \
     EmailSubscriberSerializer, Score, SMSSubscriber, EmailSubscriber, \
@@ -6,6 +7,10 @@ from website.models import ScoreSerializer, SMSSubscriberSerializer, \
 
 
 class ScoreViewSet(viewsets.ReadOnlyModelViewSet):
+    filter_fields = ('hour', 'year', 'team_name')
+    search_fields = ('@team_name',)
+    ordering_fields = ('score', 'year', 'hour')
+    filter_backends = (filters.DjangoFilterBackend,)
     queryset = Score.objects.all()
     serializer_class = ScoreSerializer
 
