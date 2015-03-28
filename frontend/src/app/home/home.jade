@@ -1,0 +1,49 @@
+div(layout='vertical', layout-fill)
+  md-content
+    md-card
+      md-toolbar
+        div.md-toolbar-tools
+          span.md-flex Trivia Countdown
+      md-content.md-padding
+        div#countdown(layout='row',layout-sm='column',ng-controller="CountdownCtrl")
+          div(layout='column').number-container
+            md-progress-circular.hours(md-mode='determinate',value='{{timeToTrivia | countdown:"days":"true"}}')
+            span.countdown-number(ng-bind='timeToTrivia | countdown:"days"')
+            span.countdown-label Days
+          div(layout='column').number-container
+            md-progress-circular.hours.md-hue-2(md-mode='determinate',value='{{timeToTrivia | countdown:"hours":"true"}}')
+            span.countdown-number(ng-bind='timeToTrivia | countdown:"hours"')
+            span.countdown-label Hours
+          div(layout='column').number-container
+            md-progress-circular.hours.md-accent(md-mode='determinate',value='{{timeToTrivia | countdown:"minutes":"true"}}')
+            span.countdown-number(ng-bind='timeToTrivia | countdown:"minutes"')
+            span.countdown-label Minutes
+          div(layout='column').number-container
+            md-progress-circular.hours.md-accent.md-hue-1(md-mode='determinate',value='{{timeToTrivia | countdown:"seconds":"true"}}')
+            span.countdown-number(ng-bind='timeToTrivia | countdown:"seconds"')
+            span.countdown-label Seconds
+    md-card
+      md-toolbar
+        div.md-toolbar-tools(ng-cloak)
+          span.md-flex Hour {{ scores[0].hour }}, {{ scores[0].year }}
+      md-subheader.md-primary
+        a(href='#/scores/{{ scores[0].year }}/{{ scores[0].hour }}',ng-cloak) Full Scores
+      md-list.scores
+        md-content.md-padding
+          md-item
+            md-item-content
+              div(flex="30",layout="row")
+                h3.md-title(flex="50") Place
+                h3.md-title(flex="50") Score
+              div(flex="70")
+                h3.md-title Team
+            md-divider
+          md-item(ng-repeat='score in scores',ng-if='$index < 10')
+            md-item-content
+              div.md-tile-left(flex="30",layout="row")
+                span(flex="50") {{ score.place }}
+                span(flex="50") {{ score.score }}
+              div.md-tile-content(flex="70")
+                span
+                  a(href='#/teams/{{ score.team_name | escape }}') {{ score.team_name }}
+            md-divider(ng-if="!$last")
