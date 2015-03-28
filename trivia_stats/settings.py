@@ -10,6 +10,7 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import json
+
 import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -39,11 +40,15 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
+    'djoser',
+    'corsheaders',
     'website'
 )
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -52,10 +57,18 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
+APPEND_SLASH = False
+
 ROOT_URLCONF = 'trivia_stats.urls'
 
 WSGI_APPLICATION = 'trivia_stats.wsgi.application'
 
+CORS_ORIGIN_ALLOW_ALL = True
+
+CORS_ORIGIN_WHITELIST = (
+    'localhost:3000',
+    'www.trivastats.com'
+)
 
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
@@ -73,8 +86,20 @@ DEFAULT_DATABASE = {
 DATABASES = os.environ.get('DJANGO_DATABASE', DEFAULT_DATABASE)
 
 REST_FRAMEWORK = {
-    'PAGINATE_BY': 100,
-    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',)
+    'PAGINATE_BY': 600,
+    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    )
+}
+
+DJOSER = {
+    'DOMAIN': 'triviastats.com',
+    'SITE_NAME': 'TriviaStats',
+    'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}',
+    'ACTIVATION_URL': '#/activate/{uid}/{token}',
+    'LOGIN_AFTER_ACTIVATION': True,
+    'SEND_ACTIVATION_EMAIL': True,
 }
 
 # Internationalization

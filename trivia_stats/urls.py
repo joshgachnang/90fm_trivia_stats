@@ -21,6 +21,7 @@ urlpatterns = patterns(
     # "template": "homepage.html",
     # }, name="home"),
     url(r"^admin/", include(admin.site.urls)),
+    url(r'^auth/', include('djoser.urls')),
 )
 urlpatterns += patterns(
     'website.views',

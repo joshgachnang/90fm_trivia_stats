@@ -1,22 +1,20 @@
-import urllib2
-import time
 import datetime
-import smtplib
 import logging
-
-from django.contrib.auth.models import User
 import re
+import smtplib
+import time
+import urllib2
+
 from BeautifulSoup import BeautifulSoup
+from django.conf import settings
+from django.contrib import messages
+from django.core.mail import send_mail, EmailMultiAlternatives
 from django.db import models
 from django.forms import Form, CharField, EmailField
 from django.http import HttpResponse, HttpResponseServerError
 from django.shortcuts import redirect
 from django.template import Context
-from django.core.mail import send_mail
 from django.template.loader import get_template
-from django.contrib import messages
-from django.core.mail import EmailMultiAlternatives
-from django.conf import settings
 from rest_framework import serializers
 from twilio.rest import TwilioRestClient
 from twilio import TwilioRestException
@@ -24,10 +22,120 @@ import twitter
 
 logger = logging.getLogger('logger')
 
+CONTACT_METHOD = (('both', 'Email and Text'),
+                  ('email', 'Email Only'),
+                  ('text', 'Text Only'),
+                  ('none', 'No Alerts'))
+
+
+# Cache client
+_twilio_client = None
+
+
+def _get_twilio_client():
+    global _twilio_client
+    if _twilio_client is None:
+        account = settings.TWILIO_ACCOUNT
+        token = settings.TWILIO_AUTH
+        _twilio_client = TwilioRestClient(account, token)
+
+    return _twilio_client
+
+
+def clean_number(number):
+    return number.replace('(', '').replace(')', '').replace('-', '').replace(
+        ' ', '')
+
+
+def _send_text(number, msg):
+    client = _get_twilio_client()
+    try:
+        client.sms.messages.create(
+            to=number,
+            from_=settings.TWILIO_NUMBER,
+            body=msg)
+    except TwilioRestException:
+        logger.exception(
+            "SMS {} for user {} failed.".format(msg, number))
+
+
+class UserProfile(models.Model):
+    phone_number = models.CharField(max_length=14, db_index=True, unique=True,
+                                    blank=True, null=True)
+    contact_method = models.CharField(max_length=16, choices=CONTACT_METHOD,
+                                      default='both')
+    team_name = models.CharField(max_length=64, blank=True, null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    error_msg = models.TextField()
+
+    def score_update(self, hour, year):
+        # Find team
+        scores = Score.objects.filter(hour=hour).filter(year=year).filter(
+            team_name__contains=self.team_name)
+        if len(scores) > 1:
+            logger.warning('Team name {} generated {} duplicates'.format(
+                self.team_name, len(scores)))
+            msg = ('Your team name {} matched multiple teams, '
+                   'try being more specific. Matched teams: {}'.format(
+                [score.team_name for score in scores]))
+            self.error_msg = msg
+            self.save()
+            logger.warning(msg)
+            # Select the first score
+            score = scores[0]
+
+        elif len(scores) == 0:
+            msg = ('Your team name {} didn\'t match any teams.'.format(
+                self.team_name))
+            self.error_msg = msg
+            self.save()
+            logger.warning(msg)
+            score = None
+        else:
+            score = scores[0]
+
+        if self.contact_method in ('text', 'both'):
+            self.send_text(score)
+
+        if self.contact_method in ('email', 'both'):
+            self.send_email(score)
+
+    def send_text(self, score):
+        logger.info(
+            "Sending SMS to {}, {}".format(self.phone_number, self.team_name))
+        client = _get_twilio_client()
+
+        template = get_template('sms_score_update.txt')
+        context = Context({'hour': score.hour, 'place': score.place,
+                           'team_name': score.team_name,
+                           'score': score.score})
+        body = template.render(context)
+
+        try:
+            client.sms.messages.create(
+                to=self.phone_number,
+                from_=settings.TWILIO_NUMBER,
+                body=body)
+        except TwilioRestException:
+            logger.exception(
+                "SMS for user {0} failed.".format(self.user.username))
+
+    def send_email(self, score):
+        pass
+
+    def welcome_text(self):
+        c = Context({'number': self.phone_number,
+                     'team_name': self.team_name})
+        text = get_template('subscribe_sms.txt')
+        _send_text(self.phone_number, text.render(c))
+
+    def welcome_email(self):
+        pass
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
+        model = UserProfile
         fields = ['id', 'username', 'first_name', 'last_name', 'email']
 
 
@@ -56,236 +164,6 @@ class Score(models.Model):
 class ScoreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Score
-
-
-class TwilioManager(object):
-    def get_twilio_account(self):
-        return settings.TWILIO_ACCOUNT
-
-    def get_twilio_token(self):
-        return settings.TWILIO_AUTH
-
-    def get_twilio_number(self):
-        return settings.TWILIO_NUMBER
-
-    def sms_notify(self, hour=None, debug=False):
-        account = self.get_twilio_account()
-        token = self.get_twilio_token()
-        from_number = self.get_twilio_number()
-
-        if account is None or token is None or from_number is None:
-            logger.error("Missing token, account, or from_number")
-            return
-
-        client = TwilioRestClient(account, token)
-        if client is None:
-            logger.error("Client failed.")
-            return
-
-        # if hour is None:
-        hour = get_last_hour()
-        year = get_last_year()
-        for user in SMSSubscriber.objects.all():
-            if user.team_name:
-                score = Score.objects.filter(hour=hour).filter(
-                    year=year).filter(team_name__contains=user.team_name)
-                if len(score) != 1:
-                    logger.warning(
-                        "Failed sms notify for hour %d for team name %s, "
-                        "%d scores found.." % (
-                            int(hour), user.team_name, len(score)))
-                    continue
-                else:
-                    try:
-                        score = score[0]
-                        # Max length of team name is 36
-                        # 88 in characters (including spaces), 2 for hour,
-                        # 3 for place, 5 for
-                        # points = 134 max characters.
-                        if not debug:
-                            client.sms.messages.create(
-                                to=user.phone_number,
-                                from_=from_number,
-                                body="Trivia Scores "
-                                     "for Hour %d. %s "
-                                     "in %d place "
-                                     "with %d points. "
-                                     "Check scores at "
-                                     "http://triviastats.com." % (
-                                         hour,
-                                         user.team_name,
-                                         score.place,
-                                         score.score))
-                            logger.info("Sent SMS to: {0}, {1}".format(
-                                user.phone_number, user.team_name))
-                        else:
-                            logger.info(
-                                "Would have sent SMS to: {0}, {1} for hour {"
-                                "2}".format(
-                                    user.phone_number, user.team_name, hour))
-                            # send_mail('Trivia Scores Updated for Hour %d.
-                            # %s is in %d place with %d
-                            # points.' % (get_current_hour(),
-                            # score.team_name, score.place,
-                            # score.score), 'Trivia scores for Hour %d have
-                            # been posted. %s is in %d
-                            # place with %d points. You can check your
-                            # current stats at <a
-                            # href="http://triviastats.com">TriviaStats.com
-                            # </a>' %
-                            # (get_current_hour(), score.team_name,
-                            # score.place, score.score),
-                            # 'noreply@triviastats.com', user.email,
-                            # fail_silently=False)
-                    except TwilioRestException, e:
-                        logger.exception(
-                            "SMS for user {0} failed.".format(user))
-                        return
-            else:
-                try:
-                    # Max length of team name is 36
-                    if not debug:
-                        client.sms.messages.create(to=user.phone_number,
-                                                   from_=from_number,
-                                                   body="Trivia Scores for "
-                                                        "Hour %d. Check "
-                                                        "scores at "
-                                                        "http://triviastats.com." % (
-                                                            hour, ))
-                        logger.info(
-                            "Sent SMS to: {0}".format(user.phone_number))
-                    else:
-                        logger.info(
-                            "Would have sent SMS to: {0} for hour {1}".format(
-                                user.phone_number, hour))
-                        # send_mail('Trivia Scores Updated for Hour %d' %
-                        # get_current_hour(),
-                        # 'Trivia scores for Hour %d have been posted. You
-                        # can check your current
-                        # stats at <a
-                        # href="http://triviastats.com">TriviaStats.com</a>' %
-                        # get_current_hour(), 'noreply@triviastats.com',
-                        # user.email,
-                        # fail_silently=False)
-                except TwilioRestException, e:
-                    logger.exception("SMS for user {0} failed.".format(user))
-                    return
-
-    def sms_update(self, ):
-        hour = get_last_hour()
-        for sub in SMSSubscriber.objects.all():
-            if sub.phone_number == None:
-                continue
-            score = None
-            if sub.team_name:
-
-                try:
-                    score = Score.objects.filter(
-                        team_name=sub.team_name.upper().get(
-                            hour=get_last_hour()))
-                except Exception, e:
-                    logger.exception(
-                        "Team name {0} doesn't exist or has too many "
-                        "returned for SMS: {1}".format(
-                            sub.team_name, sub.phone_number))
-            if score:
-                text_content = "%s Score: %d Place: %d. See more at " \
-                               "TriviaStats.com/hour/%d" % (
-                                   sub.team_name, score.score, score.place,
-                                   hour)
-            else:
-                text_content = "Trivia Stats: Scores for Hour %d have been " \
-                               "updated. See them at " \
-                               "TriviaStats.com/hour/%d" % (
-                                   hour, hour)
-            client = TwilioRestClient(settings.TWILIO_ACCOUNT,
-                                      settings.TWILIO_AUTH)
-            message = client.sms.messages.create(to=sub.phone_number,
-                                                 from_=settings.TWILIO_NUMBER,
-                                                 body=text_content)
-            logger.info('message sent to user: {0}'.format(sub.phone_number))
-
-    def sms_subscribe(self, request):
-        if request.method == 'POST':
-            form = SMSSubscriberForm(request.POST)
-            if form.is_valid():
-                if 'team_name' in form.cleaned_data:
-                    team_name = form.cleaned_data['team_name'].upper()
-                else:
-                    team_name = None
-                number = self.clean_number(form.cleaned_data['phone_number'])
-                if number == None:
-                    logger.warning("Need a phone_number!")
-                    return HttpResponseServerError("Invalid phone number")
-                sub = SMSSubscriber(team_name=team_name, phone_number=number)
-                if len(SMSSubscriber.objects.filter(phone_number=number)) > 0:
-                    logger.warning(
-                        "Duplicate Phone Number: {0}".format(number))
-                    messages.error(request,
-                                   "Cannot register multiple times for phone "
-                                   "number: {0}".format(
-                                       number))
-                    return redirect('/')
-                try:
-                    sub.save()
-                except Exception as e:
-                    logger.warning(
-                        "Duplicate Phone Number: {0}".format(number))
-                    messages.error(request,
-                                   "Cannot register multiple times for phone "
-                                   "number: {0}".format(
-                                       number))
-                    return redirect('/')
-
-                # Notify of subscription
-                c = Context({'number': number, 'team_name': team_name})
-                text = get_template('subscribe_sms.txt')
-                text_content = text.render(c)
-                if len(text_content) > 140:
-                    logger.warning(
-                        "More than one message!! Message: {0}".format(
-                            text_content))
-
-                client = TwilioRestClient(self.get_twilio_account(),
-                                          self.get_twilio_token())
-                # print client
-                # try:
-                message = client.sms.messages.create(to=number,
-                                                     from_=settings.TWILIO_NUMBER,
-                                                     body=text_content)
-                # except TwilioRestException, e:
-                # pass
-                if team_name:
-                    messages.success(request,
-                                     "Phone number %s for team %s "
-                                     "successfully added!" % (
-                                         number, team_name))
-                else:
-                    messages.success(request,
-                                     "Phone number %s successfully added!" % (
-                                         number))
-                return redirect('/')
-            else:
-                messages.error(request, 'Invalid Phone Number or Team Name')
-                return redirect('/')
-        else:
-            return redirect('/')
-
-    def sms_unsubscribe(self, request):
-        if request.method == 'POST':
-            form = SMSUnsubscribeForm(request.POST)
-            if form.is_valid():
-                number = self.clean_number(form.cleaned_data['phone_number'])
-                subscriber = SMSSubscriber.objects.filter(number=number)
-                if len(subscriber) != 1:
-                    return HttpResponseServerError("Number not subscribed")
-                subscriber.delete()
-                return redirect('/')
-
-    def clean_number(self, number):
-        return number.replace('(', '').replace(')', '').replace('-',
-                                                                '').replace(
-            ' ', '')
 
 
 class EmailManager(object):
@@ -466,9 +344,11 @@ class EmailManager(object):
                          "check your current stats at TriviaStats.com" %
                          last_hour )
             html_body = (
-            "Trivia scores for Hour %d have been posted. You can check your "
-            "current stats at <a "
-            "href='http://triviastats.com'>TriviaStats.com</a>" % last_hour)
+                "Trivia scores for Hour %d have been posted. You can check "
+                "your "
+                "current stats at <a "
+                "href='http://triviastats.com'>TriviaStats.com</a>" %
+                last_hour)
         send_mail(source="TriviaStats@triviastats.com",
                   subject=subject, body=html_body,
                   to_addresses=(subscriber.email, ), format='html')
@@ -641,12 +521,12 @@ class Scraper(object):
     # if hour < past_hour:
     # prev_hour = past_hour
     # break
-    #     if prev_hour is None:
-    #         logger.warning("Previous hour is none for year {0} hour {
+    # if prev_hour is None:
+    # logger.warning("Previous hour is none for year {0} hour {
     # 1}".format(year, hour))
-    #     # Get all scores for this hour and last hour.
-    #     scores = Score.objects.filter(year=year).filter(hour=hour)
-    #     prev_scores = Score.objects.filter(year=year).filter(hour=prev_hour)
+    # # Get all scores for this hour and last hour.
+    # scores = Score.objects.filter(year=year).filter(hour=hour)
+    # prev_scores = Score.objects.filter(year=year).filter(hour=prev_hour)
 
     def text2int(self, textnum, numwords={}):
         if not numwords:
