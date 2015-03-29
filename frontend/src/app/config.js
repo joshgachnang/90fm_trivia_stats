@@ -2,7 +2,7 @@
 
 angular.module('triviastats')
 
-.constant('BACKEND_SERVER', 'http://127.0.0.1:8000/api/v1/')
+.constant('BACKEND_SERVER', 'http://192.168.1.6:8000/api/v1/')
 
 .constant('TRIVIA_DATES', {
     // 3 == April because Javascript is stupid and 0 indexes months

@@ -1,7 +1,6 @@
 {
   "name": "triviastats",
   "version": "0.0.0",
-  "dependencies": {},
   "devDependencies": {
     "browser-sync": "~1.7.1",
     "chalk": "~0.5.1",

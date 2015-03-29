@@ -1,6 +1,6 @@
 'use strict';
 
-var app = angular.module('triviastats', ['ngAnimate', 'ngCookies', 'ngTouch', 'ngSanitize', 'ngResource', 'ui.router', 'ngMaterial', 'djangoRESTResources', 'datatables']);
+var app = angular.module('triviastats', ['ngAnimate', 'ngCookies', 'ngTouch', 'ngSanitize', 'ngResource', 'ui.router', 'ngMaterial', 'ngMdIcons', 'djangoRESTResources', 'datatables']);
 
 app.config(function ($stateProvider, $urlRouterProvider) {
   $stateProvider
@@ -18,13 +18,18 @@ app.config(function ($stateProvider, $urlRouterProvider) {
       url: '/teams/:team_name',
       templateUrl: 'app/team/team.html',
       controller: 'TeamCtrl'
+    })
+    .state('search', {
+      url: '/search',
+      templateUrl: 'app/search/search.html',
+      controller: 'SearchCtrl'
     });
 
   $urlRouterProvider.otherwise('/');
 });
 
 // Filter for generating encoded urls from team names
-app.filter('escape', function() {
+app.filter('escape', function () {
   return window.encodeURIComponent;
 });
 // Util functions

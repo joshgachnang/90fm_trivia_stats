@@ -123,3 +123,14 @@ md-progress-circular .md-inner .md-gap {
 md-toolbar.team_year {
   margin-top: 20px
 }
+
+button.search {
+  position: absolute;
+  top: 33px;
+  z-index: 100;
+  padding-top: 8px;
+}
+
+md-toolbar.main-bar {
+  z-index: 90;
+}

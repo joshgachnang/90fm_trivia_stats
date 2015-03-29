@@ -1,0 +1,30 @@
+md-content.md-padding
+  md-card.md-padding
+    form(name='search_form',ng-submit='query()')
+      md-input-container
+        label Search Trivia teams
+        input(ng-model='search_term')
+  div(layout='row',layout-sm='column',layout-align='space-around',ng-if="processing")
+    md-progress-circular(md-mode='indeterminate')
+  md-card(ng-hide="filtered_teams.length == 0")
+    md-toolbar
+        h1.md-toolbar-tools {{ filtered_teams[0].team_name }}
+      md-list.scores
+        md-content.md-padding
+          div(ng-repeat='score in filtered_teams')
+            div(ng-if='score.year != filtered_teams[$index - 1].year || score.team_name != filtered_teams[$index - 1].team_name')
+              md-toolbar.team_year
+                h2.md-toolbar-tools {{score.team_name }}, {{ score.year }}
+
+              md-item
+                md-item-content
+                  h3.md-title(flex='33') Hour
+                  h3.md-title(flex='33') Place
+                  h3.md-title(flex='33') Score
+              md-divider
+            md-item
+              md-item-content
+                span(flex='33') {{ score.hour }}
+                span(flex='33') {{ score.place }}
+                span(flex='33') {{ score.score }}
+              md-divider(ng-if='!$last')

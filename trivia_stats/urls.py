@@ -14,6 +14,7 @@ router.register(r'api/v1/users', api.UserViewSet)
 router.register(r'api/v1/email_subscribers', api.EmailSubscriberViewSet)
 router.register(r'api/v1/sms_subscribers', api.SMSSubscriberViewSet)
 router.register(r'api/v1/scores', api.ScoreViewSet)
+router.register(r'api/v1/teams', api.TeamsList)
 
 urlpatterns = patterns(
     "",

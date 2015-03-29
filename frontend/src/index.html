@@ -21,9 +21,12 @@
 </head>
 <body ng-app="triviastats">
 <header>
-  <md-toolbar>
-    <h2 class="md-toolbar-tools">
-      <span>TriviaStats</span>
+  <md-toolbar class="main-bar">
+    <h2 class="md-toolbar-tools" >
+      <a ui-sref="home"><span>TriviaStats</span></a>
+      <md-button class="md-fab md-primary search" aria-label="Search" ui-sref="search">
+        <ng-md-icon icon="search" style="fill: white;" size="32"></ng-md-icon>
+      </md-button>
     </h2>
   </md-toolbar>
 
@@ -60,7 +63,7 @@
 <script src="app/score/score.controller.js"></script>
 <script src="app/home/home.controller.js"></script>
 <script src="app/team/team.controller.js"></script>
-
+<script src="app/search/search.controller.js"></script>
 <script src="app/config.js"></script>
 
 <!-- inject:partials -->

@@ -86,7 +86,7 @@ DEFAULT_DATABASE = {
 DATABASES = os.environ.get('DJANGO_DATABASE', DEFAULT_DATABASE)
 
 REST_FRAMEWORK = {
-    'PAGINATE_BY': 600,
+    'PAGINATE_BY': 3000,
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',

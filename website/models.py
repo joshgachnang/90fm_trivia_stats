@@ -624,6 +624,10 @@ class SMSSubscriberSerializer(serializers.ModelSerializer):
         model = SMSSubscriber
 
 
+class TeamListSerializer(serializers.Serializer):
+    team_name = serializers.CharField(max_length=255)
+
+
 class SMSUnsubscribeForm(Form):
     pass
 
