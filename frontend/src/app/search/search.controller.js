@@ -2,13 +2,13 @@
 
 angular.module('triviastats')
   .controller('SearchCtrl', ['$scope', 'Score', function ($scope, Score) {
-    $scope.search_term = null;
-    $scope.filtered_teams = [];
+    $scope.searchTerm = null;
+    $scope.filteredTeams = [];
     $scope.processing = false;
 
     $scope.query = function () {
       $scope.processing = true;
-      $scope.filtered_teams = Score.search($scope.search_term);
+      $scope.filteredTeams = Score.search($scope.searchTerm);
       $scope.processing = false;
     };
 

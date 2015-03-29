@@ -5,7 +5,7 @@ angular.module('triviastats')
     var service = {};
     console.log(BACKEND_SERVER + 'scores\/');
     var api = djResource(BACKEND_SERVER + 'scores\/');
-    var teams_api = djResource(BACKEND_SERVER + 'teams\/');
+    var teamsApi = djResource(BACKEND_SERVER + 'teams\/');
     //$http.get(BACKEND_SERVER + 'scores\/')
 
     service.teamScores = function (team, year) {
@@ -27,16 +27,16 @@ angular.module('triviastats')
       });
     };
 
-    service.search = function (search_string) {
+    service.search = function (searchString) {
       return api.query({
         // User team name to keep them grouped properly
         'ordering': '-year,team_name,-hour',
-        'search': search_string
+        'search': searchString
       });
     };
 
-    service.team_list = function () {
-      return teams_api.query({});
+    service.teamList = function () {
+      return teamsApi.query({});
     };
 
     return service;

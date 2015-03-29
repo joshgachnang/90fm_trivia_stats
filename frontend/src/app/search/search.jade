@@ -3,16 +3,16 @@ md-content.md-padding
     form(name='search_form',ng-submit='query()')
       md-input-container
         label Search Trivia teams
-        input(ng-model='search_term')
+        input(ng-model='searchTerm')
   div(layout='row',layout-sm='column',layout-align='space-around',ng-if="processing")
     md-progress-circular(md-mode='indeterminate')
-  md-card(ng-hide="filtered_teams.length == 0")
+  md-card(ng-hide="filteredTeams.length == 0")
     md-toolbar
-        h1.md-toolbar-tools {{ filtered_teams[0].team_name }}
+        h1.md-toolbar-tools {{ filteredTeams[0].team_name }}
       md-list.scores
         md-content.md-padding
-          div(ng-repeat='score in filtered_teams')
-            div(ng-if='score.year != filtered_teams[$index - 1].year || score.team_name != filtered_teams[$index - 1].team_name')
+          div(ng-repeat='score in filteredTeams')
+            div(ng-if='score.year != filteredTeams[$index - 1].year || score.team_name != filteredTeams[$index - 1].team_name')
               md-toolbar.team_year
                 h2.md-toolbar-tools {{score.team_name }}, {{ score.year }}
 
