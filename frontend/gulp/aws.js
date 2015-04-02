@@ -7,17 +7,17 @@ var paths = gulp.paths;
 gulp.task('publish', function() {
 
   // create a new publisher
-  var publisher = awspublish.create({ bucket: '...' });
+  var publisher = awspublish.create({ bucket: 'triviastats.com' });
 
   // define custom headers
   var headers = {
      'Cache-Control': 'max-age=315360000, no-transform, public'
    };
 
-  return gulp.src(paths.dist)
+  return gulp.src(paths.dist + '/**/*')
 
      // gzip, Set Content-Encoding headers and add .gz extension
-    .pipe(awspublish.gzip({ ext: '.gz' }))
+    //.pipe(awspublish.gzip({ ext: '.gz' }))
 
     // publisher will add Content-Length, Content-Type and headers specified above
     // If not specified it will set x-amz-acl to public-read by default
