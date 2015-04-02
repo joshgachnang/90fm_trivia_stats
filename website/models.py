@@ -1,5 +1,7 @@
 import datetime
 import logging
+from django.contrib.auth.models import User
+from django.db.models.signals import post_save
 import re
 import smtplib
 import time
@@ -65,7 +67,7 @@ class UserProfile(models.Model):
     contact_method = models.CharField(max_length=16, choices=CONTACT_METHOD,
                                       default='both')
     team_name = models.CharField(max_length=64, blank=True, null=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, primary_key=True)
     error_msg = models.TextField()
 
     def score_update(self, hour, year):
@@ -133,10 +135,22 @@ class UserProfile(models.Model):
         pass
 
 
+# Automatically create profile when user is created
+def create_user_profile(sender, instance, created, **kwargs):
+    logger.info('create user profile')
+    if created:
+        profile, created = UserProfile.objects.get_or_create(user=instance)
+        logger.info('Created UserProfile')
+
+post_save.connect(create_user_profile, sender=User)
+
+
 class UserSerializer(serializers.ModelSerializer):
+    profile_id = serializers.CharField(source="user.userprofile__id")
+
     class Meta:
-        model = UserProfile
-        fields = ['id', 'username', 'first_name', 'last_name', 'email']
+        model = User
+        fields = ['id', 'email', 'username', ]
 
 
 class Score(models.Model):
@@ -155,7 +169,6 @@ class Score(models.Model):
 
     def __unicode__(self):
         return 'Team: %s, %d Hour %d' % (self.team_name, self.year, self.hour)
-
 
     class Meta:
         unique_together = ("team_name", "hour", "year")
@@ -565,83 +578,8 @@ class Scraper(object):
         return result + current
 
 
-class AvailableHours(models.Model):
-    year = models.IntegerField()
-    hour = models.IntegerField()
-
-
-class Settings(models.Model):
-    lastyear = models.IntegerField()
-    lasthour = models.IntegerField()
-
-
-class EmailSubscriber(models.Model):
-    email = models.EmailField(db_index=True, unique=True)
-    team_name = models.CharField(max_length=36, help_text="(optional)",
-                                 blank=True, null=True)
-
-    def __unicode__(self):
-        if self.team_name:
-            return "%s - %s" % (self.email, self.team_name)
-        else:
-            return self.email
-
-            # def __repr__(self):
-            # return self.__unicode__()
-
-
-class EmailSubscriberSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = EmailSubscriber
-
-
-class EmailSubscriberForm(Form):
-    email = EmailField()
-    team_name = CharField(max_length=36, help_text="(optional)",
-                          required=False)
-
-
-class EmailUnsubscribeForm(Form):
-    pass
-
-
-class SMSSubscriber(models.Model):
-    phone_number = models.CharField(max_length=14, db_index=True, unique=True)
-    team_name = models.CharField(max_length=36, blank=True, null=True)
-
-    def __unicode__(self):
-        if self.team_name:
-            return "%s - %s" % (self.phone_number, self.team_name)
-        else:
-            return self.phone_number
-
-            # def __repr__(self):
-            # return self.__unicode__()
-
-
-class SMSSubscriberSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SMSSubscriber
-
-
 class TeamListSerializer(serializers.Serializer):
     team_name = serializers.CharField(max_length=255)
-
-
-class SMSUnsubscribeForm(Form):
-    pass
-
-
-class SMSSubscriberForm(Form):
-    phone_number = CharField(max_length=14)
-    team_name = CharField(max_length=36, help_text="(optional)",
-                          required=False)
-    # class Meta:
-    # model = SMSSubscriber
-
-
-class SearchForm(Form):
-    search = CharField(max_length=100)
 
 
 def get_current_hour():
@@ -667,8 +605,6 @@ def get_current_year():
 
 
 # Check
-
-
 def during_trivia():
     # Simple debugging stuff
     if settings.DEBUG_DURING:
@@ -759,10 +695,10 @@ hour_54_page = {
     '2012': 'http://90fmtrivia.org/TriviaScores2012/scorePages/results.htm'}
 
 # These are the dates of Trivia, with the year being the key, and the
-# beginning day being the data.
+# beginning day being the value.
 trivia_dates = {"2011": "April 8", "2012": "April 20", "2013": "April 19",
                 "2014": "April 11", "2015": "April 17",
                 "2016": "April 15"}
-# Start hour in 24 hour formathttp://90fmtrivia.org/scores_page/Scores2009
+# Start hour in 24 hour format http://90fmtrivia.org/scores_page/Scores2009
 # /results2.htm
 trivia_start_hour = 1876

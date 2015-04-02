@@ -1,6 +1,6 @@
 'use strict';
 
-var app = angular.module('triviastats', ['ngAnimate', 'ngCookies', 'ngTouch', 'ngSanitize', 'ngResource', 'ui.router', 'ngMaterial', 'ngMdIcons', 'djangoRESTResources', 'datatables']);
+var app = angular.module('triviastats', ['ngAnimate', 'ngCookies', 'ngTouch', 'ngSanitize', 'ngResource', 'ui.router', 'ngMaterial', 'ngMdIcons', 'djangoRESTResources', 'datatables', 'signup']);
 
 app.config(function ($stateProvider, $urlRouterProvider) {
   $stateProvider
@@ -23,6 +23,11 @@ app.config(function ($stateProvider, $urlRouterProvider) {
       url: '/search',
       templateUrl: 'app/search/search.html',
       controller: 'SearchCtrl'
+    })
+    .state('signup', {
+      url: '/signup',
+      templateUrl: 'app/signup/signup.html',
+      controller: 'SignupCtrl'
     });
 
   $urlRouterProvider.otherwise('/');

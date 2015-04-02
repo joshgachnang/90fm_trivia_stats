@@ -36,7 +36,6 @@ RUN apt-get update && \
         libxml2-dev \
         make \
         nano \
-        npm \
         nginx-full \
         python \
         python-dev \
@@ -45,21 +44,12 @@ RUN apt-get update && \
         supervisor && \
         sudo easy_install -U pip && \
         pip install uwsgi supervisor-stdout && \
-        ln -s /usr/bin/nodejs /usr/bin/node && \
-        npm install -g bower gulp && \
         apt-get -y clean && \
         apt-get -y autoclean && \
         apt-get -y autoremove && \
         rm -rf /var/cache/apt/archives/* /var/lib/apt/lists/*
 
-# Get NPM installs done early, they take time and should be cached
-# Plus, they're only for the build system
-WORKDIR /tmp/
-
-ADD frontend/package.json /tmp/package.json
-
 WORKDIR /home/docker/code
-
 
 # Delay adding the whole root to speed up subsequent builds via caching
 ADD requirements.txt /home/docker/code/requirements.txt
@@ -84,32 +74,18 @@ RUN rm /etc/nginx/sites-enabled/default
 ADD docker_configs/trivia_stats.nginx /etc/nginx/sites-enabled/trivia_stats.conf
 ADD docker_configs/uwsgi.params /etc/nginx/uwsgi.params
 ADD docker_configs/trivia_stats.supervisor /etc/supervisor/conf.d/trivia_stats.conf
-ADD docker_configs/uwsgi.ini /home/docker/code/uwsgi.ini
-
-ADD . /home/docker/code
+ADD . /home/docker/code/
 
 # Prepare Django
+RUN mkdir /home/docker/code/frontend
 RUN python manage.py collectstatic --noinput --link
-
-# install frontend dependencies
-WORKDIR /home/docker/code/frontend
-
-# RUN mv /tmp/node_modules /home/docker/code/frontend/node_modules && npm install
-
-RUN bower --allow-root --config.interactive=false install
 
 WORKDIR /home/docker/code
 
 #RUN TRIVIA_STATS_PATH=/home/docker/code make www_prod
 
 # Finalize and clean up
-RUN rm -rf /home/docker/code/frontend/node_modules/ && \
-    rm -rf /home/docker/code/frontend/bower_components/ && \
-    rm -rf /home/docker/code/frontend/build && \
-    rm -rf /home/docker/code/frontend/.tmp && \
-    rm -rf /usr/local/lib/node_modules/ && \
-    rm -rf /root/.cache && \
-    rm -rf /root/.npm && \
+RUN rm -rf /root/.cache && \
     rm -rf /tmp/* && \
     rm -rf /var/tmp/*
 

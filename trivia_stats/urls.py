@@ -1,18 +1,16 @@
-from django.conf.urls import *
+from django.conf.urls import patterns, include, url
 from django.contrib import admin
+from django.http import HttpResponse
+from django.views.generic.base import RedirectView
+from rest_framework.routers import DefaultRouter
+
 from website import api
 
 admin.autodiscover()
-from django.conf.urls import patterns, include, url
-from django.views.generic.base import RedirectView
-from django.http import HttpResponse
-from rest_framework.routers import DefaultRouter
 
 # Create a router and register our viewsets with it.
 router = DefaultRouter()
-router.register(r'api/v1/users', api.UserViewSet)
-router.register(r'api/v1/email_subscribers', api.EmailSubscriberViewSet)
-router.register(r'api/v1/sms_subscribers', api.SMSSubscriberViewSet)
+router.register(r'api/v1/user', api.UserViewSet)
 router.register(r'api/v1/scores', api.ScoreViewSet)
 router.register(r'api/v1/teams', api.TeamsList)
 
@@ -22,7 +20,7 @@ urlpatterns = patterns(
     # "template": "homepage.html",
     # }, name="home"),
     url(r"^admin/", include(admin.site.urls)),
-    url(r'^auth/', include('djoser.urls')),
+    url(r'^api/v1/auth/', include('djoser.urls')),
 )
 urlpatterns += patterns(
     'website.views',
@@ -38,19 +36,19 @@ urlpatterns += patterns(
 
     # Meant for cron jobs
     # (r'^scraper/$', 'scraper'),
-    (r'^team/(?P<team_name>\S+)/$', 'team'),
-    (r'^team/(?P<team_name>\S+)/(?P<team_year>\d{4})/$',
-     'team'),
-    (r'^email/subscribe/$', 'email_subscribe'),
-    (r'^email/unsubscribe/$', 'email_unsubscribe'),
-    (r'^sms/subscribe/$', 'sms_subscribe'),
-    (r'^sms/unsubscribe/$', 'sms_unsubscribe'),
-    (r'^search/$', 'search'),
-    (r'^archive/$', 'archive'),
-    # (r'^years/$', 'past_years'),
+    # (r'^team/(?P<team_name>\S+)/$', 'team'),
+    # (r'^team/(?P<team_name>\S+)/(?P<team_year>\d{4})/$',
+    #  'team'),
+    # (r'^email/subscribe/$', 'email_subscribe'),
+    # (r'^email/unsubscribe/$', 'email_unsubscribe'),
+    # (r'^sms/subscribe/$', 'sms_subscribe'),
+    # (r'^sms/unsubscribe/$', 'sms_unsubscribe'),
+    # (r'^search/$', 'search'),
+    # (r'^archive/$', 'archive'),
+    # # (r'^years/$', 'past_years'),
     # (r'^years/(?P<year>\d+)/$', 'past_year_hours'),
-    (r'^score/(?P<year>\d{4})/(?P<hour>\d{1,2})/$',
-     'year_hour_overview'),
+    # (r'^score/(?P<year>\d{4})/(?P<hour>\d{1,2})/$',
+    #  'year_hour_overview'),
 
     (r'^robots\.txt$', lambda r: HttpResponse(
         'User-agent: Google\nDisallow:"',

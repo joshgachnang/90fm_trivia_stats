@@ -1,7 +1,5 @@
-from models import Score, Settings, EmailSubscriber, SMSSubscriber
+from models import Score, UserProfile
 from django.contrib import admin
 
 admin.site.register(Score)
-admin.site.register(Settings)
-admin.site.register(EmailSubscriber)
-admin.site.register(SMSSubscriber)
+admin.site.register(UserProfile)

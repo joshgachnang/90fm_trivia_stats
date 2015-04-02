@@ -24,7 +24,6 @@ SECRET_KEY = '*$z&ycknu0k(l5w#=u7#mr769c+$8l(gz2=@rx9=!^r+r7w(61'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
 TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
@@ -99,7 +98,8 @@ DJOSER = {
     'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}',
     'ACTIVATION_URL': '#/activate/{uid}/{token}',
     'LOGIN_AFTER_ACTIVATION': True,
-    'SEND_ACTIVATION_EMAIL': True,
+    'LOGIN_AFTER_REGISTRATION': True,
+    'SEND_ACTIVATION_EMAIL': False,
 }
 
 # Internationalization
@@ -125,14 +125,14 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "trivia_stats/static"),
 )
 
-STATIC_ROOT = os.path.join(BASE_DIR, "staticroot")
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 # Serve the frontend files while developing
 if DEBUG:
     STATICFILES_DIRS += ('frontend',)
 
 try:
-    from local_settings import *
+    from config.production_settings import *
 except ImportError:
     pass
 

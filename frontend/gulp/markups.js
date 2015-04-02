@@ -18,5 +18,6 @@ gulp.task('markups', function() {
       this.emit('end');
     })
     .pipe($.rename(renameToHtml))
-    .pipe(gulp.dest(paths.tmp + '/serve/'));
+    .pipe(gulp.dest(paths.tmp + '/serve/'))
+    .pipe(gulp.dest(paths.tmp));
 });

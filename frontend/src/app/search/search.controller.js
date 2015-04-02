@@ -11,5 +11,4 @@ angular.module('triviastats')
       $scope.filteredTeams = Score.search($scope.searchTerm);
       $scope.processing = false;
     };
-
   }]);
