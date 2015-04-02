@@ -21,7 +21,8 @@ gulp.task('partials', ['markups'], function () {
     .pipe($.angularTemplatecache('templateCacheHtml.js', {
       module: 'triviastats'
     }))
-    .pipe(gulp.dest(paths.tmp + '/partials/'));
+    .pipe(gulp.dest(paths.tmp + '/partials/'))
+    .pipe(gulp.dest(paths.dist + '/'));
 });
 
 gulp.task('html', ['inject', 'partials'], function () {

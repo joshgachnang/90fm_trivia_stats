@@ -14,3 +14,6 @@ local/
 build/
 # Ignore easyinstall and setuptools
 db.sqlite3
+.tox/
+*.mysql
+staticfiles/
