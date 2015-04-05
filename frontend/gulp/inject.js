@@ -1,6 +1,8 @@
 'use strict';
 
 var gulp = require('gulp');
+var print = require('gulp-print');
+
 
 var paths = gulp.paths;
 
@@ -17,6 +19,7 @@ gulp.task('inject', ['styles'], function () {
 
   var injectScripts = gulp.src([
     paths.src + '/{app,components}/**/*.js',
+    '!' + paths.src + '/settings.js',
     '!' + paths.src + '/{app,components}/**/*.spec.js',
     '!' + paths.src + '/{app,components}/**/*.mock.js'
   ]).pipe($.angularFilesort());

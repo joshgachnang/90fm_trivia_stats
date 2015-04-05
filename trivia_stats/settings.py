@@ -32,6 +32,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = (
+    'material',
+    'material.admin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -85,7 +87,7 @@ DEFAULT_DATABASE = {
 DATABASES = os.environ.get('DJANGO_DATABASE', DEFAULT_DATABASE)
 
 REST_FRAMEWORK = {
-    'PAGINATE_BY': 3000,
+    'PAGINATE_BY': 500,
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',

@@ -1,6 +1,9 @@
 'use strict';
 
 var gulp = require('gulp');
+var ngConstant = require('gulp-ng-constant');
+var print = require('gulp-print');
+var rename = require('gulp-rename');
 
 var paths = gulp.paths;
 
@@ -75,6 +78,38 @@ gulp.task('fonts', function () {
     .pipe(gulp.dest(paths.dist + '/fonts/'));
 });
 
+gulp.task('config', function() {
+  gulp.src(paths.src + '/prod_settings.js')
+    .pipe(print())
+    .pipe(rename('settings.js'))
+    .pipe(print())
+    .pipe(gulp.dest(paths.dist))
+    .pipe(print());
+});
+
+//gulp.task('config', function () {
+//  gulp.src('gulp/prod_settings.json')
+//    .pipe(rename('settings.json'))
+//    .pipe(ngConstant({
+//      name: 'triviastats.config'
+//    }))
+//    .pipe(print())
+//
+//    .pipe(gulp.dest(paths.dist));
+//});
+//
+//gulp.task('config_dev', function () {
+//  gulp.src('gulp/dev_settings.json')
+//    .pipe(rename('settings.json'))
+//    .pipe(ngConstant({
+//      name: 'triviastats.config',
+//      wrap: 'commonjs'
+//    }))
+//    .pipe(print())
+//
+//    .pipe(gulp.dest(paths.src));
+//});
+
 gulp.task('misc', function () {
   return gulp.src(paths.src + '/**/*.ico')
     .pipe(gulp.dest(paths.dist + '/'));
@@ -84,4 +119,4 @@ gulp.task('clean', function (done) {
   $.del([paths.dist + '/', paths.tmp + '/'], done);
 });
 
-gulp.task('build', ['html', 'images', 'fonts', 'misc']);
+gulp.task('build', ['html', 'images', 'fonts', 'misc', 'config']);
