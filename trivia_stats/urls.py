@@ -10,7 +10,7 @@ admin.autodiscover()
 
 # Create a router and register our viewsets with it.
 router = DefaultRouter()
-router.register(r'api/v1/user', api.UserViewSet)
+router.register(r'api/v1/users', api.UserViewSet)
 router.register(r'api/v1/scores', api.ScoreViewSet)
 router.register(r'api/v1/teams', api.TeamsList)
 

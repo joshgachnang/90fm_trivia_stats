@@ -51,6 +51,14 @@ angular.module('triviastats')
       }
     };
   })
-  .controller('HomeCtrl', ['$scope', 'Score', function ($scope, Score) {
+  .controller('HomeCtrl', ['$scope', 'Score', 'Signup', function ($scope, Score, Signup) {
     $scope.scores = Score.hourScores(54, 2014);
+    $scope.user = {
+      contactEmail: true,
+      contactPhone: true,
+      phoneNumber: undefined
+    };
+    $scope.register = function() {
+      Signup.register($scope.user);
+    };
   }]);

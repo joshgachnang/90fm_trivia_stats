@@ -1,9 +1,15 @@
 md-content.md-padding
-  md-card.md-padding
-    form(name='search_form',ng-submit='query()')
-      md-input-container
-        label Search Trivia teams
-        input(ng-model='searchTerm')
+  md-card
+    md-toolbar
+      div.md-toolbar-tools
+        span.md-flex Search Trivia Teams
+    md-content.md-padding
+
+      form(name='search_form',ng-submit='query()',layout="row")
+        md-input-container(flex)
+          label Team name
+          input(ng-model='searchTerm')
+        md-button.md-raised.md-primary.search-button Search
   div(layout='row',layout-sm='column',layout-align='space-around',ng-if="processing")
     md-progress-circular(md-mode='indeterminate')
   md-card(ng-hide="filteredTeams.length == 0")

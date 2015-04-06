@@ -1,14 +1,12 @@
 all: clean test www
 
-prod: clean test www_prod link_libs
-
 upload: docker_upload
 
 docker: docker_build docker_run
 
 build: build_prod push_prod
 
-clean: clean_www clean_app clean_build
+clean: clean_build
 
 test: pep8 test_django jslint
 
@@ -44,6 +42,16 @@ load_data:
 jslint:
 	cd frontend && gulp lint
 
+prod:
+	cd frontend && gulp build
+	cd frontend && gulp prod
+
+preprod:
+	cd frontend && gulp build
+	cd frontend && gulp preprod
+
+clean_build:
+	cd frontend && gulp clean
 
 #########################
 # CI/CD tools

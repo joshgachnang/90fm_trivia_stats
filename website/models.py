@@ -1,18 +1,17 @@
 import datetime
 import logging
-from django.contrib.auth.models import User
-from django.db.models.signals import post_save
-import re
 import smtplib
 import time
 import urllib2
 
+from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+import re
 from BeautifulSoup import BeautifulSoup
 from django.conf import settings
 from django.contrib import messages
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.db import models
-from django.forms import Form, CharField, EmailField
 from django.http import HttpResponse, HttpResponseServerError
 from django.shortcuts import redirect
 from django.template import Context
@@ -66,8 +65,10 @@ class UserProfile(models.Model):
                                     blank=True, null=True)
     contact_method = models.CharField(max_length=16, choices=CONTACT_METHOD,
                                       default='both')
-    team_name = models.CharField(max_length=64, blank=True, null=True)
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, primary_key=True)
+    team_name = models.CharField(max_length=64, default=None, blank=True, null=True)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, primary_key=True,
+                                related_name='userprofile',
+                                on_delete=models.CASCADE)
     error_msg = models.TextField()
 
     def score_update(self, hour, year):
@@ -142,15 +143,32 @@ def create_user_profile(sender, instance, created, **kwargs):
         profile, created = UserProfile.objects.get_or_create(user=instance)
         logger.info('Created UserProfile')
 
+
 post_save.connect(create_user_profile, sender=User)
 
 
 class UserSerializer(serializers.ModelSerializer):
-    profile_id = serializers.CharField(source="user.userprofile__id")
+    phone_number = serializers.CharField(
+        source="userprofile.phone_number", required=False)
+    contact_method = serializers.CharField(
+        source="userprofile.contact_method", required=False)
+    team_name = serializers.CharField(
+        source="userprofile.team_name", required=False)
+    username = serializers.CharField(required=False)
+    email = serializers.CharField(required=False)
+
+    def update(self, instance, validated_data):
+        profile_data = validated_data.pop('userprofile', None)
+        print('updating profile with data {}'.format(profile_data))
+        profile = UserProfile.objects.get(user=instance)
+        print('updating profile {}'.format(profile))
+        super(UserSerializer, self).update(profile, profile_data)
+        return super(UserSerializer, self).update(instance, validated_data)
 
     class Meta:
         model = User
-        fields = ['id', 'email', 'username', ]
+        fields = ['id', 'email', 'username', 'phone_number',
+                  'contact_method', 'team_name']
 
 
 class Score(models.Model):
@@ -169,6 +187,7 @@ class Score(models.Model):
 
     def __unicode__(self):
         return 'Team: %s, %d Hour %d' % (self.team_name, self.year, self.hour)
+
 
     class Meta:
         unique_together = ("team_name", "hour", "year")
