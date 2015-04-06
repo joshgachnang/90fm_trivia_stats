@@ -24,9 +24,6 @@ ENV SETTINGS_MODE prod
 ENV DOCKER_HOST_IP 172.17.42.1
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends software-properties-common && \
-    add-apt-repository -y ppa:nginx/stable && \
-    apt-get update && \
     apt-get install -y --no-install-recommends \
         build-essential \
         curl \
@@ -36,7 +33,6 @@ RUN apt-get update && \
         libxml2-dev \
         make \
         nano \
-        nginx-full \
         python \
         python-dev \
         python-setuptools \
@@ -65,14 +61,9 @@ RUN apt-get purge -y \
     python3.4-minimal \
     eject \
     locales \
-    software-properties-common \
     python3
 
 # Prepare services
-RUN echo "daemon off;" >> /etc/nginx/nginx.conf
-RUN rm /etc/nginx/sites-enabled/default
-ADD docker_configs/trivia_stats.nginx /etc/nginx/sites-enabled/trivia_stats.conf
-ADD docker_configs/uwsgi.params /etc/nginx/uwsgi.params
 ADD docker_configs/trivia_stats.supervisor /etc/supervisor/conf.d/trivia_stats.conf
 ADD . /home/docker/code/
 
@@ -91,7 +82,7 @@ RUN rm -rf /root/.cache && \
 
 EXPOSE 80
 
-VOLUME ["/home/docker/code/config/", "/etc/nginx/sites-enabled", "/etc/nginx/certs"]
+VOLUME ["/home/docker/code/config/"]
 
 ENV TRIVIASTATS_PATH "/home/docker/code"
 

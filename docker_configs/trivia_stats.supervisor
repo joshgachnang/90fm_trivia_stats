@@ -4,12 +4,6 @@ stdout_logfile=/dev/fd/1
 stdout_logfile_maxbytes=0
 redirect_stderr=true
 
-[program:nginx-app]
-command = /usr/sbin/nginx
-stdout_logfile=/dev/fd/1
-stdout_logfile_maxbytes=0
-redirect_stderr=true
-
 [eventlistener:stdout]
 command = supervisor_stdout
 buffer_size = 100
