@@ -1,6 +1,6 @@
 'use strict';
 
-var app = angular.module('triviastats', ['ngAnimate', 'ngCookies', 'ngTouch', 'ngSanitize', 'ngResource', 'ui.router', 'ngMaterial', 'ngMdIcons', 'djangoRESTResources', 'datatables', 'signup']);
+var app = angular.module('triviastats', ['ngAnimate', 'ngCookies', 'ngTouch', 'ngSanitize', 'ngResource', 'ui.router', 'ngMaterial', 'ngMdIcons', 'djangoRESTResources', 'ngTwitter', 'datatables', 'signup']);
 
 app.config(function ($stateProvider, $urlRouterProvider) {
   $stateProvider
@@ -47,6 +47,14 @@ app.constant('TRIVIA_DATES', {
     '2018': new Date(Date.UTC(2018, 3, 13, 19)),
     '2019': new Date(Date.UTC(2019, 3, 12, 19))
   });
+
+// Configure material theme
+app.config(function($mdThemingProvider) {
+  //$mdThemingProvider.theme('default')
+  //  .primaryPalette('indigo')
+  //  .accentPalette('deep-orange')
+  //  .warnPalette('purple');
+});
 
 // Util functions
 //function triviaTime(dates) {

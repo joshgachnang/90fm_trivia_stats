@@ -54,7 +54,7 @@ section.jumbotron {
 // endinjector
 
 // Countdown
-$countdown-size: 80px;
+$countdown-size: 60px;
 
 md-progress-circular .md-inner {
   width: $countdown-size;
@@ -98,15 +98,16 @@ md-progress-circular .md-inner .md-left .md-half-circle, md-progress-circular .m
 
 #countdown span.countdown-number {
   font-family: Aclonica, sans-serif;
-  font-size: 52px;
+  font-size: 200%;
   margin-left: 12px;
-  margin-top: -71px;
+  margin-top: -49px;
+  font-weight:bolder;
 }
 
 #countdown span.countdown-label {
   font-family: Aclonica, sans-serif;
   text-align: center;
-  font-size: 150%;
+  font-size: 100%;
   font-weight: bold;
   margin-top: 20px;
 }
@@ -131,7 +132,7 @@ md-toolbar.team_year {
 button.search {
   position: absolute;
   top: 15px;
-  right: 0;
+  right: 20px;
   z-index: 100;
   padding-top: 8px;
 }
@@ -151,4 +152,12 @@ md-card {
 .search-button {
   max-height: 35px;
   margin: 18px 10px 0px 10px;
+}
+
+md-toolbar.md-default-theme {
+  background-color: rgb(63,81,181);
+}
+
+.countdown-container {
+  margin: 10px auto 0 auto;
 }

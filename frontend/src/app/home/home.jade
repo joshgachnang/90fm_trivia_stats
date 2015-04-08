@@ -6,22 +6,23 @@ div(layout='vertical', layout-fill)
           span.md-flex Trivia Countdown
       md-content.md-padding
         div#countdown(layout='row',layout-sm='column',ng-controller="CountdownCtrl")
-          div(layout='column').number-container
-            md-progress-circular.hours(md-mode='determinate',value='{{timeToTrivia | countdown:"days":"true"}}')
-            span.countdown-number(ng-bind='timeToTrivia | countdown:"days"')
-            span.countdown-label Days
-          div(layout='column').number-container
-            md-progress-circular.hours.md-hue-2(md-mode='determinate',value='{{timeToTrivia | countdown:"hours":"true"}}')
-            span.countdown-number(ng-bind='timeToTrivia | countdown:"hours"')
-            span.countdown-label Hours
-          div(layout='column').number-container
-            md-progress-circular.hours.md-accent(md-mode='determinate',value='{{timeToTrivia | countdown:"minutes":"true"}}')
-            span.countdown-number(ng-bind='timeToTrivia | countdown:"minutes"')
-            span.countdown-label Minutes
-          div(layout='column').number-container
-            md-progress-circular.hours.md-accent.md-hue-1(md-mode='determinate',value='{{timeToTrivia | countdown:"seconds":"true"}}')
-            span.countdown-number(ng-bind='timeToTrivia | countdown:"seconds"')
-            span.countdown-label Seconds
+          div.countdown-container(layout='row')
+            div(layout='column').number-container
+              md-progress-circular.hours(md-mode='determinate',value='{{timeToTrivia | countdown:"days":"true"}}')
+              span.countdown-number(ng-bind='timeToTrivia | countdown:"days"')
+              span.countdown-label Days
+            div(layout='column').number-container
+              md-progress-circular.hours.md-hue-2(md-mode='determinate',value='{{timeToTrivia | countdown:"hours":"true"}}')
+              span.countdown-number(ng-bind='timeToTrivia | countdown:"hours"')
+              span.countdown-label Hours
+            div(layout='column').number-container
+              md-progress-circular.hours.md-accent(md-mode='determinate',value='{{timeToTrivia | countdown:"minutes":"true"}}')
+              span.countdown-number(ng-bind='timeToTrivia | countdown:"minutes"')
+              span.countdown-label Minutes
+            div(layout='column').number-container
+              md-progress-circular.hours.md-accent.md-hue-1(md-mode='determinate',value='{{timeToTrivia | countdown:"seconds":"true"}}')
+              span.countdown-number(ng-bind='timeToTrivia | countdown:"seconds"')
+              span.countdown-label Seconds
     md-card
       md-toolbar
         div.md-toolbar-tools
@@ -45,7 +46,9 @@ div(layout='vertical', layout-fill)
             input(ng-model="user.teamName",ng-required='false',placeholder='Get notified of your team\'s scores')
           md-checkbox(ng-model="user.contactEmail",aria-label="Notify via Email") Notify via Email
           md-checkbox(ng-model="user.contactPhone",aria-label="Notify via Text") Notify via SMS
-          md-button.md-raised.md-primary(type="submit") Submit
+          md-button.md-raised.md-warn(type="submit") Submit
+    //md-card
+    //  div(tweets,hashtag="#hashtag",button="true",count="15",refresh="60")
     md-card
       md-toolbar
         div.md-toolbar-tools(ng-cloak)
