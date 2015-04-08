@@ -186,6 +186,9 @@ LOGGING = {
     }
 }
 
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+FROM_EMAIL = 'triviastats@triviastats.com'
+
 try:
     from config.production_settings import *
 except ImportError:

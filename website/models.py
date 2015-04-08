@@ -1,14 +1,15 @@
 import datetime
 import logging
+import random
+import re
 import smtplib
+import string
 import time
 import urllib2
 
-from django.contrib.auth.models import User
-from django.db.models.signals import post_save
-import re
 from BeautifulSoup import BeautifulSoup
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.db import models
@@ -43,6 +44,11 @@ def _get_twilio_client():
     return _twilio_client
 
 
+def random_code():
+    return ''.join(random.choice(string.ascii_uppercase + string.digits)
+                   for _ in range(8))
+
+
 def clean_number(number):
     return number.replace('(', '').replace(')', '').replace('-', '').replace(
         ' ', '')
@@ -60,16 +66,28 @@ def _send_text(number, msg):
             "SMS {} for user {} failed.".format(msg, number))
 
 
-class UserProfile(models.Model):
-    phone_number = models.CharField(max_length=14, db_index=True, unique=True,
-                                    blank=True, null=True)
-    contact_method = models.CharField(max_length=16, choices=CONTACT_METHOD,
-                                      default='both')
-    team_name = models.CharField(max_length=64, default=None, blank=True, null=True)
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, primary_key=True,
-                                related_name='userprofile',
-                                on_delete=models.CASCADE)
+def _send_email(email, subject, msg):
+    send_mail(subject, msg, settings.FROM_EMAIL, [email])
+
+
+class Subscriber(models.Model):
+    phone_number = models.CharField(max_length=14, blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)
+    team_name = models.CharField(max_length=64, default=None, blank=True,
+                                 null=True)
     error_msg = models.TextField()
+    # Use this code to confirm deletion.
+    delete_code = models.CharField(max_length=8, blank=True, null=True,
+                                   default=random_code)
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            # New subscriber, send welcome
+            if self.phone_number:
+                self.welcome_text()
+            if self.email:
+                self.welcome_email()
+        super(Subscriber, self).save(*args, **kwargs)
 
     def score_update(self, hour, year):
         # Find team
@@ -133,42 +151,20 @@ class UserProfile(models.Model):
         _send_text(self.phone_number, text.render(c))
 
     def welcome_email(self):
-        pass
+        c = Context({'email': self.email,
+                     'team_name': self.team_name})
+        text = get_template('subscribe_email.txt')
+        _send_email(self.email, 'Welcome to TriviaStats!', text.render(c))
 
 
-# Automatically create profile when user is created
-def create_user_profile(sender, instance, created, **kwargs):
-    logger.info('create user profile')
-    if created:
-        profile, created = UserProfile.objects.get_or_create(user=instance)
-        logger.info('Created UserProfile')
-
-
-post_save.connect(create_user_profile, sender=User)
-
-
-class UserSerializer(serializers.ModelSerializer):
-    phone_number = serializers.CharField(
-        source="userprofile.phone_number", required=False)
-    contact_method = serializers.CharField(
-        source="userprofile.contact_method", required=False)
-    team_name = serializers.CharField(
-        source="userprofile.team_name", required=False)
-    username = serializers.CharField(required=False)
-    email = serializers.CharField(required=False)
-
-    def update(self, instance, validated_data):
-        profile_data = validated_data.pop('userprofile', None)
-        print('updating profile with data {}'.format(profile_data))
-        profile = UserProfile.objects.get(user=instance)
-        print('updating profile {}'.format(profile))
-        super(UserSerializer, self).update(profile, profile_data)
-        return super(UserSerializer, self).update(instance, validated_data)
-
+class SubscriberSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
-        fields = ['id', 'email', 'username', 'phone_number',
-                  'contact_method', 'team_name']
+        model = Subscriber
+        fields = ['id', 'email', 'phone_number', 'team_name']
+
+
+class TeamListSerializer(serializers.Serializer):
+    team_name = serializers.CharField(max_length=255)
 
 
 class Score(models.Model):
@@ -187,7 +183,6 @@ class Score(models.Model):
 
     def __unicode__(self):
         return 'Team: %s, %d Hour %d' % (self.team_name, self.year, self.hour)
-
 
     class Meta:
         unique_together = ("team_name", "hour", "year")
@@ -560,45 +555,43 @@ class Scraper(object):
     # scores = Score.objects.filter(year=year).filter(hour=hour)
     # prev_scores = Score.objects.filter(year=year).filter(hour=prev_hour)
 
-    def text2int(self, textnum, numwords={}):
-        if not numwords:
-            units = [
-                "zero", "one", "two", "three", "four", "five", "six", "seven",
-                "eight",
-                "nine", "ten", "eleven", "twelve", "thirteen", "fourteen",
-                "fifteen",
-                "sixteen", "seventeen", "eighteen", "nineteen",
-            ]
 
-            tens = ["", "", "twenty", "thirty", "forty", "fifty", "sixty",
-                    "seventy", "eighty", "ninety"]
+def text2int(textnum, numwords=None):
+    if not numwords:
+        numwords = {}
+        units = [
+            "zero", "one", "two", "three", "four", "five", "six", "seven",
+            "eight",
+            "nine", "ten", "eleven", "twelve", "thirteen", "fourteen",
+            "fifteen",
+            "sixteen", "seventeen", "eighteen", "nineteen",
+        ]
 
-            scales = ["hundred", "thousand", "million", "billion", "trillion"]
+        tens = ["", "", "twenty", "thirty", "forty", "fifty", "sixty",
+                "seventy", "eighty", "ninety"]
 
-            numwords["and"] = (1, 0)
-            for idx, word in enumerate(units):
-                numwords[word] = (1, idx)
-            for idx, word in enumerate(tens):
-                numwords[word] = (1, idx * 10)
-            for idx, word in enumerate(scales):
-                numwords[word] = (10 ** (idx * 3 or 2), 0)
+        scales = ["hundred", "thousand", "million", "billion", "trillion"]
 
-        current = result = 0
-        for word in textnum.split():
-            if word not in numwords:
-                raise Exception("Illegal word: " + word)
+        numwords["and"] = (1, 0)
+        for idx, word in enumerate(units):
+            numwords[word] = (1, idx)
+        for idx, word in enumerate(tens):
+            numwords[word] = (1, idx * 10)
+        for idx, word in enumerate(scales):
+            numwords[word] = (10 ** (idx * 3 or 2), 0)
 
-            scale, increment = numwords[word]
-            current = current * scale + increment
-            if scale > 100:
-                result += current
-                current = 0
+    current = result = 0
+    for word in textnum.split():
+        if word not in numwords:
+            raise Exception("Illegal word: " + word)
 
-        return result + current
+        scale, increment = numwords[word]
+        current = current * scale + increment
+        if scale > 100:
+            result += current
+            current = 0
 
-
-class TeamListSerializer(serializers.Serializer):
-    team_name = serializers.CharField(max_length=255)
+    return result + current
 
 
 def get_current_hour():

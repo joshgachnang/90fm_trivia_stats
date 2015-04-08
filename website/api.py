@@ -1,8 +1,7 @@
-from django.contrib.auth.models import User
 from rest_framework import filters
 from rest_framework import viewsets
-from website.models import ScoreSerializer, UserSerializer, \
-    TeamListSerializer, Score
+from website.models import ScoreSerializer, \
+    TeamListSerializer, Score, SubscriberSerializer, Subscriber
 
 
 class ScoreViewSet(viewsets.ReadOnlyModelViewSet):
@@ -22,6 +21,6 @@ class TeamsList(viewsets.ReadOnlyModelViewSet):
     serializer_class = TeamListSerializer
 
 
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+class SubscriberViewSet(viewsets.ModelViewSet):
+    queryset = Subscriber.objects.all()
+    serializer_class = SubscriberSerializer

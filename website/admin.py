@@ -1,5 +1,5 @@
-from models import Score, UserProfile
+from models import Score, Subscriber
 from django.contrib import admin
 
 admin.site.register(Score)
-admin.site.register(UserProfile)
+admin.site.register(Subscriber)

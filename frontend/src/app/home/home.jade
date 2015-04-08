@@ -1,5 +1,5 @@
 div(layout='vertical', layout-fill)
-  md-content(flex="100")
+  md-content.body(flex="100")
     md-card
       md-toolbar
         div.md-toolbar-tools
@@ -26,37 +26,31 @@ div(layout='vertical', layout-fill)
     md-card
       md-toolbar
         div.md-toolbar-tools
-            span.md-flex Trivia Countdown
+            span.md-flex Sign Up For Score Updates
       md-content.md-padding
         form(ng-submit="register()")
-          md-input-container
-            label Username
-            input(ng-model="user.username",ng-required='true')
-          md-input-container
-            label Email
-            input(ng-model="user.email",type="email",ng-required='true')
-          md-input-container
-            label Password
-            input(ng-model="user.password",type="password",ng-required='true')
-          md-input-container
-            label Phone Number (Optional)
-            input(ng-model="user.phoneNumber",type="phone_number",ng-required="false")
+          h3 Register for email and/or text updates
           md-input-container
             label Team Name (Optional)
-            input(ng-model="user.teamName",ng-required='false',placeholder='Get notified of your team\'s scores')
-          md-checkbox(ng-model="user.contactEmail",aria-label="Notify via Email") Notify via Email
-          md-checkbox(ng-model="user.contactPhone",aria-label="Notify via Text") Notify via SMS
-          md-button.md-raised.md-warn(type="submit") Submit
+            input(ng-model="subscriber.teamName",ng-required='false',placeholder='Get notified of your team\'s scores')
+          md-input-container
+            label Email
+            input(ng-model="subscriber.email",type="email")
+          md-input-container
+            label Phone Number
+            input(ng-model="subscriber.phoneNumber",type="phone_number",ng-required="false")
+          md-button.md-raised.md-primary(type="submit") Submit
+
     //md-card
     //  div(tweets,hashtag="#hashtag",button="true",count="15",refresh="60")
     md-card
       md-toolbar
         div.md-toolbar-tools(ng-cloak)
           span.md-flex Hour {{ scores[0].hour }}, {{ scores[0].year }}
-      md-subheader.md-primary
-        a(href='#/scores/{{ scores[0].year }}/{{ scores[0].hour }}',ng-cloak) Full Scores
-      md-list.scores
-        md-content.md-padding
+      md-content.md-padding
+        md-subheader.md-primary
+          a(href='#/scores/{{ scores[0].year }}/{{ scores[0].hour }}',ng-cloak) Full Scores
+        md-list.scores
           md-item
             md-item-content
               div(flex="30",layout="row")

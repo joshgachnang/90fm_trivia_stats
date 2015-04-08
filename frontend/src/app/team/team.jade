@@ -1,10 +1,10 @@
-div(layout='vertical', layout-fill)
-  md-content
+div.body(layout='vertical', layout-fill)
+  md-content.md-padding.body(flex="100")
     md-card
       md-toolbar
         h1.md-toolbar-tools {{ scores[0].team_name }}
-      md-list.scores
-        md-content.md-padding
+      md-content.md-padding
+        md-list.scores
           div(ng-repeat='score in scores')
             div(ng-if='score.year != scores[$index - 1].year')
               md-toolbar.team_year

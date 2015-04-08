@@ -50,10 +50,10 @@ app.constant('TRIVIA_DATES', {
 
 // Configure material theme
 app.config(function($mdThemingProvider) {
-  //$mdThemingProvider.theme('default')
-  //  .primaryPalette('indigo')
-  //  .accentPalette('deep-orange')
-  //  .warnPalette('purple');
+  $mdThemingProvider.theme('default')
+    .primaryPalette('green')
+    .accentPalette('red')
+    .warnPalette('indigo');
 });
 
 // Util functions

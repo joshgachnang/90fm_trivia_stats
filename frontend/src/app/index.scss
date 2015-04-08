@@ -1,5 +1,7 @@
 @import url(https://fonts.googleapis.com/css?family=Roboto+Slab:400,700|Roboto:400,700,700italic,400italic);
 
+$background-color: #c1c1c1;
+
 html {
   font-family: 'Roboto Slab', serif;
 }
@@ -155,9 +157,20 @@ md-card {
 }
 
 md-toolbar.md-default-theme {
-  background-color: rgb(63,81,181);
+  background-color: #009688;
 }
 
 .countdown-container {
   margin: 10px auto 0 auto;
+}
+
+.body,
+md-content.body {
+  background-color: $background-color;
+}
+md-content {
+  background-color: white;
+}
+.fill {
+  height: 100%;
 }

@@ -36,7 +36,7 @@
   </md-toolbar>
 
 </header>
-<div layout="row">
+<div layout="row" class="body" layout-fill>
   <div flex-gt-md="25">&nbsp;</div>
   <div flex-gt-md="50" flex="100" offset="25" ui-view></div>
 </div>
@@ -65,6 +65,7 @@
 <!-- endbuild -->
 
 <!-- build:js(src) scripts/app.js -->
+<script src="app/drr.js"></script>
 <script src="app/index.js"></script>
 <script src="components/navbar/navbar.controller.js"></script>
 <script src="app/score/score.service.js"></script>
@@ -73,7 +74,6 @@
 <script src="app/team/team.controller.js"></script>
 <script src="app/search/search.controller.js"></script>
 <script src="app/signup/signup.service.js"></script>
-<script src="app/signup/signup.controller.js"></script>
 <!-- endbuild -->
 
 

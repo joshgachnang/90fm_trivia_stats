@@ -51,14 +51,37 @@ angular.module('triviastats')
       }
     };
   })
-  .controller('HomeCtrl', ['$scope', 'Score', 'Signup', function ($scope, Score, Signup) {
+  .controller('HomeCtrl', ['$scope', '$mdToast', 'Score', 'Signup', function ($scope, $mdToast, Score, Signup) {
     $scope.scores = Score.hourScores(54, 2014);
-    $scope.user = {
-      contactEmail: true,
-      contactPhone: true,
+    $scope.subscriber = {
+      email: undefined,
       phoneNumber: undefined
     };
-    $scope.register = function() {
-      Signup.register($scope.user);
+
+    $scope.register = function () {
+      if (!$scope.subscriber.phoneNumber && !$scope.subscriber.email) {
+        $mdToast.show(
+              $mdToast.simple()
+                .content('Must enter either a phone number or email')
+                .hideDelay(3000)
+            );
+      } else {
+        Signup.register($scope.subscriber).success(function () {
+          console.log('toast');
+          $mdToast.show(
+            $mdToast.simple()
+              .content('Registered!')
+              .hideDelay(3000)
+          );
+        })
+          .error(function (data) {
+            console.log('form error', data)
+            $mdToast.show(
+            $mdToast.simple()
+              .content('Invalid Form')
+              .hideDelay(3000)
+          );
+          });
+      }
     };
   }]);
