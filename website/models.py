@@ -83,6 +83,8 @@ class Subscriber(models.Model):
     def save(self, *args, **kwargs):
         if not self.id:
             # New subscriber, send welcome
+            logger.info('New subscriber: Team: {}, {}, {}'.format(
+                self.team_name, self.phone_number, self.email))
             if self.phone_number:
                 self.welcome_text()
             if self.email:
@@ -148,13 +150,22 @@ class Subscriber(models.Model):
         c = Context({'number': self.phone_number,
                      'team_name': self.team_name})
         text = get_template('subscribe_sms.txt')
+        logger.info('Sending welcome text to {}'.format(self.phone_number))
         _send_text(self.phone_number, text.render(c))
 
     def welcome_email(self):
         c = Context({'email': self.email,
                      'team_name': self.team_name})
         text = get_template('subscribe_email.txt')
+        logger.info('Sending welcome email to {}'.format(self.email))
         _send_email(self.email, 'Welcome to TriviaStats!', text.render(c))
+
+    def __str__(self):
+        return "{}: {}, {}".format(self.team_name, self.phone_number,
+                                   self.email)
+
+    def __repr__(self):
+        return self.__str__()
 
 
 class SubscriberSerializer(serializers.ModelSerializer):

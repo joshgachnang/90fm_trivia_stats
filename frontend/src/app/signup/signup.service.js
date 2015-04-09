@@ -13,6 +13,7 @@ angular.module('signup', [])
 
       // Munge data
       postData.phone_number = postData.phoneNumber;
+      postData.team_name = postData.teamName;
 
       return $http.post(BACKEND_SERVER + 'subscribers\/', postData)
     };

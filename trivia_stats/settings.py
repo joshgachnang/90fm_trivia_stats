@@ -134,7 +134,7 @@ if DEBUG:
 QUERY_INSPECT_ENABLED = True
 QUERY_INSPECT_LOG_STATS = True
 QUERY_INSPECT_LOG_QUERIES = True
-QUERY_INSPECT_ABSOLUTE_LIMIT = 100 # in milliseconds
+QUERY_INSPECT_ABSOLUTE_LIMIT = 100  # in milliseconds
 QUERY_INSPECT_STANDARD_DEVIATION_LIMIT = 2
 QUERY_INSPECT_LOG_TRACEBACKS = True
 
@@ -183,6 +183,11 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
+    },
+    'root': {
+        'handlers': ['console', 'logfile'],
+        'level': 'DEBUG',
+        'propagate': True,
     }
 }
 
