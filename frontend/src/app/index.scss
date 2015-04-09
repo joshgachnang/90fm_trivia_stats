@@ -1,4 +1,4 @@
-@import url(https://fonts.googleapis.com/css?family=Roboto+Slab:400,700|Roboto:400,700,700italic,400italic);
+@import url(https://fonts.googleapis.com/css?family=Roboto+Slab:400,700|Roboto:400,700,700italic,400italic|Nunito:700);
 
 $background-color: #c1c1c1;
 
@@ -99,7 +99,7 @@ md-progress-circular .md-inner .md-left .md-half-circle, md-progress-circular .m
 }
 
 #countdown span.countdown-number {
-  font-family: Aclonica,sans-serif;
+  font-family: Aclonica, sans-serif;
   font-size: 32px;
   margin-left: 12px;
   margin-top: -48px;
@@ -134,7 +134,7 @@ md-toolbar.team_year {
 
 button.search {
   position: absolute;
-  top: 15px;
+  top: 28px;
   right: 20px;
   z-index: 100;
   padding-top: 8px;
@@ -169,9 +169,22 @@ md-toolbar.md-default-theme {
 md-content.body {
   background-color: $background-color;
 }
+
 md-content {
   background-color: white;
 }
+
 .fill {
   height: 100%;
+}
+
+.title-icon {
+  height: 64px;
+}
+
+.title-logo {
+  font-family: 'Nunito', serif;
+  font-size: 40px;
+  vertical-align: top;
+  line-height: 70px;
 }
