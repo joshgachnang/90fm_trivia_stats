@@ -134,7 +134,7 @@ md-toolbar.team_year {
 
 button.search {
   position: absolute;
-  top: 15px;
+  top: 28px;
   right: 20px;
   z-index: 100;
   padding-top: 8px;
@@ -179,11 +179,12 @@ md-content {
 }
 
 .title-icon {
-  height: 44px;
+  height: 64px;
 }
 
 .title-logo {
   font-family: 'Nunito', serif;
-  font-size: 38px;
+  font-size: 40px;
   vertical-align: top;
+  line-height: 70px;
 }
