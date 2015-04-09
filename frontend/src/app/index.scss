@@ -99,11 +99,12 @@ md-progress-circular .md-inner .md-left .md-half-circle, md-progress-circular .m
 }
 
 #countdown span.countdown-number {
-  font-family: Aclonica, sans-serif;
-  font-size: 200%;
+  font-family: Aclonica,sans-serif;
+  font-size: 32px;
   margin-left: 12px;
-  margin-top: -49px;
-  font-weight:bolder;
+  margin-top: -48px;
+  font-weight: bolder;
+  line-height: 1.15;
 }
 
 #countdown span.countdown-label {
