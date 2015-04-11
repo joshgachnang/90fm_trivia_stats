@@ -75,7 +75,7 @@ angular.module('triviastats')
           );
         })
           .error(function (data) {
-            console.log('form error', data)
+            console.log('form error', data);
             $mdToast.show(
             $mdToast.simple()
               .content('Invalid Form')

@@ -1,13 +1,21 @@
 'use strict';
 var gulp = require('gulp');
 var awspublish = require('gulp-awspublish');
+var cloudfront = require("gulp-cloudfront");
 
 var paths = gulp.paths;
+
+var aws = {
+    "bucket": "triviastats.com",
+    "region": "us-east-1",
+    "distributionId": "E3E98Y3GYCNA27",
+    "patternIndex": /(templateCacheHtml\.js)|(index\.html)/gi
+};
 
 gulp.task('prod', function() {
 
   // create a new publisher
-  var publisher = awspublish.create({ bucket: 'triviastats.com' });
+  var publisher = awspublish.create(aws);
 
   // define custom headers
   var headers = {
@@ -28,6 +36,9 @@ gulp.task('prod', function() {
 
      // print upload updates to console
     .pipe(awspublish.reporter());
+
+    // invalidate root files in cloudfront to update
+    //.pipe(cloudfront(aws));
 });
 
 gulp.task('preprod', function() {

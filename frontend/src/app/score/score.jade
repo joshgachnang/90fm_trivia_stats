@@ -8,20 +8,19 @@ div(layout='vertical', layout-fill)
         md-list.scores
           md-item
             md-item-content
-              div(flex="30",layout="row")
-                h3.md-title(flex="50") Place
-                h3.md-title(flex="50") Score
-              div(flex="70")
-                h3.md-title Team
+              h3.md-title(flex="20") Place
+              h3.md-title(flex="20") Score
+              h3.md-title.tl-left(flex="60") Team
             md-divider
           md-item(ng-repeat='score in scores')
             md-item-content
-              div.md-tile-left(flex="30",layout="row")
-                span(flex="50")
-                  | {{ ::score.place }}
-                span(flex="50")
-                  | {{ ::score.score }}
-              div.md-tile-content(flex="70")
+              div(flex="20")
+                div.badge.place
+                  span {{ score.place }}
+              div(flex="20")
+                div
+                  span {{ score.score }}
+              div.md-tile-content.tl-left(flex="60")
                 span
-                  a(href='#/teams/{{ score.team_name | escape }}') {{ ::score.team_name }}
+                  a(href='#/teams/{{ score.team_name | escape }}') {{ score.team_name }}
             md-divider(ng-if="!$last")

@@ -30,7 +30,11 @@ md-content.md-padding.body
             md-divider
           md-item
             md-item-content
-              span(flex='33') {{ score.hour }}
-              span(flex='33') {{ score.place }}
+              div(flex='33')
+                div.badge.hour
+                  span {{ score.hour }}
+              div(flex='33')
+                div.badge.place
+                  span {{ score.place }}
               span(flex='33') {{ score.score }}
             md-divider(ng-if='!$last')

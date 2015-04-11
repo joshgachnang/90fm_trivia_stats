@@ -1,6 +1,14 @@
 @import url(https://fonts.googleapis.com/css?family=Roboto+Slab:400,700|Roboto:400,700,700italic,400italic|Nunito:700);
 
 $background-color: #c1c1c1;
+$primary-color: #009688;
+$accent-color: #FF5252;
+$dark-accent-color: #D50000;
+$dark-primary-color: #00796B;
+$primary-text: #212121;
+$secondary-text: #727272;
+$divider-color: #B6B6B6;
+$warn-color: #3F51B5;
 
 html {
   font-family: 'Roboto Slab', serif;
@@ -134,7 +142,7 @@ md-toolbar.team_year {
 
 button.search {
   position: absolute;
-  top: 28px;
+  top: 50px;
   right: 20px;
   z-index: 100;
   padding-top: 8px;
@@ -170,6 +178,14 @@ md-content.body {
   background-color: $background-color;
 }
 
+.body {
+  min-height:100%;
+}
+
+.main-body {
+  padding-top: 15px;
+}
+
 md-content {
   background-color: white;
 }
@@ -188,3 +204,96 @@ md-content {
   vertical-align: top;
   line-height: 70px;
 }
+
+.badge {
+  border-radius: 999em;
+  width: 32px;
+  height: 32px;
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
+  line-height: 1;
+  font-size: 18px;
+  position: relative;
+  cursor: pointer;
+  display: inline-block;
+  margin: 5px 0;
+}
+
+.badge span {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  height: 100%;
+  width: 100%;
+  text-align: center;
+  margin-top: -10px;
+  color: #FFF;
+}
+
+.badge span a {
+  text-decoration: none;
+  color: #FFF;
+}
+
+.badge.hour {
+  background-color: $dark-accent-color;
+}
+
+.badge.place {
+  background-color: $dark-primary-color;
+}
+
+md-item {
+  text-align: center;
+}
+
+.tl-left {
+  text-align: left;
+}
+
+.md-title.tl-left {
+  padding: 0 16px;
+}
+
+.md-toolbar-tools {
+  height: auto;
+  min-height: 64px;
+  max-height: 96px;
+  vertical-align: middle;
+}
+
+.profile-circular {
+  width: 75px;
+  height: 75px;
+  background-image: url('https://pbs.twimg.com/profile_images/447116466509205504/i3Y4pKUa.jpeg');
+  background-size: cover;
+  display: block;
+  border-radius: 37.5px;
+  -webkit-border-radius: 37.5px;
+  -moz-border-radius: 37.5px;
+  margin: 0 auto;
+}
+
+.about md-icon {
+  width: 75px;
+  height: 75px;
+}
+
+.github {
+  color: black;
+}
+
+.twitter {
+  color: #00aced;
+}
+
+.about {
+  text-align: center;
+
+}
+
+// FF fixes..
+html,body{
+  min-height:100%;
+  background-color: $background-color;
+}
+

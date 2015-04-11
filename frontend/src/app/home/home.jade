@@ -1,5 +1,6 @@
 div(layout='vertical', layout-fill)
   md-content.body(flex="100")
+
     md-card
       md-toolbar
         div.md-toolbar-tools
@@ -23,6 +24,7 @@ div(layout='vertical', layout-fill)
               md-progress-circular.hours.md-accent.md-hue-1(md-mode='determinate',value='{{timeToTrivia | countdown:"seconds":"true"}}')
               span.countdown-number(ng-bind='timeToTrivia | countdown:"seconds"')
               span.countdown-label Seconds
+
     md-card
       md-toolbar
         div.md-toolbar-tools
@@ -31,18 +33,16 @@ div(layout='vertical', layout-fill)
         form(ng-submit="register()")
           h3 Register for email and/or text updates
           md-input-container
-            label Team Name (Optional)
-            input(ng-model="subscriber.teamName",ng-required='false',placeholder='Get notified of your team\'s scores')
-          md-input-container
             label Email
             input(ng-model="subscriber.email",type="email")
           md-input-container
             label Phone Number
             input(ng-model="subscriber.phoneNumber",type="phone_number",ng-required="false")
+          md-input-container
+            label Team Name (Optional)
+            input(ng-model="subscriber.teamName",ng-required='false',placeholder='Get notified of your team\'s scores')
           md-button.md-raised.md-primary(type="submit") Submit
 
-    //md-card
-    //  div(tweets,hashtag="#hashtag",button="true",count="15",refresh="60")
     md-card
       md-toolbar
         div.md-toolbar-tools(ng-cloak)
@@ -53,18 +53,43 @@ div(layout='vertical', layout-fill)
         md-list.scores
           md-item
             md-item-content
-              div(flex="30",layout="row")
-                h3.md-title(flex="50") Place
-                h3.md-title(flex="50") Score
-              div(flex="70")
-                h3.md-title Team
+              h3.md-title(flex="20") Place
+              h3.md-title(flex="20") Score
+              h3.md-title.tl-left(flex="60") Team
             md-divider
           md-item(ng-repeat='score in scores',ng-if='$index < 10')
             md-item-content
-              div.md-tile-left(flex="30",layout="row")
-                span(flex="50") {{ score.place }}
-                span(flex="50") {{ score.score }}
-              div.md-tile-content(flex="70")
+              div(flex="20")
+                div.badge.place
+                  span {{ score.place }}
+              div(flex="20")
+                div
+                  span {{ score.score }}
+              div.md-tile-content.tl-left(flex="60")
                 span
                   a(href='#/teams/{{ score.team_name | escape }}') {{ score.team_name }}
             md-divider(ng-if="!$last")
+
+    md-card
+      md-toolbar
+        div.md-toolbar-tools
+          span.md-flex Trivia Tweets
+      md-content.md-padding
+        | <a class="twitter-timeline" href="https://twitter.com/hashtag/Trivia46" data-widget-id="586420199718391809">#Trivia46 Tweets</a>
+        | <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+    md-card
+      md-toolbar
+        div.md-toolbar-tools(ng-cloak)
+          span.md-flex About
+      md-content.md-padding.about
+        h3
+          | Built by <a href='http://servercobra.com'>Josh Gachnang</a>
+        div(layout='row')
+          div(flex="33")
+            a(href="http://servercobra.com")
+              span.profile-circular
+          a(href="http://twitter.com/servercobra",flex="33")
+            md-icon.twitter(md-svg-src="assets/images/twitter.svg",alt="twitter")
+          a(href="http://github.com/pcsforeducation",flex="33")
+            md-icon.github(md-svg-src="assets/images/github-circle.svg",alt="github")
+

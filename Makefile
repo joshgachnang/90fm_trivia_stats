@@ -1,10 +1,10 @@
-all: clean test www
+all: usage
 
 upload: docker_upload
 
 docker: docker_build docker_run
 
-build: build_prod push_prod
+backend: build_prod push_prod
 
 clean: clean_build
 
