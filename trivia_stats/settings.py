@@ -184,11 +184,6 @@ LOGGING = {
             'propagate': True,
         },
     },
-    'root': {
-        'handlers': ['console', 'logfile'],
-        'level': 'DEBUG',
-        'propagate': True,
-    }
 }
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
@@ -207,5 +202,3 @@ try:
         vars()[key] = value
 except ValueError:
     pass
-
-print DEFAULT_DATABASE

@@ -4,7 +4,6 @@ import string
 import urllib2
 
 import datetime
-import time
 import re
 from BeautifulSoup import BeautifulSoup
 from django.conf import settings
@@ -187,7 +186,9 @@ class Scraper(object):
             return
 
         # Scrape remaining hours until we find the next one
-        for hour in remaining_hours():
+        remaining = remaining_hours()
+        logger.info('Remaining hours: {}'.format(remaining))
+        for hour in remaining:
             if self.scrape_year_hour(current_year(), hour):
                 post_to_twitter("Hour {0} scores posted!".format(hour))
                 return
@@ -388,8 +389,9 @@ def last_year():
 
 def start_time():
     now = datetime.datetime.now()
-    return "%d %s %s" % (
-        trivia_start_hour, trivia_dates[str(now.year)], now.year)
+    date_sring = "{} {} {}".format(
+        trivia_dates[str(now.year)], now.year, '18:00')
+    return datetime.datetime.strptime(date_sring, "%B %d %Y %H:%M")
 
 
 def end_time():
