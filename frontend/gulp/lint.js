@@ -6,7 +6,9 @@ var config = {
 };
 
 gulp.task('lint', function() {
-  return gulp.src(paths.src + '/{app,components}/**/*.js')
+  return gulp.src([
+    paths.src + '/{app,components}/**/*.js',
+    '!' + paths.src + '/app/drr.js'])
     .pipe(jshint(config))
     .pipe(jshint.reporter('jshint-stylish'))
     .pipe(jshint.reporter('fail'));

@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('triviastats')
-  .controller('UnsubscribeCtrl', ['$scope', '$http', 'Signup', 'BACKEND_SERVER', function ($scope, $http, Signup, BACKEND_SERVER) {
+  .controller('UnsubscribeCtrl', ['$scope', '$http', 'Signup', function ($scope, $http, Signup) {
     $scope.formData = {};
     $scope.message = '';
 
@@ -10,6 +10,5 @@ angular.module('triviastats')
         $scope.message = 'Successfully unsubscribed';
         $scope.formData = {};
       });
-    }
-
+    };
   }]);

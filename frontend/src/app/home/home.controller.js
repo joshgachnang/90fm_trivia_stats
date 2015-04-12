@@ -72,7 +72,7 @@ angular.module('triviastats')
             email: undefined,
             phoneNumber: undefined
           };
-          $scope.message = 'Thanks for signing up!'
+          $scope.message = 'Thanks for signing up!';
           $mdToast.show(
             $mdToast.simple()
               .content('Registered!')

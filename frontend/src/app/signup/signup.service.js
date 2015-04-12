@@ -11,9 +11,9 @@ angular.module('signup', [])
 
       }
 
-      // Munge data
-      postData.phone_number = postData.phoneNumber;
-      postData.team_name = postData.teamName;
+      // Munge data for Django (not jslint friendly)
+      postData.phone_number = postData.phoneNumber;  // jshint ignore:line
+      postData.team_name = postData.teamName;  // jshint ignore:line
 
       return $http.post(BACKEND_SERVER + 'subscribers\/', postData);
     };

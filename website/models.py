@@ -7,7 +7,6 @@ import datetime
 import re
 from BeautifulSoup import BeautifulSoup
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.db import models
 from django.template import Context
@@ -166,7 +165,6 @@ class Score(models.Model):
     def __unicode__(self):
         return 'Team: {}, {} Hour {}'.format(
             self.team_name, self.year, self.hour)
-
 
     class Meta:
         unique_together = ("team_name", "hour", "year")

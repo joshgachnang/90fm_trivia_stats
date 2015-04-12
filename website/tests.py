@@ -72,7 +72,7 @@ class ScraperTestCase(TestCase):
         models.Score(team_name='test2', year=2015, hour=8,
                      place=2, score=1000).save()
 
-        expected = ['09'] + [str(i) for i in range(10,54)]
+        expected = ['09'] + [str(i) for i in range(10, 54)]
 
         self.assertEqual(expected, models.remaining_hours())
 
@@ -123,4 +123,3 @@ class ScraperTestCase(TestCase):
         self.scraper.scrape_year_hour(2014, 54)
 
         self.assertEqual(371, models.Score.objects.all().count())
-
