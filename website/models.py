@@ -1,6 +1,5 @@
 import logging
 import random
-import smtplib
 import string
 import urllib2
 
@@ -10,11 +9,8 @@ import re
 from BeautifulSoup import BeautifulSoup
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib import messages
-from django.core.mail import send_mail, EmailMultiAlternatives
+from django.core.mail import send_mail
 from django.db import models
-from django.http import HttpResponseServerError
-from django.shortcuts import redirect
 from django.template import Context
 from django.template.loader import get_template
 from rest_framework import serializers
@@ -22,52 +18,15 @@ from twilio.rest import TwilioRestClient
 from twilio import TwilioRestException
 import twitter
 
-logger = logging.getLogger('logger')
-
-CONTACT_METHOD = (('both', 'Email and Text'),
-                  ('email', 'Email Only'),
-                  ('text', 'Text Only'),
-                  ('none', 'No Alerts'))
-
+logger = logging.getLogger('django')
 
 # Cache client
 _twilio_client = None
 
 
-def _get_twilio_client():
-    global _twilio_client
-    if _twilio_client is None:
-        account = settings.TWILIO_ACCOUNT
-        token = settings.TWILIO_AUTH
-        _twilio_client = TwilioRestClient(account, token)
-
-    return _twilio_client
-
-
 def random_code():
     return ''.join(random.choice(string.ascii_uppercase + string.digits)
                    for _ in range(8))
-
-
-def clean_number(number):
-    return number.replace('(', '').replace(')', '').replace('-', '').replace(
-        ' ', '')
-
-
-def _send_text(number, msg):
-    client = _get_twilio_client()
-    try:
-        client.sms.messages.create(
-            to=number,
-            from_=settings.TWILIO_NUMBER,
-            body=msg)
-    except TwilioRestException:
-        logger.exception(
-            "SMS {} for user {} failed.".format(msg, number))
-
-
-def _send_email(email, subject, msg):
-    send_mail(subject, msg, settings.FROM_EMAIL, [email])
 
 
 class Subscriber(models.Model):
@@ -118,12 +77,12 @@ class Subscriber(models.Model):
             score = scores[0]
 
         if self.contact_method in ('text', 'both'):
-            self.send_text(score)
+            self.score_text(score)
 
         if self.contact_method in ('email', 'both'):
-            self.send_email(score)
+            self.score_email(score)
 
-    def send_text(self, score):
+    def score_text(self, score):
         logger.info(
             "Sending SMS to {}, {}".format(self.phone_number, self.team_name))
         client = _get_twilio_client()
@@ -143,8 +102,24 @@ class Subscriber(models.Model):
             logger.exception(
                 "SMS for user {0} failed.".format(self.user.username))
 
-    def send_email(self, score):
-        pass
+    def score_email(self, score):
+        logger.info(
+            "Sending SMS to {}, {}".format(self.phone_number, self.team_name))
+
+        template = get_template('email_score_update.txt')
+        html_template = get_template('email_score_update.html')
+        context = Context({'hour': score.hour, 'place': score.place,
+                           'team_name': score.team_name,
+                           'score': score.score})
+        body = template.render(context)
+        html_body = html_template.render(context)
+        subject = "TriviaStats Score Update For Hour {hour}: {team} is in "
+        try:
+            send_mail(subject, body, settings.FROM_EMAIL, [self.email],
+                      html_message=html_body)
+        except Exception:
+            logger.exception(
+                "Email for user {0} failed.".format(self.user.username))
 
     def welcome_text(self):
         c = Context({'number': self.phone_number,
@@ -201,200 +176,6 @@ class Score(models.Model):
 class ScoreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Score
-
-
-class EmailManager(object):
-    def email_subscribe(self, request):
-        if request.method == 'POST':
-            form = EmailSubscriberForm(request.POST)
-            if form.is_valid():
-                if 'team_name' in form.cleaned_data:
-                    team_name = form.cleaned_data['team_name'].upper()
-                else:
-                    team_name = None
-                email = form.cleaned_data['email']
-                sub = EmailSubscriber(email=email, team_name=team_name)
-                if len(EmailSubscriber.objects.filter(email=email)) > 0:
-                    logger.warning("Duplicate Email: {0}".format(email))
-                    messages.error(request,
-                                   "Cannot register multiple times for "
-                                   "email: {0}".format(
-                                       email))
-                    return redirect('/')
-                try:
-                    sub.save()
-                except Exception as e:
-                    logger.warning("Duplicate Email: {0}".format(email))
-                    messages.error(request,
-                                   "Cannot register multiple times for "
-                                   "email: {0}".format(
-                                       email))
-                    return redirect('/')
-
-                # Notify of subscription
-                c = Context({'email': email, 'team_name': team_name})
-                text = get_template('subscribe_email.txt')
-                text_content = text.render(c)
-                html = get_template('subscribe_email.html')
-                html_content = text.render(c)
-                subject = "Thank you for subscribing to Trivia Stats " \
-                          "Notification System!"
-                # send_mail(subject, text_content,
-                # settings.EMAIL_FROM_ADDRESS, [email])
-                # try:
-                msg = EmailMultiAlternatives(subject, text_content,
-                                             settings.EMAIL_FROM_ADDRESS,
-                                             [email])
-                msg.attach_alternative(html_content, "text/html")
-                msg.send()
-                # except Exception as e:
-                # print e
-                # return HttpResponse(e)
-                if team_name:
-                    messages.success(request,
-                                     "Email {0} for team {1} successfully "
-                                     "added!".format(
-                                         email, team_name))
-                else:
-                    messages.success(request,
-                                     "Email {0} successfully added!".format(
-                                         email))
-            else:
-                # TODO add message about why this doesn't work
-                logger.warning('Invalid Email or Team Name')
-                messages.error(request, 'Invalid Email or Team Name')
-            return redirect('/')
-
-    def email_unsubscribe(self, request):
-        if request.method == 'POST':
-            form = EmailUnsubscribeForm(request.POST)
-            if form.is_valid():
-                subscriber = EmailSubscriber.objects.filter(
-                    email=form.cleaned_data['email'])
-                if len(subscriber) == 0:
-                    return HttpResponseServerError("Email not subscribed")
-                elif len(subscriber) > 1:
-                    for sub in subscriber:
-                        sub.delete()
-                else:
-                    subscriber.delete()
-                return redirect('/')
-
-    def email_notify(self, hour=None, debug=False):
-        year = get_last_year()
-        hour = get_last_hour()
-        for user in EmailSubscriber.objects.all():
-            if user.team_name:
-                score = Score.objects.filter(year=year).filter(
-                    hour=hour).filter(
-                    team_name__contains=user.team_name.strip())
-                if len(score) != 1:
-                    logger.error(
-                        "Failed email notify for hour {0} for team name {1}. "
-                        "Found {2} scores.".format(
-                            int(hour), user.team_name.strip(), len(score)))
-                    continue
-                else:
-                    score = score[0]
-                    try:
-                        if not debug:
-                            send_mail(
-                                subject='Trivia Scores Updated for Hour %d. '
-                                        '%s is in %d place with %d points.' % (
-                                            hour, user.team_name, score.place,
-                                            score.score),
-                                message='Trivia scores for Hour %d have been '
-                                        'posted. %s is in %d place with %d '
-                                        'points. You can check your current '
-                                        'stats at <a '
-                                        'houref="http://triviastats.com/team/%s">TriviaStats.com</a>' % (
-                                            hour, user.team_name, score.place,
-                                            score.score,
-                                            user.team_name.replace(' ', '_')),
-                                from_email='noreply@triviastats.com',
-                                recipient_list=[user.email, ],
-                                fail_silently=False)
-                            logger.info(
-                                "Sent email to {0}: {1}".format(user.email,
-                                                                user.team_name))
-                        else:
-                            logger.info(
-                                "Would have sent email to {0}: {1} for hour "
-                                "{2}".format(
-                                    user.email, user.team_name, hour))
-                    except smtplib.SMTPException, e:
-                        logger.error(
-                            "Emailing for user %s failed.".format(user))
-            else:
-                try:
-                    if not debug:
-                        send_mail(
-                            subject='Trivia Scores Updated for Hour %d' % hour,
-                            message='Trivia scores for Hour %d have been '
-                                    'posted. You can check your current '
-                                    'stats at <a '
-                                    'houref="http://triviastats.com">TriviaStats.com</a>' % hour,
-                            from_email='noreply@triviastats.com',
-                            recipient_list=[user.email], fail_silently=False)
-                        logger.info("Sent email to {0}".format(user.email))
-                    else:
-                        logger.info(
-                            "Would have sent email to {0} for hour {1}".format(
-                                user.email, hour))
-                except smtplib.SMTPException, e:
-                    logger.error("Emailing for user %s failed.".format(user))
-
-    def send_email(self, subscriber):
-        last_hour = get_last_hour()
-        top_ten = get_top_ten_teams(Settings.objects.all()[0].lasthour)
-        if subscriber is None:
-            return
-
-        if subscriber.team_name:
-            score = Score.objects.filter(
-                team_name=subscriber.team_name).filter(hour=last_hour)
-            if score is None:
-                logger.error(
-                    "Couldn't find score for Hour {0} for Team {1}".format(
-                        (last_hour, subscriber.team_name)))
-        else:
-            logger.info("No team name. Continuing.")
-        if score:
-            subject = "Trivia Scores Updated for Hour %d. %s is in %d place " \
-                      "with %d points." % (
-                          last_hour, subscriber.team_name, score.place,
-                          score.score)
-            text_body = "Trivia scores for Hour %d have been posted. %s is " \
-                        "in %d place with %d points. You can check your " \
-                        "current stats at TriviaStats.com" % (
-                            last_hour, subscriber.team_name, score.place,
-                            score.score)
-            html_body = "Trivia scores for Hour %d have been posted. %s is " \
-                        "in %d place with %d points. You can check your " \
-                        "current stats at <a " \
-                        "houref='http://triviastats.com'>TriviaStats.com</a" \
-                        ">" % (
-                            last_hour, subscriber.team_name, score.place,
-                            score.score)
-        else:
-            subject = "Trivia Scores Updated for Hour %d." % (last_hour, )
-            text_body = ("Trivia scores for Hour %d have been posted. You can "
-                         "check your current stats at TriviaStats.com" %
-                         last_hour )
-            html_body = (
-                "Trivia scores for Hour %d have been posted. You can check "
-                "your "
-                "current stats at <a "
-                "houref='http://triviastats.com'>TriviaStats.com</a>" %
-                last_hour)
-        send_mail(source="TriviaStats@triviastats.com",
-                  subject=subject, body=html_body,
-                  to_addresses=(subscriber.email, ), format='html')
-        logger.info("Sent email to {0}".format(subscriber.email))
-
-    def email_update(self, ):
-        for sub in EmailSubscriber.objects.all():
-            self.send_email(sub)
 
 
 class Scraper(object):
@@ -490,7 +271,38 @@ class Scraper(object):
         return scores
 
 
-def notify():
+def _get_twilio_client():
+    global _twilio_client
+    if _twilio_client is None:
+        account = settings.TWILIO_ACCOUNT
+        token = settings.TWILIO_AUTH
+        _twilio_client = TwilioRestClient(account, token)
+
+    return _twilio_client
+
+
+def clean_number(number):
+    return number.replace('(', '').replace(')', '').replace('-', '').replace(
+        ' ', '')
+
+
+def _send_text(number, msg):
+    client = _get_twilio_client()
+    try:
+        client.sms.messages.create(
+            to=number,
+            from_=settings.TWILIO_NUMBER,
+            body=msg)
+    except TwilioRestException:
+        logger.exception(
+            "SMS {} for user {} failed.".format(msg, number))
+
+
+def _send_email(email, subject, msg):
+    send_mail(subject, msg, settings.FROM_EMAIL, [email])
+
+
+def notify(year, hour):
     pass
 
 
@@ -550,11 +362,6 @@ def get_current_hour():
 
     diff = now - start
     return diff.days * 24 + diff.seconds / 3600
-
-    year = datetime.date.today().year
-    trivia_start_date = trivia_dates[str(year)]
-    a = str(trivia_start_date) + " " + str(year) + " " + str(trivia_start_hour)
-    time.strptime(a, "%B %d %Y %H")
 
 
 def current_year():

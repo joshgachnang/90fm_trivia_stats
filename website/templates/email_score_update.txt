@@ -1,0 +1,8 @@
+Trivia scores for Hour {{ hour }}.
+
+{% if team_name %} {{ team_name }} in  place with {{ score }} points.{% endif %}
+
+Check scores at http://www.triviastats.com.
+
+To unsubscribe, go to http://www.triviastats.com/#/unsubscribe.
+

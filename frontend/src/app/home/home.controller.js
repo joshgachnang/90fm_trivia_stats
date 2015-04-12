@@ -53,6 +53,7 @@ angular.module('triviastats')
   })
   .controller('HomeCtrl', ['$scope', '$mdToast', 'Score', 'Signup', function ($scope, $mdToast, Score, Signup) {
     $scope.scores = Score.hourScores(54, 2014);
+    $scope.message = '';
     $scope.subscriber = {
       email: undefined,
       phoneNumber: undefined
@@ -61,13 +62,17 @@ angular.module('triviastats')
     $scope.register = function () {
       if (!$scope.subscriber.phoneNumber && !$scope.subscriber.email) {
         $mdToast.show(
-              $mdToast.simple()
-                .content('Must enter either a phone number or email')
-                .hideDelay(3000)
-            );
+          $mdToast.simple()
+            .content('Must enter either a phone number or email')
+            .hideDelay(3000)
+        );
       } else {
         Signup.register($scope.subscriber).success(function () {
-          console.log('toast');
+          $scope.subscriber = {
+            email: undefined,
+            phoneNumber: undefined
+          };
+          $scope.message = 'Thanks for signing up!'
           $mdToast.show(
             $mdToast.simple()
               .content('Registered!')
@@ -77,10 +82,10 @@ angular.module('triviastats')
           .error(function (data) {
             console.log('form error', data);
             $mdToast.show(
-            $mdToast.simple()
-              .content('Invalid Form')
-              .hideDelay(3000)
-          );
+              $mdToast.simple()
+                .content('Invalid Form')
+                .hideDelay(3000)
+            );
           });
       }
     };

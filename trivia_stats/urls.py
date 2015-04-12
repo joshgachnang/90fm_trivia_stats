@@ -16,21 +16,16 @@ router.register(r'api/v1/teams', api.TeamsList)
 
 urlpatterns = patterns(
     "",
-    # url(r"^$", direct_to_template, {
-    # "template": "homepage.html",
-    # }, name="home"),
     url(r"^admin/", include(admin.site.urls)),
+    url(r'^api-auth/',
+        include('rest_framework.urls', namespace='rest_framework')),
     url(r'^api/v1/auth/', include('djoser.urls')),
-)
-urlpatterns += patterns(
-    'website.views',
+    url(r'^api/v1/unsubscribe/$', api.unsubscribe),
     url(r'^', include(router.urls)),
-    url(r'^$', 'home', name='home'),
-    (r'^robots\.txt$', lambda r: HttpResponse(
+    url(r'^robots\.txt$', lambda r: HttpResponse(
         'User-agent: Google\nDisallow:"',
         mimetype="text/plain")),
     url(r'^favicon\.ico$', RedirectView.as_view(
         url='/static/img/favicon.ico')),
-    url(r'^api-auth/',
-        include('rest_framework.urls', namespace='rest_framework'))
+
 )

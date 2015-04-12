@@ -1,0 +1,16 @@
+div(layout='vertical', layout-fill)
+  md-content.body(flex="100")
+    md-card
+      md-toolbar
+        div.md-toolbar-tools
+          span.md-flex Unsubscribe
+      md-content.md-padding
+        form(ng-submit="unsubscribe()")
+          h4.signup(ng-if="message") {{ message }}
+          md-input-container
+            label Email
+            input(ng-model="formData.email",type="email")
+          md-input-container
+            label Phone Number
+            input(ng-model="formData.phoneNumber",type="phone_number",ng-required="false")
+          md-button.md-raised.md-primary(type="submit") Unsubscribe

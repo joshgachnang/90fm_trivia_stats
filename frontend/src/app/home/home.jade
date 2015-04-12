@@ -32,6 +32,7 @@ div(layout='vertical', layout-fill)
       md-content.md-padding
         form(ng-submit="register()")
           h3 Register for email and/or text updates
+          h4.signup(ng-if="message") {{ message }}
           md-input-container
             label Email
             input(ng-model="subscriber.email",type="email")
@@ -82,6 +83,16 @@ div(layout='vertical', layout-fill)
         div.md-toolbar-tools(ng-cloak)
           span.md-flex About
       md-content.md-padding.about
+        p
+          | This site provides historical data and notifcations for the World's
+          | Largest Trivia Contest, run by WWSP 90FM. Trivia is a 54 hour long
+          | contest, where 8 questions an hour are aired over the radio, and
+          | teams call in the answers. Teams can be any size and use the Internet
+          | to find answers. For more info, see the <a href="http://www.90fmtrivia.org/">
+          | official Trivia website</a>.
+        p
+          | This site is completely open source. You can <a href="http://github.com/pcsforeducation/90fm_trivia_stats">
+          | view the source here.</a>
         h3
           | Built by <a href='http://servercobra.com'>Josh Gachnang</a>
         div(layout='row')

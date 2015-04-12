@@ -18,5 +18,9 @@ angular.module('signup', [])
       return $http.post(BACKEND_SERVER + 'subscribers\/', postData);
     };
 
+    service.unsubscribe = function (postData) {
+      return $http.post(BACKEND_SERVER + 'unsubscribe\/', postData);
+    };
+
     return service;
   }]);
