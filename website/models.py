@@ -1,19 +1,19 @@
-import datetime
 import logging
 import random
-import re
 import smtplib
 import string
-import time
 import urllib2
 
+import datetime
+import time
+import re
 from BeautifulSoup import BeautifulSoup
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.db import models
-from django.http import HttpResponse, HttpResponseServerError
+from django.http import HttpResponseServerError
 from django.shortcuts import redirect
 from django.template import Context
 from django.template.loader import get_template
@@ -83,6 +83,8 @@ class Subscriber(models.Model):
     def save(self, *args, **kwargs):
         if not self.id:
             # New subscriber, send welcome
+            logger.info('New subscriber: Team: {}, {}, {}'.format(
+                self.team_name, self.phone_number, self.email))
             if self.phone_number:
                 self.welcome_text()
             if self.email:
@@ -148,13 +150,22 @@ class Subscriber(models.Model):
         c = Context({'number': self.phone_number,
                      'team_name': self.team_name})
         text = get_template('subscribe_sms.txt')
+        logger.info('Sending welcome text to {}'.format(self.phone_number))
         _send_text(self.phone_number, text.render(c))
 
     def welcome_email(self):
         c = Context({'email': self.email,
                      'team_name': self.team_name})
         text = get_template('subscribe_email.txt')
+        logger.info('Sending welcome email to {}'.format(self.email))
         _send_email(self.email, 'Welcome to TriviaStats!', text.render(c))
+
+    def __str__(self):
+        return "{}: {}, {}".format(self.team_name, self.phone_number,
+                                   self.email)
+
+    def __repr__(self):
+        return self.__str__()
 
 
 class SubscriberSerializer(serializers.ModelSerializer):
@@ -174,15 +185,14 @@ class Score(models.Model):
     hour = models.IntegerField(db_index=True)
     place = models.IntegerField(db_index=True)
     score = models.IntegerField(db_index=True)
-    score_change = 0
-    place_change = 0
-    place_change_abs = 0
 
     def url(self):
         return self.team_name.replace(' ', '_')
 
     def __unicode__(self):
-        return 'Team: %s, %d Hour %d' % (self.team_name, self.year, self.hour)
+        return 'Team: {}, {} Hour {}'.format(
+            self.team_name, self.year, self.hour)
+
 
     class Meta:
         unique_together = ("team_name", "hour", "year")
@@ -297,7 +307,7 @@ class EmailManager(object):
                                         'posted. %s is in %d place with %d '
                                         'points. You can check your current '
                                         'stats at <a '
-                                        'href="http://triviastats.com/team/%s">TriviaStats.com</a>' % (
+                                        'houref="http://triviastats.com/team/%s">TriviaStats.com</a>' % (
                                             hour, user.team_name, score.place,
                                             score.score,
                                             user.team_name.replace(' ', '_')),
@@ -323,7 +333,7 @@ class EmailManager(object):
                             message='Trivia scores for Hour %d have been '
                                     'posted. You can check your current '
                                     'stats at <a '
-                                    'href="http://triviastats.com">TriviaStats.com</a>' % hour,
+                                    'houref="http://triviastats.com">TriviaStats.com</a>' % hour,
                             from_email='noreply@triviastats.com',
                             recipient_list=[user.email], fail_silently=False)
                         logger.info("Sent email to {0}".format(user.email))
@@ -362,7 +372,8 @@ class EmailManager(object):
             html_body = "Trivia scores for Hour %d have been posted. %s is " \
                         "in %d place with %d points. You can check your " \
                         "current stats at <a " \
-                        "href='http://triviastats.com'>TriviaStats.com</a>" % (
+                        "houref='http://triviastats.com'>TriviaStats.com</a" \
+                        ">" % (
                             last_hour, subscriber.team_name, score.place,
                             score.score)
         else:
@@ -374,7 +385,7 @@ class EmailManager(object):
                 "Trivia scores for Hour %d have been posted. You can check "
                 "your "
                 "current stats at <a "
-                "href='http://triviastats.com'>TriviaStats.com</a>" %
+                "houref='http://triviastats.com'>TriviaStats.com</a>" %
                 last_hour)
         send_mail(source="TriviaStats@triviastats.com",
                   subject=subject, body=html_body,
@@ -388,81 +399,49 @@ class EmailManager(object):
 
 class Scraper(object):
     # During Trivia, scrapes each minute to see if a new page is up yet.
-    def scraper(self, ):
-        now = datetime.datetime.now()
-        start_str = "%d %s %s" % (
-            trivia_start_hour, trivia_dates[str(now.year)], now.year)
-        start = datetime.datetime.strptime(start_str, "%H %B %d %Y")
-        end = start + datetime.timedelta(hours=60)
-
-        if (start < now < end):
-            self.scrape_prev(get_current_year())
-        else:
-            return HttpResponse("Not during Trivia")
-
-    # Utility function for scraping a year. Useful for setting up database
-    # with previous years.
-    def scrape_prev(self, year, hour=None, force=False):
-        if year is None:
-            logger.error("Year is None.")
+    def scrape(self):
+        """Scrape for the next hour."""
+        if not during_trivia():
+            logger.info('Not during trivia, not scraping')
             return
-        s = []
-        if hour:
-            hours = range(hour, hour + 1)
-        elif year == 2013:
-            hours = [1]
+
+        # Scrape remaining hours until we find the next one
+        for hour in remaining_hours():
+            if self.scrape_year_hour(current_year(), hour):
+                post_to_twitter("Hour {0} scores posted!".format(hour))
+                return
+        logger.info('No new hours.')
+
+    def get_page(self, year, hour):
+        if year <= 2012:
+            page = page_template[str(year)] % (str(year), str(hour))
         else:
-            hours = range(1, 55)
-        for hr in hours:
-            success = self.scrape_year_hour(year, hr, force=force)
-            time.sleep(.5)
-            logger.info("Success for hour {0}".format(hr))
-            if success:
-                s.append(hr)
-        if len(s) > 0:
-            sms = TwilioManager()
-            email = EmailManager()
-            sms.sms_notify()
-            email.email_notify()
-
-        logger.info("Success for hours: {0}".format(s))
-
-    def spa(self, ):
-        for i in range(2009, 2012):
-            self.scrape_prev(i)
-
-    def scrape_year_hour(self, yr, hr, force=False):
-        # Add check right here to see if data already exists for the given
-        # year/hour
-
-
-        # Trivia has a discrepancy between 02 and 2 for hours..
-        if int(hr) < 10:
-            if int(yr) >= 2010:
-                # Add 0 to the front
-                hr = "0%d" % hr
-        if yr <= 2012:
-            page = page_template[str(yr)] % (str(yr), str(hr))
-        else:
-            page = page_template[str(yr)] % (str(yr))
+            page = page_template[str(year)] % (str(year))
         logger.info("Getting page: {0}".format(page))
         try:
-            p = urllib2.urlopen(page)
-        except urllib2.HTTPError, e:
+            return urllib2.urlopen(page)
+        except urllib2.HTTPError:
             # If hour 54, might need to use a special page for previous years.
             logger.info(
-                "Checking for hour 54 page. Yr: {0}, Hr: {1}".format(yr, hr))
+                "Checking for hour 54 page. year: {0}, hour: {1}".format(year,
+                                                                         hour))
             logger.info("Hour 54 Finals: ", hour_54_page)
-            if str(yr) in hour_54_page and hr == 54:
+            if str(year) in hour_54_page and hour == 54:
                 try:
-                    page = hour_54_page[str(yr)]
-                    p = urllib2.urlopen(page)
-                except urllib2.HTTPError, e:
+                    page = hour_54_page[str(year)]
+                    return urllib2.urlopen(page)
+                except urllib2.HTTPError:
                     logger.error("Can't scrape either page 54 or final page.")
                     return False
             else:
-                logger.info("No data for this hour (yet?): {0}".format(hr))
+                logger.info("No data for this hour (yet?): {0}".format(hour))
                 return False
+
+    def scrape_year_hour(self, year, hour, force=False):
+        p = self.get_page(year, hour)
+        if not p:
+            return False
+
         soup = BeautifulSoup(''.join(p.read()))
         p.close()
 
@@ -470,97 +449,63 @@ class Scraper(object):
         place_score = soup.findAll('dt')
         hour = soup.findAll('h1')[0]
         hour = " ".join(hour.string.split()[5:])
-        hour = self.text2int(hour.lower())
-        hour = int(hour)
-        print "HOUR", hour
-        query = Score.objects.filter(year=int(yr)).filter(hour=int(hour))
+        hour = text2int(hour.lower())
+
+        query = Score.objects.filter(year=int(year)).filter(hour=int(hour))
         if len(query) != 0 and force is False:
-            # print len(query)
-            # for s in query:
-            # print s
             logger.info("Already in DB")
             return False
+
         bulk_list = []
-        # Drop all teams into a list of lists:
-        # 0: Team name 1: Place 2: Points
-        for i in range(0, len(teams)):
-            if len(place_score[i].contents) == 1:
-                reg = re.findall(r'([0-9]+)',
-                                 place_score[i].contents[0].replace(',', ''))
-            # Happens in first occurence only
-            elif len(place_score[i].contents) == 2:
-                reg = re.findall(r'[0-9]{1,6}',
-                                 place_score[i].contents[1].replace(',', ''))
-            else:
-                # Broken..
-                pass
-
-            place = reg[0]
-            score = reg[1]
-            # Generate teams list
-            teams_list = teams[i].findAll('li')
-
-            for j in range(0, len(teams_list)):
-                # Isn't this uggggggggly?
-                # Creates a list, with format noted above first for loop.
-                # Replaces ugly HTML with chars.
-                # db.append( (teams_list[j].string.replace('&#160;',
-                # ' ').replace('&amp;', '&').replace('&quot;', '"').replace(
-                # '&nbsp;', ' '), score, place) )
-                # db.append( (teams_list[j].string.replace('&#160;',
-                # ' ').replace('&amp;',
-                # '&').replace('&quot;', '"').replace('&nbsp;', ' '),
-                # int(yr), int(hr),
-                # place, score,) )
-                name = teams_list[j].string.replace(
-                    '&#160;', ' ').replace('&amp;', '&').replace('&quot;',
-                                                                 '"').replace(
-                    '&nbsp;', ' ')
-                year = int(yr)
-                # hour = int(hr)
-
-                # (team_name, year, hour, place, score)
-                bulk_list.append(
-                    Score(team_name=name, year=year, hour=hour, place=place,
-                          score=score))
-                # print "Adding year: {0} hour: {1} team: {2} score: {3} place:
-                # {4}".format(year, hour, name, score, place)
+        for team, score in zip(teams, place_score):
+            bulk_list += self.build_team_score(team, score, year, hour)
         Score.objects.bulk_create(bulk_list)
-        # insert_bulk(db)
-        # post_to_twitter("Hour {0} scores posted!".format(hr))
+
         return True
 
-        # def calculate_changes(self, year, hour):
+    def build_team_score(self, team, score, year, hour):
+        if len(score.contents) == 1:
+            reg = re.findall(r'([0-9]+)',
+                             score.contents[0].replace(',', ''))
+            # Happens in first occurence only
+        elif len(score.contents) == 2:
+            reg = re.findall(r'[0-9]{1,6}',
+                             score.contents[1].replace(',', ''))
+        else:
+            # Broken..
+            return []
 
-    # """
-    # Should only be called after year/hour has been scraped.
-    # """
-    # hour_list = Score.objects.filter(year=2012).values_list(
-    # 'hour').distinct().order_by('-hour')
-    # if len(hour_list) == 0:
-    # logger.warning("Could not calculate changes for year {0} hour
-    # {1}, no scores.")
-    # return
-    # elif len(hour_list) == 1:
-    # logger.warning("First hour, ignoring.")
-    # # Find hour before hours.
-    # for past_hour in hour_list:
-    # if hour < past_hour:
-    # prev_hour = past_hour
-    # break
-    # if prev_hour is None:
-    # logger.warning("Previous hour is none for year {0} hour {
-    # 1}".format(year, hour))
-    # # Get all scores for this hour and last hour.
-    # scores = Score.objects.filter(year=year).filter(hour=hour)
-    # prev_scores = Score.objects.filter(year=year).filter(hour=prev_hour)
+        place = reg[0]
+        score = reg[1]
+
+        scores = []
+        for team in team.findAll('li'):
+            name = sanitize_team_name(team.string)
+
+            year = int(year)
+
+            scores.append(
+                Score(team_name=name, year=year, hour=hour, place=place,
+                      score=score))
+        return scores
+
+
+def notify():
+    pass
+
+
+def sanitize_team_name(name):
+    return (name.replace('&#160;', ' ')
+            .replace('&amp;', '&')
+            .replace('&quot;', '"')
+            .replace('&nbsp;', ' '))
 
 
 def text2int(textnum, numwords=None):
     if not numwords:
         numwords = {}
         units = [
-            "zero", "one", "two", "three", "four", "five", "six", "seven",
+            "zero", "one", "two", "thouree", "four", "five", "six", "seven",
             "eight",
             "nine", "ten", "eleven", "twelve", "thirteen", "fourteen",
             "fifteen",
@@ -612,73 +557,36 @@ def get_current_hour():
     time.strptime(a, "%B %d %Y %H")
 
 
-def get_current_year():
+def current_year():
     return datetime.datetime.now().year
 
 
-# Check
 def during_trivia():
-    # Simple debugging stuff
-    if settings.DEBUG_DURING:
-        return True
-
     now = datetime.datetime.now()
-    start_str = "%d %s %s" % (
-        trivia_start_hour, trivia_dates[str(now.year)], now.year)
-    start = datetime.datetime.strptime(start_str, "%H %B %d %Y")
-    end = start + datetime.timedelta(hours=54)
-
-    return (start < now < end)
+    return start_time() < now < end_time()
 
 
-def get_last_hour():
+def last_hour():
     """Get last hour that scores were scraped"""
-    last_year = get_last_year()
-    return Score.objects.filter(year=last_year).values_list(
+    return Score.objects.filter(year=last_year()).values_list(
         'hour',
         flat=True).distinct().order_by(
         '-hour')[0]
 
 
-def get_last_year():
+def last_year():
     return Score.objects.values_list('year', flat=True).distinct().order_by(
         '-year')[0]
 
 
-def playing_this_year(team_name):
-    ''' Find out if team is in this years competition. '''
-    playing_this_year = False
-    last_hour = get_last_hour()
-    if last_hour is None:
-        return None
-    last_during_score = Score.objects.filter(
-        team_name=team_name.upper()).filter(hour=last_hour).filter(
-        year=datetime.datetime.now().year)
-    if len(last_during_score) > 0:
-        playing_this_year = True
-    return playing_this_year
-
-
-def get_start_time():
+def start_time():
     now = datetime.datetime.now()
     return "%d %s %s" % (
         trivia_start_hour, trivia_dates[str(now.year)], now.year)
 
 
-# Returns a list of tuples like so:
-# (place (index + 1), team_name, score)
-# Returns None on error
-
-
-def get_top_ten_teams(year=None, hour=None):
-    if year is None:
-        year = get_last_year()
-    if hour is None:
-        hour = get_last_hour()
-
-    scores = Score.objects.filter(year=year).filter(hour=hour).order_by(
-        'place')[0:10]
-    return scores
+def end_time():
+    return start_time() + datetime.timedelta(hours=54)
 
 
 def post_to_twitter(message):
@@ -692,6 +600,19 @@ def post_to_twitter(message):
         logger.info("Would tweet message: {0}".format(message))
     else:
         logger.info(t.statuses.update(status=message))
+
+
+def pad_hour(hour, year):
+    if int(hour) < 10 and int(year) >= 2010:
+        # Add 0 to the front
+        return "0%d" % hour
+    else:
+        return str(hour)
+
+
+def remaining_hours():
+    year = current_year()
+    return [pad_hour(hour, year) for hour in range(last_hour() + 1, 54)]
 
 
 page_template = {

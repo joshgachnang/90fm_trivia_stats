@@ -77,8 +77,8 @@ DEFAULT_DATABASE = {
         'ENGINE': 'django.db.backends.mysql',
         'HOST': '192.168.2.2',
         'NAME': 'triviastats',
-        'USER': 'triviastats',
-        'PASSWORD': 'triviastats'
+        'USER': 'root',
+        'PASSWORD': 'password'
     }
 }
 
@@ -207,3 +207,5 @@ try:
         vars()[key] = value
 except ValueError:
     pass
+
+print DEFAULT_DATABASE
