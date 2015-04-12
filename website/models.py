@@ -32,7 +32,6 @@ class Subscriber(models.Model):
     email = models.EmailField(blank=True, null=True)
     team_name = models.CharField(max_length=64, default=None, blank=True,
                                  null=True)
-    error_msg = models.TextField()
     # Use this code to confirm deletion.
     delete_code = models.CharField(max_length=8, blank=True, null=True,
                                    default=random_code)
@@ -67,7 +66,6 @@ class Subscriber(models.Model):
         elif len(scores) == 0:
             msg = ('Your team name {} didn\'t match any teams.'.format(
                 self.team_name))
-            self.error_msg = msg
             self.save()
             logger.warning(msg)
             score = None
