@@ -7,6 +7,8 @@
   <p><em>Score:</em> {{ score }}</p>
 {% endif %}
 
+<p><a href="http://www.triviastats.com/#/scores/{{ year }}/{{ hour }}">All scores for Hour {{ hour }}</a></p>
+
 {% if top_ten %}
   <p><em>Top 10 Teams</em></p>
   {% for team in top_ten %}

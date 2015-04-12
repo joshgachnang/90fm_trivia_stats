@@ -51,12 +51,13 @@ class Subscriber(models.Model):
 
     def score_update(self, year, hour):
         # Find team
+        logger.info('Score update for {}, {}'.format(hour, year))
         scores = Score.objects.filter(hour=hour).filter(
             year=year).order_by('-score')
-        print scores
-        if self.team_name:
+
+        if self.team_name and self.team_name != '':
             scores = scores.filter(team_name__contains=self.team_name.upper())
-        print scores
+
         if len(scores) > 1:
             logger.warning('Team name {} generated {} duplicates'.format(
                 self.team_name, len(scores)))
@@ -68,7 +69,7 @@ class Subscriber(models.Model):
                 self.team_name))
             self.save()
             logger.warning(msg)
-            score = None
+            score = scores[0]
         else:
             score = scores[0]
         print score
@@ -84,10 +85,16 @@ class Subscriber(models.Model):
             "Sending SMS to {}, {}".format(self.phone_number, self.team_name))
         client = _get_twilio_client()
 
+        if self.team_name:
+            context = Context({'hour': score.hour, 'year': score.year,
+                               'place': score.place,
+                               'team_name': score.team_name,
+                               'score': score.score})
+        else:
+            context = Context({'hour': score.hour, 'year': score.year})
+
         template = get_template('sms_score_update.txt')
-        context = Context({'hour': score.hour, 'place': score.place,
-                           'team_name': score.team_name,
-                           'score': score.score})
+
         body = template.render(context)
 
         try:
@@ -103,11 +110,17 @@ class Subscriber(models.Model):
         logger.info(
             "Sending SMS to {}, {}".format(self.phone_number, self.team_name))
 
+        if self.team_name:
+            context = Context({'hour': score.hour, 'year': score.year,
+                               'place': score.place,
+                               'team_name': score.team_name,
+                               'score': score.score})
+        else:
+            context = Context({'hour': score.hour, 'year': score.year})
+
         template = get_template('email_score_update.txt')
         html_template = get_template('email_score_update.html')
-        context = Context({'hour': score.hour, 'place': score.place,
-                           'team_name': score.team_name,
-                           'score': score.score})
+
         body = template.render(context)
         html_body = html_template.render(context)
         subject = "TriviaStats Score Update For Hour {hour}: {team} is in "
@@ -170,6 +183,7 @@ class Score(models.Model):
         return 'Team: {}, {} Hour {}'.format(
             self.team_name, self.year, self.hour)
 
+
     class Meta:
         unique_together = ("team_name", "hour", "year")
 
@@ -191,8 +205,10 @@ class Scraper(object):
         remaining = remaining_hours()
         logger.info('Remaining hours: {}'.format(remaining))
         for hour in remaining:
-            if self.scrape_year_hour(current_year(), hour):
-                post_to_twitter("Hour {0} scores posted!".format(hour))
+            scores = self.scrape_year_hour(current_year(), hour)
+            if scores and len(scores) > 0:
+                # post_to_twitter("Hour {0} scores posted!".format(hour))
+                notify(scores[0].year, scores[0].hour)
                 return
         logger.info('No new hours.')
 
@@ -222,9 +238,10 @@ class Scraper(object):
                 return False
 
     def scrape_year_hour(self, year, hour, force=False):
+        print 'scrape year hour', year, hour
         p = self.get_page(year, hour)
         if not p:
-            return False
+            return
 
         soup = BeautifulSoup(''.join(p.read()))
         p.close()
@@ -238,14 +255,14 @@ class Scraper(object):
         query = Score.objects.filter(year=int(year)).filter(hour=int(hour))
         if len(query) != 0 and force is False:
             logger.info("Already in DB")
-            return False
+            return
 
         bulk_list = []
         for team, score in zip(teams, place_score):
             bulk_list += self.build_team_score(team, score, year, hour)
-        Score.objects.bulk_create(bulk_list)
+        scores = Score.objects.bulk_create(bulk_list)
 
-        return True
+        return scores
 
     def build_team_score(self, team, score, year, hour):
         if len(score.contents) == 1:
@@ -359,6 +376,7 @@ def text2int(textnum, numwords=None):
 
 
 def get_current_hour():
+    return 54
     if not during_trivia():
         return None
 
@@ -372,10 +390,12 @@ def get_current_hour():
 
 
 def current_year():
+    return 2014
     return datetime.datetime.now().year
 
 
 def during_trivia():
+    return True
     now = datetime.datetime.now()
     return start_time() < now < end_time()
 
