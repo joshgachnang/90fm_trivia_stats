@@ -48,19 +48,17 @@ class Subscriber(models.Model):
                 self.welcome_email()
         super(Subscriber, self).save(*args, **kwargs)
 
-    def score_update(self, hour, year):
+    def score_update(self, year, hour):
         # Find team
-        scores = Score.objects.filter(hour=hour).filter(year=year).filter(
-            team_name__contains=self.team_name)
+        scores = Score.objects.filter(hour=hour).filter(
+            year=year).order_by('-score')
+        print scores
+        if self.team_name:
+            scores = scores.filter(team_name__contains=self.team_name.upper())
+        print scores
         if len(scores) > 1:
             logger.warning('Team name {} generated {} duplicates'.format(
                 self.team_name, len(scores)))
-            msg = ('Your team name {} matched multiple teams, '
-                   'try being more specific. Matched teams: {}'.format(
-                [score.team_name for score in scores]))
-            self.error_msg = msg
-            self.save()
-            logger.warning(msg)
             # Select the first score
             score = scores[0]
 
@@ -73,11 +71,12 @@ class Subscriber(models.Model):
             score = None
         else:
             score = scores[0]
+        print score
 
-        if self.contact_method in ('text', 'both'):
+        if self.phone_number:
             self.score_text(score)
 
-        if self.contact_method in ('email', 'both'):
+        if self.email:
             self.score_email(score)
 
     def score_text(self, score):
@@ -158,6 +157,11 @@ class Score(models.Model):
     hour = models.IntegerField(db_index=True)
     place = models.IntegerField(db_index=True)
     score = models.IntegerField(db_index=True)
+
+    def save(self, *args, **kwargs):
+        # Team names are always uppercase
+        self.team_name = self.team_name.upper()
+        super(Score, self).save(*args, **kwargs)
 
     def url(self):
         return self.team_name.replace(' ', '_')
@@ -302,7 +306,8 @@ def _send_email(email, subject, msg):
 
 
 def notify(year, hour):
-    pass
+    for subscriber in Subscriber.objects.all():
+        subscriber.score_update(year, hour)
 
 
 def sanitize_team_name(name):

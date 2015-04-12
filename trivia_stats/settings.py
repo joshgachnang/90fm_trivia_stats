@@ -188,6 +188,7 @@ LOGGING = {
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 FROM_EMAIL = 'triviastats@triviastats.com'
+TWILIO_NUMBER = '+17154464491'
 
 try:
     from config.production_settings import *  # noqa

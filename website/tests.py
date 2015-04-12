@@ -1,12 +1,12 @@
-from django.test import TestCase
-import mock
 import urllib2
 
+from django.test import TestCase
+import mock
+from trivia_stats import settings
 from website import models
 
 
 class ScraperTestCase(TestCase):
-
     def setUp(self):
         self.html = open('website/test_data/2014_hour54_scores.html',
                          'r')
@@ -123,3 +123,46 @@ class ScraperTestCase(TestCase):
         self.scraper.scrape_year_hour(2014, 54)
 
         self.assertEqual(371, models.Score.objects.all().count())
+
+
+class SubscriberTestCase(TestCase):
+    @mock.patch('website.models.Subscriber.welcome_email')
+    @mock.patch('website.models.Subscriber.welcome_text')
+    def setUp(self, text_mock, email_mock):
+        self.subscriber_all = models.Subscriber(
+            phone_number='555-555-5555', email='test@example.com',
+            team_name='test').save()
+        self.subscriber_both = models.Subscriber(
+            phone_number='555-555-5556', email='test2@example.com').save()
+        self.subscriber_phone = models.Subscriber(
+            phone_number='555-555-5557').save()
+        self.subscriber_email = models.Subscriber(
+            email='test3@example.com', team_name='Test').save()
+        models.Score(team_name='test team', year=2015, hour=1,
+                     place=1, score=1000).save()
+        models.Score(team_name='other team', year=2015, hour=1,
+                     place=2, score=500).save()
+
+    @mock.patch('website.models.send_mail')
+    @mock.patch('website.models._get_twilio_client')
+    def test_score_update(self, client_mock, mail_mock):
+        client = mock.Mock()
+        client_mock.return_value = client
+
+        models.notify(2015, 1)
+        client.sms.messages.create.assert_has_calls([
+            mock.call(to='555-555-5555', from_=settings.TWILIO_NUMBER,
+                      body=mock.ANY),
+            mock.call(to='555-555-5556', from_=settings.TWILIO_NUMBER,
+                      body=mock.ANY),
+            mock.call(to='555-555-5557', from_=settings.TWILIO_NUMBER,
+                      body=mock.ANY)
+        ])
+        mail_mock.assert_has_calls([
+            mock.call(mock.ANY, mock.ANY, settings.FROM_EMAIL,
+                      ['test@example.com'], html_message=mock.ANY),
+            mock.call(mock.ANY, mock.ANY, settings.FROM_EMAIL,
+                      ['test2@example.com'], html_message=mock.ANY),
+            mock.call(mock.ANY, mock.ANY, settings.FROM_EMAIL,
+                      ['test3@example.com'], html_message=mock.ANY)
+        ])
