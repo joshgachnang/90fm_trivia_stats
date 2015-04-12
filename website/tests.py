@@ -151,7 +151,7 @@ class SubscriberTestCase(TestCase):
         client = mock.Mock()
         client_mock.return_value = client
 
-        models.notify(2015, 1)
+        models.notify(2015, 1, [])
         client.sms.messages.create.assert_has_calls([
             mock.call(to='5555555555', from_=settings.TWILIO_NUMBER,
                       body=mock.ANY),

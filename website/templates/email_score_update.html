@@ -11,10 +11,12 @@
 
 {% if top_ten %}
   <p><em>Top 10 Teams</em></p>
+  <ul>
   {% for team in top_ten %}
     <!-- Place, Team Name, Score -->
-    {{ team.0 }}: {{ team.1 }}, Score: {{ team.2 }}
+    <li>{{ team.place }}: {{ team.team_name }}, Score: {{ team.score }}</li>
   {% endfor %}
+  </ul>
 {% endif %}
 
 <h6>To unsubscribe, just go to <a

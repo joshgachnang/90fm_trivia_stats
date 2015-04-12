@@ -49,7 +49,7 @@ class Subscriber(models.Model):
             self.phone_number = clean_number(self.phone_number)
         super(Subscriber, self).save(*args, **kwargs)
 
-    def score_update(self, year, hour):
+    def score_update(self, year, hour, top_ten):
         # Find team
         logger.info('Score update for {}, {}'.format(hour, year))
         scores = Score.objects.filter(hour=hour).filter(
@@ -74,11 +74,11 @@ class Subscriber(models.Model):
             score = scores[0]
         print score
 
-        if self.phone_number:
+        if self.phone_number and self.phone_number != '':
             self.score_text(score)
 
         if self.email:
-            self.score_email(score)
+            self.score_email(score, top_ten)
 
     def score_text(self, score):
         logger.info(
@@ -106,7 +106,7 @@ class Subscriber(models.Model):
             logger.exception(
                 "SMS for user {0} failed.".format(self.user.username))
 
-    def score_email(self, score):
+    def score_email(self, score, top_ten):
         logger.info(
             "Sending SMS to {}, {}".format(self.phone_number, self.team_name))
 
@@ -114,9 +114,11 @@ class Subscriber(models.Model):
             context = Context({'hour': score.hour, 'year': score.year,
                                'place': score.place,
                                'team_name': score.team_name,
-                               'score': score.score})
+                               'score': score.score,
+                               'top_ten': top_ten})
         else:
-            context = Context({'hour': score.hour, 'year': score.year})
+            context = Context({'hour': score.hour, 'year': score.year,
+                               'top_ten': top_ten})
 
         template = get_template('email_score_update.txt')
         html_template = get_template('email_score_update.html')
@@ -183,7 +185,6 @@ class Score(models.Model):
         return 'Team: {}, {} Hour {}'.format(
             self.team_name, self.year, self.hour)
 
-
     class Meta:
         unique_together = ("team_name", "hour", "year")
 
@@ -208,7 +209,8 @@ class Scraper(object):
             scores = self.scrape_year_hour(current_year(), hour)
             if scores and len(scores) > 0:
                 # post_to_twitter("Hour {0} scores posted!".format(hour))
-                notify(scores[0].year, scores[0].hour)
+                notify(scores[0].year, scores[0].hour, top_ten_teams(
+                    scores[0].year, scores[0].hour))
                 return
         logger.info('No new hours.')
 
@@ -325,9 +327,9 @@ def _send_email(email, subject, msg):
     send_mail(subject, msg, settings.FROM_EMAIL, [email])
 
 
-def notify(year, hour):
+def notify(year, hour, top_ten):
     for subscriber in Subscriber.objects.all():
-        subscriber.score_update(year, hour)
+        subscriber.score_update(year, hour, top_ten)
 
 
 def sanitize_team_name(name):
@@ -448,6 +450,10 @@ def pad_hour(hour, year):
 def remaining_hours():
     year = current_year()
     return [pad_hour(hour, year) for hour in range(last_hour() + 1, 54)]
+
+
+def top_ten_teams(year, hour):
+    return Score.objects.filter(year=year, hour=hour).order_by('-score')[0:10]
 
 
 page_template = {
