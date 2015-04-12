@@ -46,6 +46,8 @@ class Subscriber(models.Model):
                 self.welcome_text()
             if self.email:
                 self.welcome_email()
+        if self.phone_number:
+            self.phone_number = clean_number(self.phone_number)
         super(Subscriber, self).save(*args, **kwargs)
 
     def score_update(self, year, hour):
@@ -285,8 +287,11 @@ def _get_twilio_client():
 
 
 def clean_number(number):
-    return number.replace('(', '').replace(')', '').replace('-', '').replace(
-        ' ', '')
+    return (number.replace('(', '')
+            .replace(')', '')
+            .replace('-', '')
+            .replace(' ', '')
+            .replace('.', ''))
 
 
 def _send_text(number, msg):

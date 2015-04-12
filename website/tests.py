@@ -130,12 +130,12 @@ class SubscriberTestCase(TestCase):
     @mock.patch('website.models.Subscriber.welcome_text')
     def setUp(self, text_mock, email_mock):
         self.subscriber_all = models.Subscriber(
-            phone_number='555-555-5555', email='test@example.com',
+            phone_number='5555555555', email='test@example.com',
             team_name='test').save()
         self.subscriber_both = models.Subscriber(
-            phone_number='555-555-5556', email='test2@example.com').save()
+            phone_number='5555555556', email='test2@example.com').save()
         self.subscriber_phone = models.Subscriber(
-            phone_number='555-555-5557').save()
+            phone_number='5555555557').save()
         self.subscriber_email = models.Subscriber(
             email='test3@example.com', team_name='Test').save()
         models.Score(team_name='test team', year=2015, hour=1,
@@ -151,11 +151,11 @@ class SubscriberTestCase(TestCase):
 
         models.notify(2015, 1)
         client.sms.messages.create.assert_has_calls([
-            mock.call(to='555-555-5555', from_=settings.TWILIO_NUMBER,
+            mock.call(to='5555555555', from_=settings.TWILIO_NUMBER,
                       body=mock.ANY),
-            mock.call(to='555-555-5556', from_=settings.TWILIO_NUMBER,
+            mock.call(to='5555555556', from_=settings.TWILIO_NUMBER,
                       body=mock.ANY),
-            mock.call(to='555-555-5557', from_=settings.TWILIO_NUMBER,
+            mock.call(to='5555555557', from_=settings.TWILIO_NUMBER,
                       body=mock.ANY)
         ])
         mail_mock.assert_has_calls([
@@ -166,3 +166,18 @@ class SubscriberTestCase(TestCase):
             mock.call(mock.ANY, mock.ANY, settings.FROM_EMAIL,
                       ['test3@example.com'], html_message=mock.ANY)
         ])
+
+    @mock.patch('website.models.Subscriber.welcome_text')
+    def test_clean_number(self, mock_text):
+        sub = models.Subscriber(
+            phone_number='123-456-7890')
+        sub.save()
+        self.assertEqual('1234567890', sub.phone_number)
+
+        sub.phone_number = '(123) 456-7890'
+        sub.save()
+        self.assertEqual('1234567890', sub.phone_number)
+
+        sub.phone_number = '123.456.7890'
+        sub.save()
+        self.assertEqual('1234567890', sub.phone_number)
