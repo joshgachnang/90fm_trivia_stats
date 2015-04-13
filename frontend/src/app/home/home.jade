@@ -1,12 +1,13 @@
 div(layout='vertical', layout-fill)
   md-content.body(flex="100")
 
-    md-card
+    md-card(ng-controller="CountdownCtrl")
       md-toolbar
         div.md-toolbar-tools
-          span.md-flex Trivia Countdown
+          span.md-flex(ng-if='!duringTrivia') Trivia Countdown
+          span.md-flex(ng-if='duringTrivia') Trivia Hour
       md-content.md-padding
-        div#countdown(layout='row',layout-sm='column',ng-controller="CountdownCtrl")
+        div#countdown(layout='row',layout-sm='column')
           div.countdown-container(layout='row',ng-if='!duringTrivia')
             div(layout='column').number-container
               md-progress-circular.hours(md-mode='determinate',value='{{timeToTrivia | countdown:"days":"true"}}')

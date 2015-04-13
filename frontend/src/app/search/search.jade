@@ -14,7 +14,7 @@ md-content.md-padding.body
     md-progress-circular(md-mode='indeterminate')
   md-card(ng-hide="filteredTeams.length == 0")
     md-toolbar
-        h1.md-toolbar-tools {{ filteredTeams[0].team_name }}
+      h1.md-toolbar-tools {{ filteredTeams[0].team_name }}
     md-content.md-padding
       md-list.scores
         div(ng-repeat='score in filteredTeams')
@@ -33,8 +33,10 @@ md-content.md-padding.body
               div(flex='33')
                 div.badge.hour
                   span {{ score.hour }}
-              div(flex='33')
+              div(flex='33',layout='row',layout-align='center')
                 div.badge.place
                   span {{ score.place }}
+                div.badge.change(ng-class='changeClass(filteredTeams[$index + 1].place - score.place)' ng-if='(score.year == filteredTeams[$index + 1].year && score.team_name == filteredTeams[$index + 1].team_name)')
+                  span {{ change(filteredTeams[$index + 1].place - score.place) }}
               span(flex='33') {{ score.score }}
             md-divider(ng-if='!$last')

@@ -11,4 +11,22 @@ angular.module('triviastats')
       $scope.filteredTeams = Score.search($scope.searchTerm);
       $scope.processing = false;
     };
+
+    $scope.changeClass = function(change) {
+      if (change >= 0) {
+        return 'up';
+      }
+      else if (change < 0) {
+        return 'down';
+      }
+    };
+
+    $scope.change = function(change) {
+      if (change > 0) {
+        return '+' + change
+      }
+      else {
+        return change;
+      }
+    };
   }]);
