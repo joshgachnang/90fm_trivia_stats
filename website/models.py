@@ -212,7 +212,8 @@ class Scraper(object):
             if scores and len(scores) > 0:
                 post_to_twitter(
                     "Hour {0} scores posted! http://www.triviastats.com/#/"
-                    "scores/{1}/{0}".format(scores[0].hour, scores[0].year))
+                    "scores/{1}/{0} #trivia46".format(
+                        scores[0].hour,  scores[0].year))
                 notify(scores[0].year, scores[0].hour, top_ten_teams(
                     scores[0].year, scores[0].hour))
                 return
