@@ -7,7 +7,7 @@ div(layout='vertical', layout-fill)
           span.md-flex Trivia Countdown
       md-content.md-padding
         div#countdown(layout='row',layout-sm='column',ng-controller="CountdownCtrl")
-          div.countdown-container(layout='row')
+          div.countdown-container(layout='row',ng-if='!duringTrivia')
             div(layout='column').number-container
               md-progress-circular.hours(md-mode='determinate',value='{{timeToTrivia | countdown:"days":"true"}}')
               span.countdown-number(ng-bind='timeToTrivia | countdown:"days"')
@@ -23,6 +23,19 @@ div(layout='vertical', layout-fill)
             div(layout='column').number-container
               md-progress-circular.hours.md-accent.md-hue-1(md-mode='determinate',value='{{timeToTrivia | countdown:"seconds":"true"}}')
               span.countdown-number(ng-bind='timeToTrivia | countdown:"seconds"')
+              span.countdown-label Seconds
+          div.countdown-container(layout='row',ng-if='duringTrivia')
+            div(layout='column').number-container
+              md-progress-circular.hours.md-hue-2(md-mode='determinate',value='{{timeIntoTrivia | countdown:"triviaHours":"true"}}')
+              span.countdown-number(ng-bind='timeIntoTrivia | countdown:"triviaHours"')
+              span.countdown-label Hours
+            div(layout='column').number-container
+              md-progress-circular.hours.md-accent(md-mode='determinate',value='{{timeIntoTrivia | countdown:"minutes":"true"}}')
+              span.countdown-number(ng-bind='timeIntoTrivia | countdown:"minutes"')
+              span.countdown-label Minutes
+            div(layout='column').number-container
+              md-progress-circular.hours.md-accent.md-hue-1(md-mode='determinate',value='{{timeIntoTrivia | countdown:"seconds":"true"}}')
+              span.countdown-number(ng-bind='timeIntoTrivia | countdown:"seconds"')
               span.countdown-label Seconds
 
     md-card

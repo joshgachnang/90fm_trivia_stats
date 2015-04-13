@@ -49,6 +49,13 @@ angular.module('triviastats')
         }
         return seconds < 10 ? '0' + seconds : seconds;
       }
+      else if (label === 'triviaHours') {
+        var triviaHours = Math.floor(date / 3600) % (24 * 365);
+        if (percent === 'true') {
+          return Math.floor(triviaHours / 54 * 100);
+        }
+        return triviaHours < 10 ? '0' + triviaHours : triviaHours;
+      }
     };
   })
   .controller('HomeCtrl', ['$scope', '$mdToast', 'Score', 'Signup', function ($scope, $mdToast, Score, Signup) {
