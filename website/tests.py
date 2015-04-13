@@ -37,7 +37,7 @@ class ScraperTestCase(TestCase):
             mock.call(2015, 52),
             mock.call(2015, 53)
         ]
-        # post_mock.assert_called_once_with(mock.ANY)
+        post_mock.assert_called_once_with(mock.ANY)
 
     @mock.patch.object(models, 'current_year')
     @mock.patch.object(models, 'post_to_twitter')

@@ -185,6 +185,7 @@ class Score(models.Model):
         return 'Team: {}, {} Hour {}'.format(
             self.team_name, self.year, self.hour)
 
+    # noqa (pycharm and pep8 can't agree on spacing here)
     class Meta:
         unique_together = ("team_name", "hour", "year")
 
@@ -208,7 +209,9 @@ class Scraper(object):
         for hour in remaining:
             scores = self.scrape_year_hour(current_year(), hour)
             if scores and len(scores) > 0:
-                # post_to_twitter("Hour {0} scores posted!".format(hour))
+                post_to_twitter(
+                    "Hour {0} scores posted! http://www.triviastats.com/#/"
+                    "scores/{1}/{0}".format(scores[0].hour, scores[0].year))
                 notify(scores[0].year, scores[0].hour, top_ten_teams(
                     scores[0].year, scores[0].hour))
                 return
@@ -427,16 +430,16 @@ def end_time():
 
 
 def post_to_twitter(message):
-    auth = twitter.OAuth(settings.TWITTER_TOKEN, settings.TWITTER_TOKEN_SECRET,
-                         settings.TWITTER_CONSUMER_KEY,
-                         settings.TWITTER_CONSUMER_SECRET)
-    t = twitter.Twitter(auth=auth)
-    t.account.verify_credentials()
-    if settings.DEBUG:
-        # Don't tweet in dev.
-        logger.info("Would tweet message: {0}".format(message))
-    else:
-        logger.info(t.statuses.update(status=message))
+    try:
+        api = twitter.Api(consumer_key=settings.TWITTER_CONSUMER_KEY,
+                          consumer_secret=settings.TWITTER_CONSUMER_SECRET,
+                          access_token_key=settings.TWITTER_TOKEN,
+                          access_token_secret=settings.TWITTER_TOKEN_SECRET)
+        api.VerifyCredentials()
+    except Exception:
+        logger.exception('Failed to auth with Twitter')
+        return
+    api.PostUpdate(message)
 
 
 def pad_hour(hour, year):
