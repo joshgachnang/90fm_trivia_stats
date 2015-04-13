@@ -179,7 +179,7 @@ md-content.body {
 }
 
 .body {
-  min-height:100%;
+  min-height: 100%;
 }
 
 .main-body {
@@ -242,6 +242,26 @@ md-content {
   background-color: $dark-primary-color;
 }
 
+.badge.change {
+  width: 24px;
+  height: 24px;
+  font-size: 12px;
+  margin: 9px 0 0 10px;
+
+}
+
+.badge.change.down {
+  background-color: $dark-accent-color;
+}
+
+.badge.change.up {
+  background-color: $dark-primary-color;
+}
+
+.badge.change span {
+  margin-top: -7px;
+}
+
 md-item {
   text-align: center;
 }
@@ -292,8 +312,8 @@ md-item {
 }
 
 // FF fixes..
-html,body{
-  min-height:100%;
+html, body {
+  min-height: 100%;
   background-color: $background-color;
 }
 
@@ -303,4 +323,8 @@ html,body{
 
 .unsubscribe {
   margin-left: 15px;
+}
+
+.center {
+  margin: 0 auto;
 }

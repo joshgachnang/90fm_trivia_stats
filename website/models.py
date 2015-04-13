@@ -125,7 +125,8 @@ class Subscriber(models.Model):
 
         body = template.render(context)
         html_body = html_template.render(context)
-        subject = "TriviaStats Score Update For Hour {hour}: {team} is in "
+        subject = "TriviaStats Scores For Hour {}: ".format(
+            score.hour)
         try:
             send_mail(subject, body, settings.FROM_EMAIL, [self.email],
                       html_message=html_body)
