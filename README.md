@@ -17,6 +17,8 @@ You can add a full text search with the command:
 Using the API
 -------------
 
+The Trivia Stats API can be found at https://api.triviastats.com/api/v1/.
+
 ## /api/v1/scores/
 
 The list of scores for all teams, all years.
