@@ -14,6 +14,11 @@ app.config(function ($stateProvider, $urlRouterProvider) {
       templateUrl: 'app/score/score.html',
       controller: 'ScoreCtrl'
     })
+    .state('charts', {
+      url: '/charts/:year',
+      templateUrl: 'app/score/score.html',
+      controller: 'ChartsCtrl'
+    })
     .state('teams', {
       url: '/teams/:teamName',
       templateUrl: 'app/team/team.html',

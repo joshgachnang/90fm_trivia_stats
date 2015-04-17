@@ -30,6 +30,17 @@ angular.module('triviastats')
       return api.query(args);
     };
 
+    service.yearScores = function (year, results) {
+      var args = {
+        'ordering': '-score',
+        'year': year
+      };
+      if (results !== undefined) {
+        args['results'] = results
+      }
+      return api.query(args);
+    };
+
     service.search = function (searchString) {
       return api.query({
         // User team name to keep them grouped properly
