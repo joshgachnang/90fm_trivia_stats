@@ -16,15 +16,18 @@ angular.module('triviastats')
       });
     };
 
-    service.hourScores = function (hour, year) {
-      if (year === undefined) {
-        year = new Date().getFullYear();
-      }
-      return api.query({
+    service.hourScores = function (hour, year, results) {
+      var args = {
         'ordering': '-score',
-        'hour': hour,
-        'year': year
-      });
+        'hour': hour
+      };
+      if (year !== undefined) {
+        args['year'] = year;
+      }
+      if (results !== undefined) {
+        args['results'] = results
+      }
+      return api.query(args);
     };
 
     service.search = function (searchString) {

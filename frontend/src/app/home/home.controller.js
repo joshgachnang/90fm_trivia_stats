@@ -58,8 +58,21 @@ angular.module('triviastats')
       }
     };
   })
-  .controller('HomeCtrl', ['$scope', '$mdToast', 'Score', 'Signup', function ($scope, $mdToast, Score, Signup) {
-    $scope.scores = Score.hourScores(54, 2014);
+  .controller('HomeCtrl', ['$scope', '$mdToast', 'Score', 'Signup', 'TRIVIA_DATES', function ($scope, $mdToast, Score, Signup, TRIVIA_DATES) {
+    var now = new Date();
+    var start_date = TRIVIA_DATES[now.getFullYear()];
+
+    var year;
+    if (now < start_date) {
+      year = (parseInt(now.getFullYear()) - 1).toString();
+    }
+    else {
+      year = now.getFullYear();
+    }
+
+    console.log('score year is', year);
+
+    $scope.scores = Score.hourScores(54, year);
     $scope.message = '';
     $scope.subscriber = {
       email: undefined,
