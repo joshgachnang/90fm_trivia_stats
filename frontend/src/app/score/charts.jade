@@ -1,0 +1,8 @@
+div(layout='vertical', layout-fill)
+  md-content.body(flex="100")
+    md-card(ng-cloak)
+      md-toolbar
+        h1.md-toolbar-tools
+          | Charts for 2014
+      md-content.md-padding
+        canvas(id="line", class="chart chart-line", data="data", labels="labels", legend="true", series="series")

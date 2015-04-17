@@ -19,8 +19,11 @@ angular.module('triviastats')
     service.hourScores = function (hour, year, results) {
       var args = {
         'ordering': '-score',
-        'hour': hour
       };
+      if (hour !== undefined) {
+        args['hour'] = hour;
+        args['ordering'] = '-hour,-score';
+      }
       if (year !== undefined) {
         args['year'] = year;
       }
@@ -30,15 +33,18 @@ angular.module('triviastats')
       return api.query(args);
     };
 
-    service.yearScores = function (year, results) {
+    service.yearScores = function (year, success_callback, results) {
       var args = {
-        'ordering': '-score',
+        'ordering': 'team_name,hour',
         'year': year
       };
+
       if (results !== undefined) {
         args['results'] = results
       }
-      return api.query(args);
+
+      console.log(success_callback);
+      return api.query(args, success_callback, success_callback);
     };
 
     service.search = function (searchString) {

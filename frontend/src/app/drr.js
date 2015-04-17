@@ -356,7 +356,7 @@ angular.module('djangoRESTResources', ['ng']).
                 // If it's an object with count and results, it's a pagination container, not an array:
                 if (data.hasOwnProperty("count") && data.hasOwnProperty("results")) {
                   // Don't call success callback until the last page has been accepted:
-                  deferSuccess = true;
+                  //deferSuccess = true;
 
                   var paginator = function recursivePaginator(data) {
                     // If there is a next page, go ahead and request it before parsing our results. Less wasted time.

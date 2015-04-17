@@ -61,6 +61,9 @@ angular.module('triviastats')
   .controller('HomeCtrl', ['$scope', '$mdToast', 'Score', 'Signup', 'TRIVIA_DATES', function ($scope, $mdToast, Score, Signup, TRIVIA_DATES) {
     var now = new Date();
     var start_date = TRIVIA_DATES[now.getFullYear()];
+    var end_date = new Date(start_date);
+    end_date.setHours(start_date.getHours() + 54);
+    var hour = 54;
 
     var year;
     if (now < start_date) {
@@ -70,9 +73,14 @@ angular.module('triviastats')
       year = now.getFullYear();
     }
 
+    if (now > start_date && now < end_date) {
+      // During Trivia
+      hour = Math.floor(Math.abs(now - start_date) / 36e5) + 1;
+    }
     console.log('score year is', year);
+    console.log('hour', hour);
 
-    $scope.scores = Score.hourScores(54, year);
+    $scope.scores = Score.hourScores(undefined, year);
     $scope.message = '';
     $scope.subscriber = {
       email: undefined,

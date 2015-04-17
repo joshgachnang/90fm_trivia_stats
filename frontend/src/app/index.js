@@ -1,6 +1,6 @@
 'use strict';
 
-var app = angular.module('triviastats', ['ngAnimate', 'ngCookies', 'ngTouch', 'ngSanitize', 'ngResource', 'ui.router', 'ngMaterial', 'ngMdIcons', 'djangoRESTResources', 'ngTwitter', 'datatables', 'signup']);
+var app = angular.module('triviastats', ['ngAnimate', 'ngCookies', 'ngTouch', 'ngSanitize', 'ngResource', 'ui.router', 'ngMaterial', 'ngMdIcons', 'djangoRESTResources', 'ngTwitter', 'datatables', 'signup', 'chart.js']);
 
 app.config(function ($stateProvider, $urlRouterProvider) {
   $stateProvider
@@ -14,11 +14,11 @@ app.config(function ($stateProvider, $urlRouterProvider) {
       templateUrl: 'app/score/score.html',
       controller: 'ScoreCtrl'
     })
-    .state('charts', {
-      url: '/charts/:year',
-      templateUrl: 'app/score/score.html',
-      controller: 'ChartsCtrl'
-    })
+    //.state('charts', {
+    //  url: '/charts/:year',
+    //  templateUrl: 'app/score/charts.html',
+    //  controller: 'ChartsCtrl'
+    //})
     .state('teams', {
       url: '/teams/:teamName',
       templateUrl: 'app/team/team.html',
@@ -53,9 +53,9 @@ app.constant('TRIVIA_DATES', {
   // 11pm UTC == 6pm CDT
   '2015': new Date(Date.UTC(2015, 3, 17, 23)),
   '2016': new Date(Date.UTC(2016, 3, 15, 23)),
-  '2017': new Date(Date.UTC(2017, 3, 21, 19)),
-  '2018': new Date(Date.UTC(2018, 3, 13, 19)),
-  '2019': new Date(Date.UTC(2019, 3, 12, 19))
+  '2017': new Date(Date.UTC(2017, 3, 21, 23)),
+  '2018': new Date(Date.UTC(2018, 3, 13, 23)),
+  '2019': new Date(Date.UTC(2019, 3, 12, 23))
 });
 
 // Configure material theme
