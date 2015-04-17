@@ -7,8 +7,16 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from website.models import ScoreSerializer, \
     TeamListSerializer, Score, SubscriberSerializer, Subscriber
+from rest_framework import pagination
 
 logger = logging.getLogger('django')
+
+
+class ScorePagination(pagination.PageNumberPagination):
+    page_size = 500
+    page_query_param = 'page'
+    page_size_query_param = 'results'
+    max_page_size = 10000
 
 
 class ScoreViewSet(viewsets.ReadOnlyModelViewSet):
@@ -19,6 +27,9 @@ class ScoreViewSet(viewsets.ReadOnlyModelViewSet):
                        filters.SearchFilter)
     queryset = Score.objects.all()
     serializer_class = ScoreSerializer
+
+    # Pagination
+    pagination_class = ScorePagination
 
 
 class TeamsList(viewsets.ReadOnlyModelViewSet):

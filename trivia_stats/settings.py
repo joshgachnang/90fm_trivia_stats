@@ -85,11 +85,12 @@ DEFAULT_DATABASE = {
 DATABASES = os.environ.get('DJANGO_DATABASE', DEFAULT_DATABASE)
 
 REST_FRAMEWORK = {
-    'PAGINATE_BY': 500,
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
-    )
+    ),
+    'DEFAULT_PAGINATION_CLASS':
+        'rest_framework.pagination.LimitOffsetPagination'
 }
 
 DJOSER = {
@@ -189,6 +190,9 @@ LOGGING = {
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 FROM_EMAIL = 'triviastats@triviastats.com'
 TWILIO_NUMBER = '+17154464491'
+
+# Whether to send notifications or not
+DO_NOTIFICATIONS = False
 
 try:
     from config.production_settings import *  # noqa

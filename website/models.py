@@ -2,8 +2,8 @@ import logging
 import random
 import string
 import urllib2
-
 import datetime
+
 import re
 from BeautifulSoup import BeautifulSoup
 from django.conf import settings
@@ -169,7 +169,7 @@ class TeamListSerializer(serializers.Serializer):
 class Score(models.Model):
     # This should be team_name for consistency..
     team_name = models.CharField(max_length=255, db_index=True)
-    year = models.IntegerField()
+    year = models.IntegerField(db_index=True)
     hour = models.IntegerField(db_index=True)
     place = models.IntegerField(db_index=True)
     score = models.IntegerField(db_index=True)
@@ -213,7 +213,7 @@ class Scraper(object):
                 post_to_twitter(
                     "Hour {0} scores posted! http://www.triviastats.com/#/"
                     "scores/{1}/{0} #trivia46".format(
-                        scores[0].hour,  scores[0].year))
+                        scores[0].hour, scores[0].year))
                 notify(scores[0].year, scores[0].hour, top_ten_teams(
                     scores[0].year, scores[0].hour))
                 return
@@ -333,7 +333,14 @@ def _send_email(email, subject, msg):
 
 
 def notify(year, hour, top_ten):
-    for subscriber in Subscriber.objects.all():
+    subscribers = Subscriber.objects.all()
+    if not settings.DO_NOTIFICATIONS:
+        logger.info('Notifications disable, not sending')
+        return
+    else:
+        logger.info('Sending notifications to {} users'.format(
+            subscribers.count()))
+    for subscriber in subscribers:
         subscriber.score_update(year, hour, top_ten)
 
 
