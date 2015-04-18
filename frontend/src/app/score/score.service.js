@@ -18,11 +18,14 @@ angular.module('triviastats')
 
     service.hourScores = function (hour, year, results) {
       var args = {
-        'ordering': '-score',
+        'ordering': '-score'
       };
       if (hour !== undefined) {
         args['hour'] = hour;
-        args['ordering'] = '-hour,-score';
+        //args['ordering'] = '';
+      }
+      else {
+        args['ordering'] = '-year,-hour,-score'
       }
       if (year !== undefined) {
         args['year'] = year;

@@ -54,8 +54,9 @@ class Subscriber(models.Model):
         logger.info('Score update for {}, {}'.format(hour, year))
         scores = Score.objects.filter(hour=hour).filter(
             year=year).order_by('-score')
-
-        if self.team_name and self.team_name != '':
+        fallback_score = scores[0]
+        if (self.team_name is not None and self.team_name != '' and
+                    self.team_name != 'None'):
             scores = scores.filter(team_name__contains=self.team_name.upper())
 
         if len(scores) > 1:
@@ -69,7 +70,7 @@ class Subscriber(models.Model):
                 self.team_name))
             self.save()
             logger.warning(msg)
-            score = scores[0]
+            score = fallback_score
         else:
             score = scores[0]
         print score
@@ -104,7 +105,8 @@ class Subscriber(models.Model):
                 body=body)
         except TwilioRestException:
             logger.exception(
-                "SMS for user {0} failed.".format(self.user.username))
+                "SMS for user {}:{} failed.".format(self.email,
+                                                    self.phone_number))
 
     def score_email(self, score, top_ten):
         logger.info(
@@ -208,14 +210,19 @@ class Scraper(object):
         remaining = remaining_hours()
         logger.info('Remaining hours: {}'.format(remaining))
         for hour in remaining:
-            scores = self.scrape_year_hour(current_year(), hour)
+            try:
+                scores = self.scrape_year_hour(current_year(), hour)
+            except Exception:
+                logger.exception('Error scrape score')
+                return
             if scores and len(scores) > 0:
+
+                notify(scores[0].year, scores[0].hour, top_ten_teams(
+                    scores[0].year, scores[0].hour))
                 post_to_twitter(
                     "Hour {0} scores posted! http://www.triviastats.com/#/"
                     "scores/{1}/{0} #trivia46".format(
                         scores[0].hour, scores[0].year))
-                notify(scores[0].year, scores[0].hour, top_ten_teams(
-                    scores[0].year, scores[0].hour))
                 return
         logger.info('No new hours.')
 
@@ -245,7 +252,7 @@ class Scraper(object):
                 return False
 
     def scrape_year_hour(self, year, hour, force=False):
-        print 'scrape year hour', year, hour
+        logger.info('scrape year hour {} {}'.format(year, hour))
         p = self.get_page(year, hour)
         if not p:
             return
@@ -253,11 +260,15 @@ class Scraper(object):
         soup = BeautifulSoup(''.join(p.read()))
         p.close()
 
-        teams = soup.findAll('dd')
-        place_score = soup.findAll('dt')
-        hour = soup.findAll('h1')[0]
-        hour = " ".join(hour.string.split()[5:])
-        hour = text2int(hour.lower())
+        try:
+            teams = soup.findAll('dd')
+            place_score = soup.findAll('dt')
+            hour = soup.findAll('h1')[0]
+            hour = " ".join(hour.string.split()[5:])
+            hour = text2int(hour.lower())
+        except Exception:
+            logger.exception('failed to scrape')
+            return
 
         query = Score.objects.filter(year=int(year)).filter(hour=int(hour))
         if len(query) != 0 and force is False:
@@ -341,7 +352,12 @@ def notify(year, hour, top_ten):
         logger.info('Sending notifications to {} users'.format(
             subscribers.count()))
     for subscriber in subscribers:
-        subscriber.score_update(year, hour, top_ten)
+        try:
+            subscriber.score_update(year, hour, top_ten)
+        except Exception:
+            logger.exception('Failed to update scores for {}'.format(
+                subscriber))
+            continue
 
 
 def sanitize_team_name(name):
@@ -355,7 +371,7 @@ def text2int(textnum, numwords=None):
     if not numwords:
         numwords = {}
         units = [
-            "zero", "one", "two", "thouree", "four", "five", "six", "seven",
+            "zero", "one", "two", "three", "four", "five", "six", "seven",
             "eight",
             "nine", "ten", "eleven", "twelve", "thirteen", "fourteen",
             "fifteen",
@@ -390,7 +406,6 @@ def text2int(textnum, numwords=None):
 
 
 def get_current_hour():
-    return 54
     if not during_trivia():
         return None
 
@@ -404,22 +419,24 @@ def get_current_hour():
 
 
 def current_year():
-    return 2014
     return datetime.datetime.now().year
 
 
 def during_trivia():
-    return True
     now = datetime.datetime.now()
     return start_time() < now < end_time()
 
 
 def last_hour():
     """Get last hour that scores were scraped"""
-    return Score.objects.filter(year=last_year()).values_list(
+    hour = Score.objects.filter(year=current_year()).values_list(
         'hour',
         flat=True).distinct().order_by(
-        '-hour')[0]
+        '-hour')
+    if len(hour) == 0:
+        return 0
+    else:
+        return hour[0]
 
 
 def last_year():
@@ -439,6 +456,8 @@ def end_time():
 
 
 def post_to_twitter(message):
+    if settings.DISABLE_TWITTER:
+        return
     try:
         api = twitter.Api(consumer_key=settings.TWITTER_CONSUMER_KEY,
                           consumer_secret=settings.TWITTER_CONSUMER_SECRET,

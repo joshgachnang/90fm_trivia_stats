@@ -193,6 +193,7 @@ TWILIO_NUMBER = '+17154464491'
 
 # Whether to send notifications or not
 DO_NOTIFICATIONS = False
+DISABLE_TWITTER = False
 
 try:
     from config.production_settings import *  # noqa
