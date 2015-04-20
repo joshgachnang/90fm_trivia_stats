@@ -11,6 +11,7 @@ from django.core.mail import send_mail
 from django.db import models
 from django.template import Context
 from django.template.loader import get_template
+import pytz
 from rest_framework import serializers
 from twilio.rest import TwilioRestClient
 from twilio import TwilioRestException
@@ -423,7 +424,8 @@ def current_year():
 
 
 def during_trivia():
-    now = datetime.datetime.now()
+    tz = pytz.timezone('America/Chicago')
+    now = datetime.datetime.now(tz)
     return start_time() < now < end_time()
 
 
@@ -445,10 +447,13 @@ def last_year():
 
 
 def start_time():
-    now = datetime.datetime.now()
-    date_sring = "{} {} {}".format(
+    tz = pytz.timezone('America/Chicago')
+    now = datetime.datetime.now(tz)
+    date_string = "{} {} {}".format(
         trivia_dates[str(now.year)], now.year, '18:00')
-    return datetime.datetime.strptime(date_sring, "%B %d %Y %H:%M")
+    return datetime.datetime.strptime(
+        date_string, "%B %d %Y %H:%M").replace(
+        tzinfo=pytz.FixedOffset(-0600))
 
 
 def end_time():
