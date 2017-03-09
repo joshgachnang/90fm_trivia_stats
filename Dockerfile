@@ -37,7 +37,8 @@ RUN apt-get update && \
         python-dev \
         python-setuptools \
         sqlite3 \
-        supervisor && \
+        supervisor \
+        wget && \
         sudo easy_install -U pip && \
         pip install uwsgi supervisor-stdout && \
         apt-get -y clean && \
@@ -80,10 +81,8 @@ RUN rm -rf /root/.cache && \
     rm -rf /tmp/* && \
     rm -rf /var/tmp/*
 
-EXPOSE 80
-
-VOLUME ["/home/docker/code/config/"]
+EXPOSE 8000
 
 ENV TRIVIASTATS_PATH "/home/docker/code"
 
-cmd ["supervisord", "-n"]
+cmd ["bash", "start.sh"]

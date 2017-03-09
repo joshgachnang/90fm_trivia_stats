@@ -14,6 +14,14 @@ You can add a full text search with the command:
 
     "ALTER TABLE website_score ADD FULLTEXT INDEX `FullText` (`team_name` ASC);"
 
+The API is packaged up as a Docker container `servercobra/triviastats`. The
+container takes an environment variable CONFIG_URL, which it fetches when
+starting the container. I'd suggest using S3 and a presigned GET URL. You can
+run the API like this:
+
+    docker run -p80:80 -e "CONFIG_URL=https://https://s3.amazonaws.com/BUCKET/FILE?presignedVariables " servercobra/triviastats
+  
+
 Using the API
 -------------
 
