@@ -12,6 +12,8 @@ log/
 /lib/
 local/
 build/
+pip-selfcheck.json
+share/
 # Ignore easyinstall and setuptools
 db.sqlite3
 .tox/
