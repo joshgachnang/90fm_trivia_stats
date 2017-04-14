@@ -21,6 +21,7 @@ urlpatterns = patterns(
         include('rest_framework.urls', namespace='rest_framework')),
     url(r'^api/v1/auth/', include('djoser.urls')),
     url(r'^api/v1/unsubscribe/$', api.unsubscribe),
+    url(r'^api/v1/scrape/$', api.scrape),
     url(r'^', include(router.urls)),
     url(r'^robots\.txt$', lambda r: HttpResponse(
         'User-agent: Google\nDisallow:"',

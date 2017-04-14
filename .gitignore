@@ -19,3 +19,5 @@ db.sqlite3
 .tox/
 *.mysql
 staticfiles/
+config/
+logs*

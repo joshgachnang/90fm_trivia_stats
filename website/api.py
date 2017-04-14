@@ -9,6 +9,8 @@ from website.models import ScoreSerializer, \
     TeamListSerializer, Score, SubscriberSerializer, Subscriber
 from rest_framework import pagination
 
+from website.models import Scraper
+
 logger = logging.getLogger('django')
 
 
@@ -65,3 +67,10 @@ def unsubscribe(request):
     logger.info('Unsubscribing: {}'.format(emails))
     emails.delete()
     return Response({"message": "Unsubscribed"})
+
+@api_view(http_method_names=['POST'])
+def scrape(request):
+    logger.info('Scraping API request')
+    scraper = Scraper()
+    scraper.scrape()
+    return Response({'message': 'success'})

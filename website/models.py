@@ -74,7 +74,6 @@ class Subscriber(models.Model):
             score = fallback_score
         else:
             score = scores[0]
-        print score
 
         if self.phone_number and self.phone_number != '':
             self.score_text(score)
@@ -214,12 +213,13 @@ class Scraper(object):
             try:
                 scores = self.scrape_year_hour(current_year(), hour)
             except Exception:
-                logger.exception('Error scrape score')
+                logger.exception('Error scraping score')
                 return
             if scores and len(scores) > 0:
-
-                notify(scores[0].year, scores[0].hour, top_ten_teams(
-                    scores[0].year, scores[0].hour))
+                # NOTE: notifications are now handled by
+                # pcsforeducation/veronica
+#                notify(scores[0].year, scores[0].hour, top_ten_teams(
+#                    scores[0].year, scores[0].hour))
                 post_to_twitter(
                     "Hour {0} scores posted! http://www.triviastats.com/#/"
                     "scores/{1}/{0} #trivia46".format(
@@ -255,6 +255,7 @@ class Scraper(object):
     def scrape_year_hour(self, year, hour, force=False):
         logger.info('scrape year hour {} {}'.format(year, hour))
         p = self.get_page(year, hour)
+        logger.info('got page {} {}'.format(year, hour))
         if not p:
             return
 
@@ -276,9 +277,19 @@ class Scraper(object):
             logger.info("Already in DB")
             return
 
+        # Since we key on team name, drop dupes
+        dupes = set()
+
         bulk_list = []
         for team, score in zip(teams, place_score):
-            bulk_list += self.build_team_score(team, score, year, hour)
+            team_scores = self.build_team_score(team, score, year, hour)
+            for team_score in team_scores:
+                if team_score.team_name in dupes:
+                    logger.warning("found duplicate team name: {}".format(
+                        team_score.team_name))
+                    continue
+                dupes.add(team_score.team_name)
+                bulk_list.append(team_score)
         scores = Score.objects.bulk_create(bulk_list)
 
         return scores
@@ -301,9 +312,7 @@ class Scraper(object):
         scores = []
         for team in team.findAll('li'):
             name = sanitize_team_name(team.string)
-
             year = int(year)
-
             scores.append(
                 Score(team_name=name, year=year, hour=hour, place=place,
                       score=score))
@@ -485,7 +494,7 @@ def pad_hour(hour, year):
 
 def remaining_hours():
     year = current_year()
-    return [pad_hour(hour, year) for hour in range(last_hour() + 1, 54)]
+    return [pad_hour(hour, year) for hour in range(last_hour() + 1, 55)]
 
 
 def top_ten_teams(year, hour):
@@ -493,6 +502,12 @@ def top_ten_teams(year, hour):
 
 
 page_template = {
+    '2021': 'http://90fmtrivia.org/TriviaScores%s/scorePages/results.html',
+    '2020': 'http://90fmtrivia.org/TriviaScores%s/scorePages/results.html',
+    '2019': 'http://90fmtrivia.org/TriviaScores%s/scorePages/results.html',
+    '2018': 'http://90fmtrivia.org/TriviaScores%s/scorePages/results.html',
+    '2017': 'http://90fmtrivia.org/TriviaScores%s/scorePages/results.html',
+    '2016': 'http://90fmtrivia.org/TriviaScores%s/scorePages/results.html',
     '2015': 'http://90fmtrivia.org/TriviaScores%s/scorePages/results.html',
     '2014': 'http://90fmtrivia.org/TriviaScores%s/scorePages/results.html',
     '2013': 'http://90fmtrivia.org/TriviaScores%s/scorePages/results.htm',
@@ -508,7 +523,9 @@ hour_54_page = {
 # beginning day being the value.
 trivia_dates = {"2011": "April 8", "2012": "April 20", "2013": "April 19",
                 "2014": "April 11", "2015": "April 17",
-                "2016": "April 15"}
+                "2016": "April 15", "2017": "April 21",
+                "2018": "April 12", "2019": "April 12",
+                "2020": "April 17", "2021": "April 16"}
 # Start hour in 24 hour format http://90fmtrivia.org/scores_page/Scores2009
 # /results2.htm
 trivia_start_hour = 1876
